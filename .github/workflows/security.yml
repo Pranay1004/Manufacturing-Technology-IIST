@@ -1,35 +1,35 @@
-name: "Security Analysis"
+name: Security Analysis
 
 on:
   push:
-    branches: [ "main", "master", "dev" ]
+    branches: [main, master, dev]
   pull_request:
-    branches: [ "main", "master", "dev" ]
+    branches: [main, master, dev]
   schedule:
-    - cron: '0 0 * * 1' # Run weekly at 00:00 on Monday
+    - cron: '0 0 * * 1'
 
 permissions:
   contents: read
-  security-events: write
 
 jobs:
   audit:
-    name: "Dependency & Static Code Audit"
+    name: Dependency and static code audit
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout Repository"
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: "Setup Node.js Environment"
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: npm
 
-      - name: "Run NPM Audit"
-        run: npm audit --audit-level=critical
+      - name: Install dependencies
+        run: npm ci
 
-      - name: "Analyze Project Integrity"
-        run: |
-          npm ci
-          npm run lint || echo "Lint check run completed"
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Run lint
+        run: npm run lint
