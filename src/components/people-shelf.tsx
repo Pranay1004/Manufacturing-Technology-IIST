@@ -2,12 +2,12 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, ExternalLink, Mail, X, Layers, FileText, Check, LayoutGrid, Columns, Rows } from "lucide-react";
-import { people, type Person } from "@/lib/data";
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Mail, X, FileText, Columns, Rows } from "lucide-react";
+import { people } from "@/lib/data";
 import { IndicTranslate } from "@/components/IndicTranslate";
 import { SiteHeader } from "@/components/site-shell";
 
-// ─── Color & Palette Definitions (Inspired by Vintage Cinematic Book Spines) ──
+// ─── Color & Palette Definitions (Rich Vintage Academic Book Spines) ────────
 export type ColorTheme =
   | "terracotta"
   | "charcoal"
@@ -134,10 +134,48 @@ const themeStyles: Record<ColorTheme, ThemeStyle> = {
   },
 };
 
+// ─── Format Name as First Name + Surname Initial (e.g. Pranay P.) ───────────
+export function getShortName(fullName: string): string {
+  if (!fullName) return "";
+  const clean = fullName.trim();
+  const titleMatch = clean.match(/^(Dr\.|Prof\.|Mr\.|Ms\.|Mrs\.)\s+/i);
+  const title = titleMatch ? titleMatch[0] : "";
+  const nameWithoutTitle = title ? clean.slice(title.length).trim() : clean;
+
+  if (nameWithoutTitle.startsWith("Incoming Scholar")) {
+    return nameWithoutTitle.replace("Incoming Scholar", "Scholar");
+  }
+
+  const parts = nameWithoutTitle.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return fullName;
+  if (parts.length === 1) return `${title}${parts[0]}`.trim();
+
+  // If leading parts are single-letter initials (e.g. "P J Arjun" or "T V Divya")
+  const isInit = (s: string) => s.length === 1 || (s.length === 2 && s.endsWith("."));
+  if (isInit(parts[0])) {
+    const mainName = parts.find((p) => !isInit(p)) || parts[parts.length - 1];
+    const initial = parts[0].replace(".", "");
+    return `${title}${mainName} ${initial}.`.trim();
+  }
+
+  // Standard: First name + Last initial (e.g. "Pranay Kumar Pandey" -> "Pranay P.")
+  const firstName = parts[0];
+  const lastName = parts[parts.length - 1];
+  const lastInitial = lastName.charAt(0).toUpperCase();
+  const formattedInitial = isInit(lastName)
+    ? lastName.endsWith(".")
+      ? lastName
+      : `${lastName}.`
+    : `${lastInitial}.`;
+
+  return `${title}${firstName} ${formattedInitial}`.trim();
+}
+
 export interface BookItem {
   id: string;
   slug: string;
   name: string;
+  shortName: string;
   cohort: string;
   roll: string;
   specialization: string;
@@ -173,10 +211,10 @@ function clamp(val: number, min: number, max: number): number {
 }
 
 // ─── Spine Top Vignettes (Circle Emblems matching Screenshot 2) ─────────────
-function SpineVignette({ symbol, color }: { symbol: BookItem["symbol"]; color: string }) {
+function SpineVignette({ symbol }: { symbol: BookItem["symbol"]; color: string }) {
   if (symbol === "laser") {
     return (
-      <svg viewBox="0 0 32 32" className="size-6 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
+      <svg viewBox="0 0 32 32" className="size-5 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
         <circle cx="16" cy="16" r="13" strokeWidth="1.2" strokeDasharray="3 2" />
         <circle cx="16" cy="16" r="7" strokeWidth="1.4" />
         <circle cx="16" cy="16" r="2.5" fill="currentColor" />
@@ -188,7 +226,7 @@ function SpineVignette({ symbol, color }: { symbol: BookItem["symbol"]; color: s
 
   if (symbol === "arc") {
     return (
-      <svg viewBox="0 0 32 32" className="size-6 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
+      <svg viewBox="0 0 32 32" className="size-5 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
         <circle cx="16" cy="16" r="13" strokeWidth="1.2" />
         <path d="M16 6 L19 13 L26 14 L20 19 L22 26 L16 22 L10 26 L12 19 L6 14 L13 13 Z" fill="currentColor" fillOpacity="0.25" strokeWidth="1.2" />
         <circle cx="16" cy="16" r="3" fill="currentColor" />
@@ -198,7 +236,7 @@ function SpineVignette({ symbol, color }: { symbol: BookItem["symbol"]; color: s
 
   if (symbol === "blade") {
     return (
-      <svg viewBox="0 0 32 32" className="size-6 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
+      <svg viewBox="0 0 32 32" className="size-5 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
         <circle cx="16" cy="16" r="13" strokeWidth="1.2" />
         <path d="M10 22 C11 14, 16 9, 22 7 C24 11, 23 18, 19 23 C15 25, 12 24, 10 22 Z" fill="currentColor" fillOpacity="0.25" strokeWidth="1.2" />
         <circle cx="16" cy="2" fill="currentColor" />
@@ -208,7 +246,7 @@ function SpineVignette({ symbol, color }: { symbol: BookItem["symbol"]; color: s
 
   if (symbol === "weave") {
     return (
-      <svg viewBox="0 0 32 32" className="size-6 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
+      <svg viewBox="0 0 32 32" className="size-5 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
         <circle cx="16" cy="16" r="13" strokeWidth="1.2" />
         <rect x="9" y="9" width="14" height="14" strokeWidth="1" />
         <line x1="9" y1="16" x2="23" y2="16" strokeWidth="1.2" strokeDasharray="2 2" />
@@ -220,7 +258,7 @@ function SpineVignette({ symbol, color }: { symbol: BookItem["symbol"]; color: s
 
   if (symbol === "spindle") {
     return (
-      <svg viewBox="0 0 32 32" className="size-6 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
+      <svg viewBox="0 0 32 32" className="size-5 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
         <circle cx="16" cy="16" r="13" strokeWidth="1.2" />
         <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" strokeWidth="1.2" fill="currentColor" fillOpacity="0.2" />
         <circle cx="16" cy="16" r="3" fill="currentColor" />
@@ -230,7 +268,7 @@ function SpineVignette({ symbol, color }: { symbol: BookItem["symbol"]; color: s
 
   if (symbol === "probe") {
     return (
-      <svg viewBox="0 0 32 32" className="size-6 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
+      <svg viewBox="0 0 32 32" className="size-5 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
         <circle cx="16" cy="16" r="13" strokeWidth="1.2" />
         <line x1="16" y1="5" x2="16" y2="21" strokeWidth="1.5" />
         <circle cx="16" cy="22" r="3.5" fill="currentColor" />
@@ -239,28 +277,16 @@ function SpineVignette({ symbol, color }: { symbol: BookItem["symbol"]; color: s
     );
   }
 
-  if (symbol === "tile") {
-    return (
-      <svg viewBox="0 0 32 32" className="size-6 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
-        <circle cx="16" cy="16" r="13" strokeWidth="1.2" />
-        <polygon points="16,7 24,11 24,21 16,25 8,21 8,11" strokeWidth="1.2" fill="currentColor" fillOpacity="0.25" />
-        <circle cx="16" cy="16" r="2.5" fill="currentColor" />
-      </svg>
-    );
-  }
-
-  // Default lattice
   return (
-    <svg viewBox="0 0 32 32" className="size-6 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
+    <svg viewBox="0 0 32 32" className="size-5 text-white/90 drop-shadow-sm" fill="none" stroke="currentColor">
       <circle cx="16" cy="16" r="13" strokeWidth="1.2" />
-      <circle cx="16" cy="16" r="8" strokeWidth="1" strokeDasharray="3 3" />
-      <polygon points="16,10 21,19 11,19" strokeWidth="1.2" fill="currentColor" fillOpacity="0.2" />
-      <circle cx="16" cy="16" r="2" fill="currentColor" />
+      <polygon points="16,7 24,11 24,21 16,25 8,21 8,11" strokeWidth="1.2" fill="currentColor" fillOpacity="0.25" />
+      <circle cx="16" cy="16" r="2.5" fill="currentColor" />
     </svg>
   );
 }
 
-// ─── Technical Screenprint Vector Illustrations for Book Cover & Detail ──────
+// ─── Technical Screenprint Vector Illustrations ─────────────────────────────
 function TechnicalScreenprint({
   diagram,
   color,
@@ -332,61 +358,24 @@ function TechnicalScreenprint({
     );
   }
 
-  if (diagram === "cnc") {
-    return (
-      <svg viewBox="0 0 280 340" className={className} aria-hidden>
-        <g stroke={color} strokeWidth="1.2" fill="none" opacity="0.9">
-          <circle cx="140" cy="170" r="95" strokeDasharray="4 4" opacity="0.25" />
-          <rect x="110" y="40" width="60" height="80" fill={color} fillOpacity="0.2" strokeWidth="1.5" />
-          <polygon points="120,120 160,120 150,180 130,180" fill={color} fillOpacity="0.4" strokeWidth="1.5" />
-          <path d="M 125 130 L 155 150 M 125 150 L 155 170" strokeWidth="1.8" />
-          <rect x="40" y="180" width="200" height="80" strokeWidth="1.5" fill={color} fillOpacity="0.1" />
-          <line x1="40" y1="180" x2="130" y2="180" strokeWidth="2.5" />
-          <path d="M 150 180 Q 180 160 210 180" strokeWidth="1.8" strokeDasharray="3 3" />
-          <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>5-AXIS CNC MACHINING</text>
-          <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">CUTTER TOOLPATH KINEMATICS</text>
-        </g>
-      </svg>
-    );
-  }
-
-  if (diagram === "welding") {
-    return (
-      <svg viewBox="0 0 280 340" className={className} aria-hidden>
-        <g stroke={color} strokeWidth="1.2" fill="none" opacity="0.9">
-          <polygon points="135,30 145,30 142,120 138,120" fill={color} strokeWidth="1.5" />
-          <polygon points="138,120 142,120 170,180 110,180" fill={color} fillOpacity="0.25" strokeWidth="1.2" />
-          <circle cx="140" cy="180" r="12" fill={color} />
-          <ellipse cx="140" cy="185" rx="55" ry="25" strokeDasharray="3 3" strokeWidth="1.2" />
-          <ellipse cx="140" cy="185" rx="85" ry="40" strokeDasharray="4 4" strokeWidth="0.8" opacity="0.4" />
-          <rect x="30" y="180" width="90" height="70" fill={color} fillOpacity="0.1" strokeWidth="1.5" />
-          <rect x="160" y="180" width="90" height="70" fill={color} fillOpacity="0.1" strokeWidth="1.5" />
-          <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>TIG / PLASMA ARC WELDING</text>
-          <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">HEAT-AFFECTED ZONE METALLURGY</text>
-        </g>
-      </svg>
-    );
-  }
-
-  // Default Metrology Probe
   return (
     <svg viewBox="0 0 280 340" className={className} aria-hidden>
       <g stroke={color} strokeWidth="1.2" fill="none" opacity="0.9">
         <circle cx="140" cy="170" r="95" strokeDasharray="4 4" opacity="0.25" />
-        <polygon points="140,75 220,125 220,215 140,265 60,215 60,125" strokeWidth="2" fill={color} fillOpacity="0.12" />
-        <line x1="140" y1="75" x2="140" y2="265" strokeDasharray="3 3" opacity="0.5" />
-        <line x1="60" y1="125" x2="220" y2="215" strokeDasharray="3 3" opacity="0.5" />
-        <line x1="60" y1="215" x2="220" y2="125" strokeDasharray="3 3" opacity="0.5" />
-        <circle cx="140" cy="170" r="28" strokeWidth="1.5" fill={color} fillOpacity="0.15" />
-        <circle cx="140" cy="170" r="5" fill={color} />
-        <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>METROLOGY & CMM DATUM</text>
-        <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">OPTICAL INSPECTION CO-ORDINATES</text>
+        <rect x="110" y="40" width="60" height="80" fill={color} fillOpacity="0.2" strokeWidth="1.5" />
+        <polygon points="120,120 160,120 150,180 130,180" fill={color} fillOpacity="0.4" strokeWidth="1.5" />
+        <path d="M 125 130 L 155 150 M 125 150 L 155 170" strokeWidth="1.8" />
+        <rect x="40" y="180" width="200" height="80" strokeWidth="1.5" fill={color} fillOpacity="0.1" />
+        <line x1="40" y1="180" x2="130" y2="180" strokeWidth="2.5" />
+        <path d="M 150 180 Q 180 160 210 180" strokeWidth="1.8" strokeDasharray="3 3" />
+        <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>5-AXIS CNC MACHINING</text>
+        <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">CUTTER TOOLPATH KINEMATICS</text>
       </g>
     </svg>
   );
 }
 
-// ─── Cohort Segmentation Datasets (Strictly Based on Strength — No Duplicates) ─
+// ─── Cohort Segmentation Datasets ───────────────────────────────────────────
 type CohortId = "2025-2027" | "2024-2026" | "2026-2028" | "phd" | "faculty";
 
 interface CohortTabConfig {
@@ -419,7 +408,6 @@ function getCohortBooks(cohortId: CohortId): BookItem[] {
     "laser", "blade", "weave", "spindle", "probe", "arc", "lattice", "tile"
   ];
 
-  // Strictly filter by cohort without combining or duplicating
   const filtered = people.filter((p) => {
     if (cohortId === "2025-2027") return p.cohort === "2025-2027";
     if (cohortId === "2024-2026") return p.cohort === "2024-2026";
@@ -442,6 +430,7 @@ function getCohortBooks(cohortId: CohortId): BookItem[] {
       id: p.slug,
       slug: p.slug,
       name: p.name,
+      shortName: getShortName(p.name),
       cohort: p.cohort ?? (p.type === "faculty" ? "Faculty Anchor" : p.admissionYear ? `PhD ${p.admissionYear}` : "2025-2027"),
       roll,
       specialization: p.specialization,
@@ -463,62 +452,45 @@ function getCohortBooks(cohortId: CohortId): BookItem[] {
 
 export function PeopleShelf() {
   const [selectedCohort, setSelectedCohort] = useState<CohortId>("2025-2027");
-  // Dual Orientation: "horizontal" shelf vs "vertical" book stack (Screenshot 2)
   const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal");
 
-  // Strictly based on batch strength: NO DUPLICATE COPIES!
   const cohortBooks = useMemo(() => getCohortBooks(selectedCohort), [selectedCohort]);
   const M = cohortBooks.length;
 
-  // Physics & Animation State Refs
+  // Active book index: null by default so no book opens automatically!
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const activeIdxRef = useRef<number | null>(null);
+  activeIdxRef.current = activeIdx;
+
   const sRef = useRef(0);
   const targetRef = useRef(0);
   const hoverRef = useRef(-1);
-  const activeIdxRef = useRef(0);
 
-  const pointerPosRef = useRef({ x: 0, y: 0 });
-  const cursorSmoothRef = useRef({ x: 0, y: 0 });
-  const tiltRef = useRef({ x: 0, y: 0 });
-  const onCoverRef = useRef(false);
-  const isDraggingRef = useRef(false);
-  const dragStartRef = useRef({ pos: 0, target: 0 });
-  const lastWheelTimeRef = useRef(0);
-  const wheelSnapTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // UI state for reactive elements
-  const [activeBook, setActiveBook] = useState<BookItem>(cohortBooks[0] || ({} as BookItem));
   const [detailOpen, setDetailOpen] = useState(false);
-  const [cursorState, setCursorState] = useState<"default" | "spine" | "btn" | "open">("default");
-  const [playRingScale, setPlayRingScale] = useState(1);
+  const [dossierBook, setDossierBook] = useState<BookItem>(cohortBooks[0] || ({} as BookItem));
 
   // DOM Refs
   const stageRef = useRef<HTMLDivElement>(null);
   const bookElsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const cursorRingRef = useRef<HTMLDivElement>(null);
-  const playRingRef = useRef<HTMLButtonElement>(null);
   const tabIndicatorRef = useRef<HTMLDivElement>(null);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const detailDialogRef = useRef<HTMLDivElement>(null);
-  const activeCoverFaceRef = useRef<HTMLDivElement | null>(null);
+  const inkBlobsRef = useRef<(SVGCircleElement | null)[]>([]);
 
   // Masked caption elements
   const captionTitleRef = useRef<HTMLDivElement>(null);
   const captionSubRef = useRef<HTMLDivElement>(null);
   const captionYearRef = useRef<HTMLDivElement>(null);
 
-  // Ink mask blob circles refs
-  const inkBlobsRef = useRef<(SVGCircleElement | null)[]>([]);
-
   const currentTab = cohortTabs.find((t) => t.id === selectedCohort) || cohortTabs[0];
 
   // Reset physics when switching cohort or orientation
   useEffect(() => {
+    setActiveIdx(null);
+    activeIdxRef.current = null;
     sRef.current = 0;
     targetRef.current = 0;
-    activeIdxRef.current = 0;
-    setActiveBook(cohortBooks[0] || ({} as BookItem));
 
-    // Update tab indicator
     if (tabsContainerRef.current && tabIndicatorRef.current) {
       const activeBtn = tabsContainerRef.current.querySelector(`button[data-cohort="${selectedCohort}"]`) as HTMLElement | null;
       if (activeBtn) {
@@ -526,7 +498,7 @@ export function PeopleShelf() {
         tabIndicatorRef.current.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
       }
     }
-  }, [selectedCohort, M, cohortBooks, orientation]);
+  }, [selectedCohort, orientation]);
 
   // ─── Swap Caption with Mask Slide ─────────────────────────────────────────
   const swapCaption = useCallback((newBook: BookItem, dir: number) => {
@@ -544,7 +516,7 @@ export function PeopleShelf() {
             { transform: "translateY(0)" },
             { transform: `translateY(${-dir * 105}%)` },
           ],
-          { duration: 550, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
+          { duration: 400, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
         ).onfinish = () => oldSpan.remove();
       }
 
@@ -554,7 +526,7 @@ export function PeopleShelf() {
           { transform: `translateY(${dir * 105}%)` },
           { transform: "translateY(0)" },
         ],
-        { duration: 550, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
+        { duration: 400, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
       );
     };
 
@@ -563,49 +535,29 @@ export function PeopleShelf() {
       captionSubRef.current,
       newBook.graduatedNote
         ? `${newBook.roll} · ${newBook.specialization.toUpperCase()} · ${newBook.graduatedNote.toUpperCase()}`
-        : `${newBook.roll} · ${newBook.specialization.toUpperCase()}`
+        : `${newBook.roll} · ${(newBook.specialization || "").toUpperCase()}`
     );
     slideMask(captionYearRef.current, `${newBook.cohort} · IIST AEROSPACE MANUFACTURING`);
   }, []);
 
-  // ─── Open Detail Paper Sheet with SVG Ink Bleed Sequence ──────────────────
-  const openDetail = useCallback(() => {
-    const dialog = detailDialogRef.current;
-    if (!dialog || !activeCoverFaceRef.current) return;
-
+  // ─── Open Detail Sheet with Ink Bleed ─────────────────────────────────────
+  const openDetail = useCallback((book: BookItem) => {
+    setDossierBook(book);
     setDetailOpen(true);
-    targetRef.current = Math.round(targetRef.current);
-
-    // Measure Projected 3D Cover Rect
-    const coverRect = activeCoverFaceRef.current.getBoundingClientRect();
-    const top = coverRect.top;
-    const left = coverRect.left;
-    const right = window.innerWidth - coverRect.right;
-    const bottom = window.innerHeight - coverRect.bottom;
+    const dialog = detailDialogRef.current;
+    if (!dialog) return;
 
     dialog.style.visibility = "visible";
-    dialog.style.transformOrigin = `${coverRect.left + coverRect.width / 2}px ${coverRect.top + coverRect.height / 2}px`;
 
-    // Animate Sheet Growth out of Cover via Web Animations API (1050ms)
     dialog.animate(
       [
-        {
-          clipPath: `inset(${top}px ${right}px ${bottom}px ${left}px round 3px)`,
-          transform: "rotate(-4.5deg)",
-        },
-        {
-          clipPath: "inset(0px 0px 0px 0px round 0px)",
-          transform: "rotate(0deg)",
-        },
+        { clipPath: "inset(20% 20% 20% 20% round 8px)", opacity: "0", transform: "scale(0.96)" },
+        { clipPath: "inset(0% 0% 0% 0% round 0px)", opacity: "1", transform: "scale(1)" },
       ],
-      {
-        duration: 1050,
-        easing: "cubic-bezier(.76,0,.18,1)",
-        fill: "both",
-      }
+      { duration: 600, easing: "cubic-bezier(.16,1,.3,1)", fill: "both" }
     );
 
-    // Text lines rise from overflow masks
+    // Text lines rise
     const textLines = dialog.querySelectorAll(".detail-mask-line > *");
     textLines.forEach((line, idx) => {
       line.animate(
@@ -614,17 +566,17 @@ export function PeopleShelf() {
           { transform: "translateY(0)" },
         ],
         {
-          duration: 900,
-          delay: 620 + idx * 75,
+          duration: 650,
+          delay: 200 + idx * 50,
           easing: "cubic-bezier(.2,.8,.2,1)",
           fill: "both",
         }
       );
     });
 
-    // Ragged SVG Ink Blots Bleed In (1250ms rAF loop starting at 520ms)
-    const blobDelays = [0, 120, 220, 300, 360, 420, 180];
-    const startTime = performance.now() + 520;
+    // Ink bleed circles
+    const blobDelays = [0, 80, 160, 240, 300, 360, 140];
+    const startTime = performance.now() + 180;
 
     const animateInk = (now: number) => {
       const elapsed = now - startTime;
@@ -641,50 +593,33 @@ export function PeopleShelf() {
           circle.setAttribute("r", "0");
           allDone = false;
         } else {
-          const p = Math.min(1, blobElapsed / 1250);
+          const p = Math.min(1, blobElapsed / 950);
           const easeOut = 1 - Math.pow(1 - p, 3);
-          circle.setAttribute("r", String(easeOut * 720));
+          circle.setAttribute("r", String(easeOut * 700));
           if (p < 1) allDone = false;
         }
       });
 
-      if (!allDone && elapsed < 2400) {
+      if (!allDone && elapsed < 1600) {
         requestAnimationFrame(animateInk);
       }
     };
     requestAnimationFrame(animateInk);
   }, []);
 
-  // ─── Close Detail Sheet ───────────────────────────────────────────────────
   const closeDetail = useCallback(() => {
     const dialog = detailDialogRef.current;
-    if (!dialog || !activeCoverFaceRef.current) {
+    if (!dialog) {
       setDetailOpen(false);
       return;
     }
 
-    const coverRect = activeCoverFaceRef.current.getBoundingClientRect();
-    const top = coverRect.top;
-    const left = coverRect.left;
-    const right = window.innerWidth - coverRect.right;
-    const bottom = window.innerHeight - coverRect.bottom;
-
     const anim = dialog.animate(
       [
-        {
-          clipPath: "inset(0px 0px 0px 0px round 0px)",
-          transform: "rotate(0deg)",
-        },
-        {
-          clipPath: `inset(${top}px ${right}px ${bottom}px ${left}px round 3px)`,
-          transform: "rotate(-4.5deg)",
-        },
+        { clipPath: "inset(0% 0% 0% 0% round 0px)", opacity: "1", transform: "scale(1)" },
+        { clipPath: "inset(15% 15% 15% 15% round 6px)", opacity: "0", transform: "scale(0.97)" },
       ],
-      {
-        duration: 850,
-        easing: "cubic-bezier(.76,0,.18,1)",
-        fill: "both",
-      }
+      { duration: 400, easing: "cubic-bezier(.76,0,.18,1)", fill: "both" }
     );
 
     anim.onfinish = () => {
@@ -693,7 +628,7 @@ export function PeopleShelf() {
     };
   }, []);
 
-  // ─── Main requestAnimationFrame Spring Loop ───────────────────────────────
+  // ─── Animation Loop (Spring Physics & Center Alignment) ───────────────────
   useEffect(() => {
     let animId = 0;
     let lastTime = performance.now();
@@ -702,9 +637,8 @@ export function PeopleShelf() {
       const dt = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
 
-      // 1. Spring Physics strictly clamped to [0, M - 1] (No fake looping)
-      const k = isDraggingRef.current ? 18 : 6.0;
-      const prevS = sRef.current;
+      // Spring physics
+      const k = 10.0;
       targetRef.current = clamp(targetRef.current, 0, Math.max(0, M - 1));
       sRef.current += (targetRef.current - sRef.current) * (1 - Math.exp(-k * dt));
 
@@ -712,38 +646,18 @@ export function PeopleShelf() {
         sRef.current = targetRef.current;
       }
 
-      // 2. Caption Swap Trigger on integer change
-      const currentActive = clamp(Math.round(sRef.current), 0, Math.max(0, M - 1));
-      if (currentActive !== activeIdxRef.current && cohortBooks[currentActive]) {
-        const dir = targetRef.current >= prevS ? 1 : -1;
-        activeIdxRef.current = currentActive;
-        const newBook = cohortBooks[currentActive];
-        setActiveBook(newBook);
-        swapCaption(newBook, dir);
-      }
-
-      // 3. Cursor Smoothing
-      cursorSmoothRef.current.x += (pointerPosRef.current.x - cursorSmoothRef.current.x) * (1 - Math.exp(-16 * dt));
-      cursorSmoothRef.current.y += (pointerPosRef.current.y - cursorSmoothRef.current.y) * (1 - Math.exp(-16 * dt));
-
-      if (cursorRingRef.current) {
-        cursorRingRef.current.style.transform = `translate3d(${cursorSmoothRef.current.x}px, ${cursorSmoothRef.current.y}px, 0)`;
-      }
-
-      // 4. Dimensions & Layout Sizing
+      // Sizing
       const stageContainer = stageRef.current?.parentElement;
       const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
-      const H = Math.min(W >= 768 ? window.innerHeight * 0.46 : window.innerWidth * 0.60, W >= 768 ? W * 0.31 : window.innerHeight * 0.40);
+      const H = Math.min(W >= 768 ? window.innerHeight * 0.48 : window.innerWidth * 0.65, W >= 768 ? W * 0.32 : window.innerHeight * 0.42);
 
-      // Horizontal Shelf mode dimensions
-      const ws = H * (142 / 840);
-      const d = H * (474 / 900);
-      const gap = H * 0.035;
+      const ws = H * (135 / 840);
+      const d = H * (460 / 900);
+      const gap = H * 0.038;
 
-      // Vertical Stack mode dimensions (matching Screenshot 2: colorful book stack on desk)
-      const stackWidth = Math.min(460, W * 0.75);
-      const stackSpineH = 46; // height of each book spine in the stack
-      const stackDepth = Math.min(340, H * 0.95);
+      // Stack dimensions (Zoomed out to fit completely on screen without scrolling)
+      const stackWidth = Math.min(360, W * 0.72);
+      const stackSpineH = 34;
       const stackGap = 4;
 
       if (stageRef.current) {
@@ -752,106 +666,66 @@ export function PeopleShelf() {
         stageRef.current.style.setProperty("--H", `${H}px`);
         stageRef.current.style.setProperty("--stack-w", `${stackWidth}px`);
         stageRef.current.style.setProperty("--stack-h", `${stackSpineH}px`);
-        stageRef.current.style.setProperty("--stack-d", `${stackDepth}px`);
       }
 
-      // 5. Tilt & Pointer Collision Testing
-      const cx = (stageContainer?.getBoundingClientRect().left ?? 0) + W / 2;
-      const cy = window.innerHeight / 2;
-      const dxFromCenter = pointerPosRef.current.x - cx;
-      const dyFromCenter = pointerPosRef.current.y - cy;
-      const shelfAlmostSettled = Math.abs(targetRef.current - sRef.current) < 0.35;
+      const active = activeIdxRef.current;
 
-      const overCover =
-        Math.abs(dxFromCenter) < 0.55 * (orientation === "horizontal" ? d : stackWidth) &&
-        Math.abs(dyFromCenter) < 0.55 * (orientation === "horizontal" ? H : stackDepth) &&
-        !detailOpen &&
-        shelfAlmostSettled;
-
-      onCoverRef.current = overCover;
-
-      if (overCover) {
-        tiltRef.current.y += ((dxFromCenter / (0.55 * (orientation === "horizontal" ? d : stackWidth))) * 9 - tiltRef.current.y) * (1 - Math.exp(-7 * dt));
-        tiltRef.current.x += ((-dyFromCenter / (H / 2)) * 6 - tiltRef.current.x) * (1 - Math.exp(-7 * dt));
-        setCursorState("open");
-      } else {
-        tiltRef.current.y += ((dxFromCenter / (W || 1)) * 5 - tiltRef.current.y) * (1 - Math.exp(-7 * dt));
-        tiltRef.current.x += (0 - tiltRef.current.x) * (1 - Math.exp(-7 * dt));
-        if (hoverRef.current >= 0) {
-          setCursorState("spine");
-        } else {
-          setCursorState("default");
-        }
-      }
-
-      // 6. Play Ring Position & Scale
-      const ringScale = smoothStep(Math.max(0, 1 - Math.abs(targetRef.current - sRef.current) * 3));
-      setPlayRingScale(detailOpen ? 0 : ringScale);
-      if (playRingRef.current) {
-        if (orientation === "horizontal") {
-          playRingRef.current.style.left = `${(stageContainer?.getBoundingClientRect().left ?? 0) + W / 2 - 0.5 * d - 6}px`;
-          playRingRef.current.style.top = `${cy + 0.36 * H}px`;
-        } else {
-          playRingRef.current.style.left = `${(stageContainer?.getBoundingClientRect().left ?? 0) + W / 2 - 0.5 * stackWidth + 12}px`;
-          playRingRef.current.style.top = `${cy + 0.4 * stackDepth}px`;
-        }
-      }
-
-      // 7. Transform strictly M books (NO MORE NO LESS)
       for (let v = 0; v < M; v++) {
         const el = bookElsRef.current[v];
         if (!el) continue;
 
-        const r = v - sRef.current;
-        const o = smoothStep(Math.max(0, 1 - Math.abs(r)));
+        const isHovered = hoverRef.current === v;
+        const currentLift = Number(el.getAttribute("data-lift") || "0");
+        const targetLift = isHovered ? 1 : 0;
+        const nextLift = currentLift + (targetLift - currentLift) * (1 - Math.exp(-14 * dt));
+        el.setAttribute("data-lift", String(nextLift));
 
         if (orientation === "horizontal") {
-          // ─── HORIZONTAL SHELF (Standing side by side) ───
-          const x = r * (ws + gap) + (d - ws + 1.6 * gap) * smoothStepB(r);
-          const rotY = -90 * o + tiltRef.current.y * o;
-          const rotX = tiltRef.current.x * o;
-          const rotZ = -4.5 * o;
-          const transZ = o * 0.22 * H;
+          // ══════════════════════════════════════════════════════════════════
+          // MODE A: HORIZONTAL SHELF
+          // ══════════════════════════════════════════════════════════════════
+          if (active === null) {
+            // ALL CLOSED: Perfectly centered symmetrically
+            const centerIdx = (M - 1) / 2;
+            const x = (v - centerIdx) * (ws + gap);
+            const transY = -nextLift * 18;
+            const transZ = nextLift * 24;
 
-          const isHovered = hoverRef.current === v && Math.abs(r) > 0.5;
-          const currentLift = Number(el.getAttribute("data-lift") || "0");
-          const targetLift = isHovered ? 1 : 0;
-          const nextLift = currentLift + (targetLift - currentLift) * (1 - Math.exp(-12 * dt));
-          el.setAttribute("data-lift", String(nextLift));
+            el.style.transform = `translate3d(${x}px, ${transY}px, ${transZ}px) rotateY(0deg) rotateX(0deg) rotateZ(0deg)`;
+            el.style.zIndex = String(10 + Math.round(nextLift * 20));
+            el.style.setProperty("--shade-spine", "0");
+            el.style.setProperty("--shade-cover", "0.5");
+          } else {
+            // ONE BOOK ACTIVE: Slides to focus and opens STRAIGHT (no incline!)
+            const r = v - sRef.current;
+            const o = smoothStep(Math.max(0, 1 - Math.abs(r)));
+            const x = r * (ws + gap) + (d - ws + gap) * smoothStepB(r);
 
-          const transY = -o * 0.03 * H - nextLift * 0.05 * H;
+            // rotZ = 0deg: Kept 100% straight and square without diagonal incline!
+            const rotY = -90 * o;
+            const rotX = 0;
+            const rotZ = 0;
+            const transZ = o * 45 + nextLift * 15;
+            const transY = -nextLift * 15;
 
-          el.style.transform = `translate3d(${x}px, ${transY}px, ${transZ}px) rotateZ(${rotZ}deg) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
-          el.style.zIndex = String(Math.round(100 - Math.abs(r) * 5));
-          el.style.setProperty("--shade-spine", String(o * 0.55));
-          el.style.setProperty("--shade-cover", String((1 - o) * 0.5));
+            el.style.transform = `translate3d(${x}px, ${transY}px, ${transZ}px) rotateY(${rotY}deg) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
+            el.style.zIndex = String(Math.round(100 - Math.abs(r) * 5));
+            el.style.setProperty("--shade-spine", String(o * 0.65));
+            el.style.setProperty("--shade-cover", String((1 - o) * 0.5));
+          }
         } else {
-          // ─── VERTICAL STACK (Books stacked flat horizontally, moving vertically) ───
-          // In the stack, each book sits at vertical offset y
-          const y = r * (stackSpineH + stackGap) + (stackDepth - stackSpineH) * 0.5 * smoothStepB(r);
-          // Active book pulls out forward towards viewer and turns 3D upwards to face the camera
-          const transZ = o * 140 - Math.abs(r) * 8;
-          const transX = o * -18;
-          const rotX = 76 * o + tiltRef.current.x * o * 0.5;
-          const rotY = tiltRef.current.y * o * 0.5;
-          const rotZ = -2.5 * o;
+          // ══════════════════════════════════════════════════════════════════
+          // MODE B: VERTICAL STACK (Zoomed out, flat on desk, perfectly centered)
+          // ══════════════════════════════════════════════════════════════════
+          const centerIdx = (M - 1) / 2;
+          const y = (v - centerIdx) * (stackSpineH + stackGap);
+          const slideX = nextLift * -18;
+          const transZ = nextLift * 25;
 
-          const isHovered = hoverRef.current === v && Math.abs(r) > 0.5;
-          const currentLift = Number(el.getAttribute("data-lift") || "0");
-          const targetLift = isHovered ? 1 : 0;
-          const nextLift = currentLift + (targetLift - currentLift) * (1 - Math.exp(-12 * dt));
-          el.setAttribute("data-lift", String(nextLift));
-
-          const slideX = transX + nextLift * -24;
-
-          el.style.transform = `translate3d(${slideX}px, ${y}px, ${transZ}px) rotateZ(${rotZ}deg) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
-          el.style.zIndex = String(Math.round(100 - Math.abs(r) * 6));
-          el.style.setProperty("--shade-spine", String(o * 0.85));
-          el.style.setProperty("--shade-cover", String((1 - o) * 0.45));
-        }
-
-        if (o > 0.92) {
-          activeCoverFaceRef.current = el.querySelector(".cv");
+          el.style.transform = `translate3d(${slideX}px, ${y}px, ${transZ}px)`;
+          el.style.zIndex = String(Math.round(50 - v + nextLift * 30));
+          el.style.setProperty("--shade-spine", "0");
+          el.style.setProperty("--shade-cover", "0");
         }
       }
 
@@ -860,94 +734,79 @@ export function PeopleShelf() {
 
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
-  }, [M, cohortBooks, orientation, detailOpen, swapCaption]);
+  }, [M, orientation]);
 
-  // ─── Input Handlers: Pointer Move, Drag, Wheel, Keyboard ──────────────────
+  // ─── Book Click Handler ───────────────────────────────────────────────────
+  const handleBookClick = (idx: number) => {
+    const book = cohortBooks[idx];
+    if (!book) return;
+
+    if (orientation === "vertical") {
+      // In stack mode: click directly opens full dossier!
+      openDetail(book);
+      return;
+    }
+
+    // In shelf mode:
+    if (activeIdx === idx) {
+      // Already open: open full dossier!
+      openDetail(book);
+    } else {
+      // Open straight preview
+      setActiveIdx(idx);
+      activeIdxRef.current = idx;
+      targetRef.current = idx;
+      swapCaption(book, targetRef.current >= sRef.current ? 1 : -1);
+    }
+  };
+
+  const closePreview = () => {
+    setActiveIdx(null);
+    activeIdxRef.current = null;
+  };
+
+  // Keyboard navigation
   useEffect(() => {
-    const handlePointerMove = (e: PointerEvent) => {
-      pointerPosRef.current = { x: e.clientX, y: e.clientY };
-    };
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (detailOpen) {
         if (e.key === "Escape") closeDetail();
         return;
       }
-      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-        targetRef.current = clamp(Math.round(targetRef.current) - 1, 0, M - 1);
-      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        targetRef.current = clamp(Math.round(targetRef.current) + 1, 0, M - 1);
-      } else if (e.key === "Enter") {
-        openDetail();
+
+      if (e.key === "Escape" && activeIdx !== null) {
+        closePreview();
+        return;
+      }
+
+      if (orientation === "horizontal") {
+        if (e.key === "ArrowLeft") {
+          const next = activeIdx === null ? 0 : clamp(activeIdx - 1, 0, M - 1);
+          handleBookClick(next);
+        } else if (e.key === "ArrowRight") {
+          const next = activeIdx === null ? 0 : clamp(activeIdx + 1, 0, M - 1);
+          handleBookClick(next);
+        } else if (e.key === "Enter" && activeIdx !== null && cohortBooks[activeIdx]) {
+          openDetail(cohortBooks[activeIdx]);
+        }
+      } else {
+        if (e.key === "ArrowUp") {
+          const next = activeIdx === null ? 0 : clamp(activeIdx - 1, 0, M - 1);
+          setActiveIdx(next);
+        } else if (e.key === "ArrowDown") {
+          const next = activeIdx === null ? 0 : clamp(activeIdx + 1, 0, M - 1);
+          setActiveIdx(next);
+        } else if (e.key === "Enter" && activeIdx !== null && cohortBooks[activeIdx]) {
+          openDetail(cohortBooks[activeIdx]);
+        }
       }
     };
 
-    window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [detailOpen, openDetail, closeDetail, M]);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [detailOpen, activeIdx, orientation, M, cohortBooks, openDetail, closeDetail]);
 
-  const handleShelfPointerDown = (e: React.PointerEvent) => {
-    if (detailOpen) return;
-    isDraggingRef.current = false;
-    const startCoord = orientation === "horizontal" ? e.clientX : e.clientY;
-    dragStartRef.current = { pos: startCoord, target: targetRef.current };
-
-    const handlePointerMoveDrag = (ev: PointerEvent) => {
-      const currentCoord = orientation === "horizontal" ? ev.clientX : ev.clientY;
-      const delta = currentCoord - dragStartRef.current.pos;
-      if (Math.abs(delta) > 5) {
-        isDraggingRef.current = true;
-        const H = Math.min(window.innerHeight * 0.46, window.innerWidth * 0.31);
-        const step = orientation === "horizontal" ? H * (142 / 840) + H * 0.035 : 46 + 4;
-        targetRef.current = clamp(dragStartRef.current.target - delta / step, 0, M - 1);
-      }
-    };
-
-    const handlePointerUpDrag = () => {
-      if (isDraggingRef.current) {
-        targetRef.current = clamp(Math.round(targetRef.current), 0, M - 1);
-      }
-      window.removeEventListener("pointermove", handlePointerMoveDrag);
-      window.removeEventListener("pointerup", handlePointerUpDrag);
-    };
-
-    window.addEventListener("pointermove", handlePointerMoveDrag);
-    window.addEventListener("pointerup", handlePointerUpDrag);
-  };
-
-  const handleShelfWheel = (e: React.WheelEvent) => {
-    if (detailOpen) return;
-    const delta = orientation === "horizontal"
-      ? (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY)
-      : e.deltaY;
-
-    const H = Math.min(window.innerHeight * 0.46, window.innerWidth * 0.31);
-    const step = orientation === "horizontal" ? H * (142 / 840) + H * 0.035 : 46 + 4;
-
-    targetRef.current = clamp(targetRef.current + (delta / step) * 0.45, 0, M - 1);
-    lastWheelTimeRef.current = Date.now();
-
-    if (wheelSnapTimerRef.current) clearTimeout(wheelSnapTimerRef.current);
-    wheelSnapTimerRef.current = setTimeout(() => {
-      targetRef.current = clamp(Math.round(targetRef.current), 0, M - 1);
-    }, 150);
-  };
-
-  const handleBookClick = (v: number) => {
-    if (isDraggingRef.current) return;
-    const r = v - sRef.current;
-    if (Math.abs(r) < 0.5) {
-      openDetail();
-    } else {
-      targetRef.current = clamp(v, 0, M - 1);
-    }
-  };
-
-  const activeTheme = themeStyles[activeBook.theme || "cobalt"];
+  const activeBook = activeIdx !== null ? cohortBooks[activeIdx] : null;
+  const activeTheme = themeStyles[activeBook?.theme || "cobalt"];
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#EDEBE6] text-[#141414] font-['Inter_Tight',sans-serif]">
@@ -989,7 +848,6 @@ export function PeopleShelf() {
 
           {/* Right Action: Orientation Switcher + Indic Translate */}
           <div className="flex items-center justify-end gap-3">
-            {/* Convenient Orientation Tab Button: Horizontal vs Vertical */}
             <div className="inline-flex items-center p-0.5 rounded-sm border border-[rgba(20,20,20,0.85)] bg-white/60 shadow-xs">
               <button
                 type="button"
@@ -1000,7 +858,7 @@ export function PeopleShelf() {
                     ? "bg-[#143B82] text-white rounded-xs shadow-xs"
                     : "text-[#6D6A63] hover:text-[#141414]",
                 ].join(" ")}
-                title="Horizontal Standing Books Shelf (Screenshot 1)"
+                title="Horizontal Standing Books Shelf"
               >
                 <Columns size={12} aria-hidden />
                 <span className="hidden sm:inline">Shelf</span>
@@ -1015,7 +873,7 @@ export function PeopleShelf() {
                     ? "bg-[#143B82] text-white rounded-xs shadow-xs"
                     : "text-[#6D6A63] hover:text-[#141414]",
                 ].join(" ")}
-                title="Vertical Flat Books Stack (Screenshot 2)"
+                title="Vertical Flat Books Stack"
               >
                 <Rows size={12} aria-hidden />
                 <span className="hidden sm:inline">Stack</span>
@@ -1026,7 +884,7 @@ export function PeopleShelf() {
           </div>
         </header>
 
-        {/* ─── 2. Cohort Segregation Tabs (Strictly By Strength, No Duplicates) ─ */}
+        {/* ─── 2. Cohort Segregation Tabs ──────────────────────────────────── */}
         <nav
           aria-label="Cohort Batches"
           className="relative z-30 flex flex-col items-center justify-center pt-2 pb-1 gap-1"
@@ -1035,7 +893,6 @@ export function PeopleShelf() {
             ref={tabsContainerRef}
             className="relative inline-flex items-center bg-[#EDEBE6] border border-[rgba(20,20,20,0.85)] rounded-sm overflow-hidden shadow-xs"
           >
-            {/* Sliding Active Cobalt Highlight Block */}
             <div
               ref={tabIndicatorRef}
               className="absolute top-0 bottom-0 bg-[#143B82] transition-all duration-300 ease-[cubic-bezier(.2,.8,.2,1)] z-0 pointer-events-none"
@@ -1064,7 +921,6 @@ export function PeopleShelf() {
             })}
           </div>
 
-          {/* Sub-status banner for cohort milestone */}
           <div className="flex items-center gap-2 text-[10px] font-mono text-[#6D6A63]">
             <span className="size-1.5 rounded-full bg-[#143B82]" />
             <span>{currentTab.statusText}</span>
@@ -1072,34 +928,35 @@ export function PeopleShelf() {
           </div>
         </nav>
 
-        {/* ─── 3. The 3D Shelf / Stack Stage (Dynamic Orientation) ──────────── */}
+        {/* ─── 3. The 3D Stage (Center Aligned, No Laggy Cursor) ────────────── */}
         <section
           aria-label="Archival book presentation"
-          onPointerDown={handleShelfPointerDown}
-          onWheel={handleShelfWheel}
-          className="relative flex-1 w-full z-20 flex items-center justify-center cursor-grab active:cursor-grabbing overflow-visible select-none"
+          className="relative flex-1 w-full z-20 flex items-center justify-center overflow-visible select-none"
           style={{
-            perspective: orientation === "horizontal" ? "2200px" : "1800px",
+            perspective: "2000px",
             perspectiveOrigin: "50% 50%",
-            touchAction: "pan-y",
+          }}
+          onClick={(e) => {
+            if ((e.target as HTMLElement).closest(".tape")) return;
+            if (activeIdx !== null) closePreview();
           }}
         >
-          {/* Zero-size Stage Origin */}
+          {/* Zero-size Stage Origin in Dead Center */}
           <div
             ref={stageRef}
             className="relative size-0"
             style={{
               transformStyle: "preserve-3d",
-              ["--ws" as string]: "84px",
-              ["--d" as string]: "245px",
-              ["--H" as string]: "470px",
-              ["--stack-w" as string]: "440px",
-              ["--stack-h" as string]: "46px",
-              ["--stack-d" as string]: "320px",
+              ["--ws" as string]: "76px",
+              ["--d" as string]: "230px",
+              ["--H" as string]: "460px",
+              ["--stack-w" as string]: "360px",
+              ["--stack-h" as string]: "34px",
             }}
           >
             {cohortBooks.map((book, v) => {
               const theme = themeStyles[book.theme];
+              const isSelected = activeIdx === v;
 
               return (
                 <div
@@ -1107,14 +964,17 @@ export function PeopleShelf() {
                   ref={(el) => {
                     bookElsRef.current[v] = el;
                   }}
-                  onClick={() => handleBookClick(v)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleBookClick(v);
+                  }}
                   onPointerEnter={() => {
                     hoverRef.current = v;
                   }}
                   onPointerLeave={() => {
                     if (hoverRef.current === v) hoverRef.current = -1;
                   }}
-                  className="tape absolute top-0 left-0 size-0 cursor-pointer select-none"
+                  className="tape absolute top-0 left-0 size-0 cursor-pointer select-none transition-shadow"
                   style={{
                     transformStyle: "preserve-3d",
                     willChange: "transform",
@@ -1127,7 +987,7 @@ export function PeopleShelf() {
                     <>
                       {/* Spine Face (.sp) */}
                       <div
-                        className="sp absolute rounded-[3px] overflow-hidden select-none border border-[rgba(0,0,0,0.65)] flex flex-col justify-between p-2.5 shadow-md"
+                        className="sp absolute rounded-[2px] overflow-hidden select-none border border-black/70 flex flex-col justify-between p-2 shadow-md transition-opacity"
                         style={{
                           width: "var(--ws)",
                           height: "var(--H)",
@@ -1139,59 +999,53 @@ export function PeopleShelf() {
                           color: theme.text,
                         }}
                       >
-                        {/* Curvature lighting gradient */}
+                        {/* Curvature gradient */}
                         <div
                           className="absolute inset-0 pointer-events-none"
                           style={{
                             background:
-                              "linear-gradient(90deg, rgba(0,0,0,0.38) 0%, rgba(255,255,255,0.15) 10%, transparent 30%, rgba(0,0,0,0.06) 80%, rgba(0,0,0,0.45) 100%)",
+                              "linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(255,255,255,0.18) 12%, transparent 32%, rgba(0,0,0,0.06) 80%, rgba(0,0,0,0.45) 100%)",
                           }}
                         />
 
-                        {/* Dynamic shade overlay when spine turns away */}
-                        <div
-                          className="absolute inset-0 pointer-events-none z-20 bg-black"
-                          style={{ opacity: "var(--shade-spine, 0)" }}
-                        />
-
                         {/* Top Spine Vignette & Roll Badge */}
-                        <div className="relative z-10 flex flex-col items-center gap-1.5 border-b border-white/20 pb-2">
-                          <div className="size-8 rounded-full border border-white/30 flex items-center justify-center bg-black/20 shadow-inner">
+                        <div className="relative z-10 flex flex-col items-center gap-1 border-b border-white/20 pb-1.5">
+                          <div className="size-7 rounded-full border border-white/30 flex items-center justify-center bg-black/20 shadow-inner">
                             <SpineVignette symbol={book.symbol} color={theme.accent} />
                           </div>
-                          <span className="font-mono text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded-sm bg-black/30 border border-white/25">
+                          <span className="font-mono text-[8.5px] font-bold tracking-wider px-1 py-0.5 rounded-xs bg-black/30 border border-white/25">
                             {book.roll}
                           </span>
                         </div>
 
-                        {/* Scholar Name: 90° clockwise rotation for natural top-to-bottom reading */}
-                        <div className="relative z-10 flex-1 flex items-center justify-center my-3 overflow-visible">
+                        {/* Scholar Name (Pranay P. - Shortened, 90° clockwise, perfectly legible) */}
+                        <div className="relative z-10 flex-1 flex items-center justify-center my-2 overflow-visible">
                           <span
-                            className="font-['Newsreader',serif] font-bold text-[17px] sm:text-[19px] tracking-[0.06em] uppercase whitespace-nowrap drop-shadow-md select-none text-center"
+                            className="font-['Newsreader',serif] font-bold text-[16px] sm:text-[18px] tracking-[0.06em] uppercase whitespace-nowrap drop-shadow-md select-none text-center"
                             style={{
                               transform: "rotate(90deg)",
                               transformOrigin: "center center",
-                              textShadow: "0 1px 3px rgba(0,0,0,0.7)",
+                              textShadow: "0 1px 3px rgba(0,0,0,0.8)",
                             }}
                           >
-                            {book.name}
+                            {book.shortName}
                           </span>
                         </div>
 
                         {/* Bottom Spine IIST Stamp */}
-                        <div className="relative z-10 flex flex-col items-center gap-1 pt-2 border-t border-white/20">
-                          <span className="text-[7.5px] font-bold tracking-[0.16em] uppercase text-white/80">
+                        <div className="relative z-10 flex flex-col items-center gap-0.5 pt-1.5 border-t border-white/20">
+                          <span className="text-[7px] font-bold tracking-[0.16em] uppercase text-white/80">
                             AEROSPACE
                           </span>
-                          <span className="px-1.5 py-0.5 border border-white/40 rounded-xs text-[8.5px] font-mono font-bold tracking-widest bg-black/25">
+                          <span className="px-1 py-0.5 border border-white/40 rounded-xs text-[7.5px] font-mono font-bold tracking-widest bg-black/25">
                             IIST·MT
                           </span>
                         </div>
                       </div>
 
-                      {/* Cover Face (.cv) */}
+                      {/* Cover Face (.cv) - Straight preview when open */}
                       <div
-                        className="cv absolute rounded-[3px] overflow-hidden select-none border border-[rgba(0,0,0,0.6)] flex flex-col justify-between p-5"
+                        className="cv absolute rounded-[2px] overflow-hidden select-none border border-black/80 flex flex-col justify-between p-4.5"
                         style={{
                           width: "var(--d)",
                           height: "var(--H)",
@@ -1200,174 +1054,43 @@ export function PeopleShelf() {
                           transform: "rotateY(90deg) translateZ(calc(var(--ws) / 2))",
                           backfaceVisibility: "hidden",
                           background: theme.coverBg,
-                          boxShadow: "0 35px 70px -25px rgba(20,16,10,0.65)",
-                        }}
-                      >
-                        <div className="absolute inset-0 z-0 opacity-85 pointer-events-none flex items-center justify-center p-4">
-                          <TechnicalScreenprint diagram={book.diagram} color={theme.illustrationColor} className="w-full h-auto max-h-[72%]" />
-                        </div>
-
-                        {/* Dynamic shade overlay when cover is edge-on */}
-                        <div
-                          className="absolute inset-0 pointer-events-none z-20 bg-black"
-                          style={{ opacity: "var(--shade-cover, 0)" }}
-                        />
-
-                        <div className="relative z-10 flex items-center justify-between border-b border-[rgba(20,20,20,0.8)] pb-2">
-                          <span className="text-[8px] font-bold tracking-[0.18em] uppercase" style={{ color: theme.bg }}>
-                            AEROSPACE ARCHIVES · IIST
-                          </span>
-                          <span className="font-mono text-[8px] font-bold px-1.5 py-0.5 border border-[rgba(20,20,20,0.8)] bg-white/70">
-                            {book.roll}
-                          </span>
-                        </div>
-
-                        <div className="relative z-10 my-auto">
-                          <span className="text-[9px] font-bold tracking-[0.14em] uppercase block mb-1 text-[#6D6A63]">
-                            {book.specialization}
-                          </span>
-                          <h2 className="font-['Newsreader',serif] font-bold text-2xl sm:text-3xl leading-[1.04] tracking-tight text-[#141414]">
-                            {book.name}
-                          </h2>
-                          <span className="text-[10px] font-bold font-mono tracking-wider block mt-2" style={{ color: theme.bg }}>
-                            {book.graduatedNote ? `${book.cohort} (${book.graduatedNote})` : book.cohort}
-                          </span>
-                        </div>
-
-                        <div className="relative z-10 flex items-center justify-between border-t border-[rgba(20,20,20,0.8)] pt-2.5">
-                          <div className="flex flex-col">
-                            <span className="text-[7.5px] font-mono uppercase text-[#6D6A63]">DESTINATION</span>
-                            <span className="text-[9px] font-bold text-[#141414]">
-                              {book.placedAt ? book.placedAt : "Research Scholar"}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className="font-mono text-[8px] px-2 py-0.5 font-bold text-white rounded-xs"
-                              style={{ background: theme.bg }}
-                            >
-                              OPEN DOSSIER
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    // ══════════════════════════════════════════════════════════
-                    // MODE B: VERTICAL STACK (Books stacked flat horizontally, Screenshot 2)
-                    // ══════════════════════════════════════════════════════════
-                    <>
-                      {/* Horizontal Spine Face of the Stacked Book */}
-                      <div
-                        className="sp absolute rounded-[3px] overflow-hidden select-none border border-[rgba(0,0,0,0.65)] flex items-center justify-between px-4 shadow-lg"
-                        style={{
-                          width: "var(--stack-w)",
-                          height: "var(--stack-h)",
-                          top: "calc(-1 * var(--stack-h) / 2)",
-                          left: "calc(-1 * var(--stack-w) / 2)",
-                          transform: "translateZ(calc(var(--stack-d) / 2))",
-                          backfaceVisibility: "hidden",
-                          background: theme.gradient,
-                          color: theme.text,
-                        }}
-                      >
-                        {/* Realistic stacked book lighting & edge trim */}
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{
-                            background:
-                              "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 25%, rgba(0,0,0,0.15) 75%, rgba(0,0,0,0.4) 100%)",
-                          }}
-                        />
-
-                        {/* Dynamic shade overlay when spine turns away */}
-                        <div
-                          className="absolute inset-0 pointer-events-none z-20 bg-black"
-                          style={{ opacity: "var(--shade-spine, 0)" }}
-                        />
-
-                        {/* Left Emblem */}
-                        <div className="relative z-10 flex items-center gap-2">
-                          <div className="size-7 rounded-full border border-white/30 flex items-center justify-center bg-black/25">
-                            <SpineVignette symbol={book.symbol} color={theme.accent} />
-                          </div>
-                          <span className="font-mono text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded-xs bg-black/30 border border-white/20">
-                            {book.roll}
-                          </span>
-                        </div>
-
-                        {/* Scholar Name (Completely horizontal English text across the spine!) */}
-                        <div className="relative z-10 flex-1 px-4 text-center overflow-hidden">
-                          <span
-                            className="font-['Newsreader',serif] font-bold text-[16px] sm:text-[18px] tracking-[0.05em] uppercase whitespace-nowrap drop-shadow-md text-white block truncate"
-                            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}
-                          >
-                            {book.name}
-                          </span>
-                        </div>
-
-                        {/* Right Department Badge */}
-                        <div className="relative z-10 flex items-center gap-2">
-                          <span className="text-[8px] font-mono tracking-wider uppercase text-white/75 hidden sm:inline">
-                            {book.specialization.slice(0, 14)}
-                          </span>
-                          <span className="px-1.5 py-0.5 border border-white/40 rounded-xs text-[8px] font-mono font-bold tracking-widest bg-black/25">
-                            IIST
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Top Cover Face of the Stacked Book (Revealed when active / pulled out) */}
-                      <div
-                        className="cv absolute rounded-[3px] overflow-hidden select-none border border-[rgba(0,0,0,0.6)] flex flex-col justify-between p-5"
-                        style={{
-                          width: "var(--stack-w)",
-                          height: "var(--stack-d)",
-                          top: "calc(-1 * var(--stack-d) / 2)",
-                          left: "calc(-1 * var(--stack-w) / 2)",
-                          transform: "rotateX(-90deg) translateZ(calc(var(--stack-h) / 2))",
-                          backfaceVisibility: "hidden",
-                          background: theme.coverBg,
-                          boxShadow: "0 30px 60px -20px rgba(0,0,0,0.5)",
+                          boxShadow: "0 30px 60px -20px rgba(0,0,0,0.55)",
                         }}
                       >
                         <div className="absolute inset-0 z-0 opacity-80 pointer-events-none flex items-center justify-center p-3">
-                          <TechnicalScreenprint diagram={book.diagram} color={theme.illustrationColor} className="w-full h-auto max-h-[75%]" />
+                          <TechnicalScreenprint diagram={book.diagram} color={theme.illustrationColor} className="w-full h-auto max-h-[72%]" />
                         </div>
 
-                        {/* Dynamic shade overlay when cover is edge-on */}
-                        <div
-                          className="absolute inset-0 pointer-events-none z-20 bg-black"
-                          style={{ opacity: "var(--shade-cover, 0)" }}
-                        />
-
                         <div className="relative z-10 flex items-center justify-between border-b border-[rgba(20,20,20,0.8)] pb-1.5">
-                          <span className="text-[8px] font-bold tracking-widest uppercase" style={{ color: theme.bg }}>
+                          <span className="text-[7.5px] font-bold tracking-[0.18em] uppercase" style={{ color: theme.bg }}>
                             AEROSPACE ARCHIVES · IIST
                           </span>
-                          <span className="font-mono text-[8px] font-bold px-1.5 py-0.5 border border-[rgba(20,20,20,0.8)] bg-white/70">
+                          <span className="font-mono text-[7.5px] font-bold px-1.5 py-0.5 border border-[rgba(20,20,20,0.8)] bg-white/70">
                             {book.roll}
                           </span>
                         </div>
 
                         <div className="relative z-10 my-auto text-center">
-                          <span className="text-[8.5px] font-bold tracking-widest uppercase block mb-1 text-[#6D6A63]">
+                          <span className="text-[8.5px] font-bold tracking-[0.14em] uppercase block mb-1 text-[#6D6A63]">
                             {book.specialization}
                           </span>
-                          <h2 className="font-['Newsreader',serif] font-bold text-2xl sm:text-3xl tracking-tight text-[#141414]">
-                            {book.name}
+                          <h2 className="font-['Newsreader',serif] font-bold text-2xl sm:text-3xl leading-[1.05] tracking-tight text-[#141414]">
+                            {book.shortName}
                           </h2>
-                          <span className="text-[9.5px] font-bold font-mono tracking-wider block mt-1" style={{ color: theme.bg }}>
+                          <span className="text-[9.5px] font-bold font-mono tracking-wider block mt-1.5" style={{ color: theme.bg }}>
                             {book.graduatedNote ? `${book.cohort} (${book.graduatedNote})` : book.cohort}
                           </span>
                         </div>
 
                         <div className="relative z-10 flex items-center justify-between border-t border-[rgba(20,20,20,0.8)] pt-2">
-                          <span className="text-[8.5px] font-bold text-[#141414]">
-                            {book.placedAt ? `Placed: ${book.placedAt}` : "Research Scholar"}
-                          </span>
+                          <div className="flex flex-col text-left">
+                            <span className="text-[7px] font-mono uppercase text-[#6D6A63]">DESTINATION</span>
+                            <span className="text-[8.5px] font-bold text-[#141414]">
+                              {book.placedAt ? book.placedAt : "Research Scholar"}
+                            </span>
+                          </div>
                           <span
-                            className="font-mono text-[8px] px-2 py-0.5 font-bold text-white rounded-xs"
+                            className="font-mono text-[8px] px-2 py-0.5 font-bold text-white rounded-xs shadow-xs"
                             style={{ background: theme.bg }}
                           >
                             OPEN DOSSIER
@@ -1375,6 +1098,59 @@ export function PeopleShelf() {
                         </div>
                       </div>
                     </>
+                  ) : (
+                    // ══════════════════════════════════════════════════════════
+                    // MODE B: VERTICAL STACK (Zoomed out flat pile, Screenshot 7)
+                    // ══════════════════════════════════════════════════════════
+                    <div
+                      className="sp absolute rounded-[2px] overflow-hidden select-none border border-black/70 flex items-center justify-between px-3 shadow-md hover:brightness-105 transition-all"
+                      style={{
+                        width: "var(--stack-w)",
+                        height: "var(--stack-h)",
+                        top: "calc(-1 * var(--stack-h) / 2)",
+                        left: "calc(-1 * var(--stack-w) / 2)",
+                        background: theme.gradient,
+                        color: theme.text,
+                      }}
+                    >
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          background:
+                            "linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 28%, rgba(0,0,0,0.15) 75%, rgba(0,0,0,0.4) 100%)",
+                        }}
+                      />
+
+                      {/* Left Symbol & Roll */}
+                      <div className="relative z-10 flex items-center gap-1.5">
+                        <div className="size-6 rounded-full border border-white/30 flex items-center justify-center bg-black/25">
+                          <SpineVignette symbol={book.symbol} color={theme.accent} />
+                        </div>
+                        <span className="font-mono text-[8.5px] font-bold tracking-wider px-1 py-0.5 rounded-xs bg-black/30 border border-white/20">
+                          {book.roll}
+                        </span>
+                      </div>
+
+                      {/* Shortened Name across the horizontal spine (e.g. PRANAY P.) */}
+                      <div className="relative z-10 flex-1 px-3 text-center overflow-hidden">
+                        <span
+                          className="font-['Newsreader',serif] font-bold text-[14px] sm:text-[15px] tracking-[0.05em] uppercase whitespace-nowrap text-white block truncate"
+                          style={{ textShadow: "0 1px 2px rgba(0,0,0,0.7)" }}
+                        >
+                          {book.shortName}
+                        </span>
+                      </div>
+
+                      {/* Right Department Badge */}
+                      <div className="relative z-10 flex items-center gap-1.5">
+                        <span className="text-[7.5px] font-mono tracking-wider uppercase text-white/80 hidden sm:inline">
+                          {book.specialization.slice(0, 12)}
+                        </span>
+                        <span className="px-1 py-0.5 border border-white/40 rounded-xs text-[7.5px] font-mono font-bold tracking-widest bg-black/25">
+                          IIST
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </div>
               );
@@ -1382,176 +1158,128 @@ export function PeopleShelf() {
           </div>
         </section>
 
-        {/* ─── 4. Play Ring Button ──────────────────────────────────────────── */}
-        <button
-          ref={playRingRef}
-          type="button"
-          aria-label="Open Scholar Dossier"
-          onClick={openDetail}
-          className="fixed z-30 size-[42px] rounded-full border border-[#143B82] bg-[rgba(237,235,230,0.88)] text-[#143B82] flex items-center justify-center cursor-pointer transition-transform duration-300 hover:scale-110 shadow-lg backdrop-blur-xs"
-          style={{
-            transform: `scale(${playRingScale})`,
-            transition: "transform 0.2s cubic-bezier(.2,.8,.2,1)",
-          }}
-        >
-          <FileText size={18} className="translate-x-px" aria-hidden />
-        </button>
-
-        {/* ─── 5. Caption Stack (100% Native English) ───────────────────────── */}
+        {/* ─── 4. Caption Stack & Preview Close Button ─────────────────────── */}
         <div
           aria-live="polite"
-          className="relative z-20 flex flex-col items-center text-center gap-1.5 pointer-events-none pb-3"
+          className="relative z-20 flex flex-col items-center text-center gap-1 pb-3 pointer-events-auto"
         >
-          {/* Title Mask */}
-          <div
-            ref={captionTitleRef}
-            className="overflow-hidden h-[34px] flex items-center justify-center font-['Newsreader',serif] font-bold text-[25px] sm:text-[30px] leading-[1.1] text-[#141414]"
-          >
-            <span>{activeBook.name || "Select Scholar"}</span>
-          </div>
+          {activeBook ? (
+            <>
+              {/* Close Button to return to centered closed shelf */}
+              <button
+                type="button"
+                onClick={closePreview}
+                className="mb-1 inline-flex items-center gap-1 px-2.5 py-0.5 border border-[rgba(20,20,20,0.7)] rounded-xs bg-white/70 hover:bg-[#141414] hover:text-white text-[9.5px] font-mono uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                <X size={11} aria-hidden />
+                <span>Close Preview (Center All)</span>
+              </button>
 
-          {/* Subtitle Mask */}
-          <div
-            ref={captionSubRef}
-            className="overflow-hidden h-[18px] flex items-center justify-center text-[10.5px] font-bold tracking-[0.1em] uppercase"
-            style={{ color: activeTheme.bg }}
-          >
-            <span>
-              {activeBook.graduatedNote
-                ? `${activeBook.roll} · ${activeBook.specialization.toUpperCase()} · ${activeBook.graduatedNote.toUpperCase()}`
-                : `${activeBook.roll} · ${(activeBook.specialization || "").toUpperCase()}`}
-            </span>
-          </div>
+              <div
+                ref={captionTitleRef}
+                className="overflow-hidden h-[30px] flex items-center justify-center font-['Newsreader',serif] font-bold text-[22px] sm:text-[26px] leading-[1.1] text-[#141414]"
+              >
+                <span>{activeBook.name}</span>
+              </div>
 
-          {/* Year Mask */}
-          <div
-            ref={captionYearRef}
-            className="overflow-hidden h-[16px] flex items-center justify-center text-[11px] font-medium tracking-wider text-[#6D6A63]"
-          >
-            <span>{activeBook.cohort} · IIST AEROSPACE MANUFACTURING · PROFILE {activeIdxRef.current + 1} OF {M}</span>
-          </div>
+              <div
+                ref={captionSubRef}
+                className="overflow-hidden h-[16px] flex items-center justify-center text-[10px] font-bold tracking-[0.1em] uppercase"
+                style={{ color: activeTheme.bg }}
+              >
+                <span>
+                  {activeBook.graduatedNote
+                    ? `${activeBook.roll} · ${activeBook.specialization.toUpperCase()} · ${activeBook.graduatedNote.toUpperCase()}`
+                    : `${activeBook.roll} · ${(activeBook.specialization || "").toUpperCase()}`}
+                </span>
+              </div>
+
+              <div
+                ref={captionYearRef}
+                className="overflow-hidden h-[15px] flex items-center justify-center text-[10.5px] font-medium tracking-wider text-[#6D6A63]"
+              >
+                <span>{activeBook.cohort} · IIST AEROSPACE MANUFACTURING · PROFILE {(activeIdx || 0) + 1} OF {M}</span>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-1 py-1 text-center">
+              <span className="font-['Newsreader',serif] font-bold text-[20px] sm:text-[23px] text-[#141414]">
+                Select any scholar book to open dossier
+              </span>
+              <span className="text-[10px] font-mono tracking-wider uppercase text-[#6D6A63]">
+                {orientation === "horizontal"
+                  ? "Click any spine to pull out straight preview or view full dossier"
+                  : "Click any stacked book to view full academic dossier record"}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* ─── 6. Navigation Controls (Dual Direction based on Orientation) ─── */}
-        {orientation === "horizontal" ? (
+        {/* ─── 5. Navigation Arrows in Shelf Mode ───────────────────────────── */}
+        {orientation === "horizontal" && activeBook && (
           <>
             <button
               type="button"
               aria-label="Previous scholar"
-              disabled={activeIdxRef.current === 0}
+              disabled={activeIdx === 0}
               onClick={() => {
-                targetRef.current = clamp(Math.round(targetRef.current) - 1, 0, M - 1);
+                if (activeIdx !== null && activeIdx > 0) handleBookClick(activeIdx - 1);
               }}
-              className="absolute left-6 top-1/2 -translate-y-1/2 z-30 size-[42px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              className="absolute left-6 top-1/2 -translate-y-1/2 z-30 size-[38px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={15} />
             </button>
 
             <button
               type="button"
               aria-label="Next scholar"
-              disabled={activeIdxRef.current === M - 1}
+              disabled={activeIdx === M - 1}
               onClick={() => {
-                targetRef.current = clamp(Math.round(targetRef.current) + 1, 0, M - 1);
+                if (activeIdx !== null && activeIdx < M - 1) handleBookClick(activeIdx + 1);
               }}
-              className="absolute right-6 top-1/2 -translate-y-1/2 z-30 size-[42px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              className="absolute right-6 top-1/2 -translate-y-1/2 z-30 size-[38px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
             >
-              <ArrowRight size={16} />
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              type="button"
-              aria-label="Previous scholar in stack"
-              disabled={activeIdxRef.current === 0}
-              onClick={() => {
-                targetRef.current = clamp(Math.round(targetRef.current) - 1, 0, M - 1);
-              }}
-              className="absolute right-6 top-[38%] -translate-y-1/2 z-30 size-[42px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
-              title="Previous Book in Stack (Arrow Up)"
-            >
-              <ArrowUp size={16} />
-            </button>
-
-            <button
-              type="button"
-              aria-label="Next scholar in stack"
-              disabled={activeIdxRef.current === M - 1}
-              onClick={() => {
-                targetRef.current = clamp(Math.round(targetRef.current) + 1, 0, M - 1);
-              }}
-              className="absolute right-6 top-[54%] -translate-y-1/2 z-30 size-[42px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
-              title="Next Book in Stack (Arrow Down)"
-            >
-              <ArrowDown size={16} />
+              <ArrowRight size={15} />
             </button>
           </>
         )}
 
-        {/* ─── 7. Bottom Bar ──────────────────────────────────────────────── */}
-        <footer className="relative z-30 h-[50px] px-8 flex items-center justify-between border-t border-[rgba(20,20,20,0.1)] text-[10px] font-semibold tracking-wider uppercase text-[#6D6A63]">
+        {/* ─── 6. Bottom Bar ──────────────────────────────────────────────── */}
+        <footer className="relative z-30 h-[48px] px-8 flex items-center justify-between border-t border-[rgba(20,20,20,0.1)] text-[9.5px] font-semibold tracking-wider uppercase text-[#6D6A63]">
           <span>© IIST Aerospace Engineering · All Rights Reserved</span>
-          <div className="flex items-center gap-4">
-            <Link
-              href={`/people/${activeBook.slug}`}
-              className="text-[#143B82] hover:underline underline-offset-4 font-bold"
+          {activeBook && (
+            <button
+              type="button"
+              onClick={() => openDetail(activeBook)}
+              className="text-[#143B82] hover:underline underline-offset-4 font-bold cursor-pointer"
             >
-              Full Profile Dossier ({activeBook.name}) →
-            </Link>
-          </div>
+              Open Full Dossier ({activeBook.name}) →
+            </button>
+          )}
         </footer>
       </div>
 
-      {/* ─── 8. Custom Ring Cursor (Screenshot 4) ─────────────────────────── */}
-      <div
-        ref={cursorRingRef}
-        className={[
-          "fixed top-0 left-0 -mt-[29px] -ml-[29px] size-[58px] rounded-full pointer-events-none z-[100] hidden md:flex items-center justify-center transition-[transform,background-color,border-color] duration-400 ease-[cubic-bezier(.2,.8,.2,1)] will-change-transform",
-          cursorState === "default" ? "scale-100 border-[1.5px] border-[#141414] bg-transparent" : "",
-          cursorState === "spine" ? "scale-75 border-[1.5px] border-[#141414] bg-transparent" : "",
-          cursorState === "btn" ? "scale-50 border-[1.5px] border-[#141414] bg-transparent" : "",
-          cursorState === "open" ? "scale-[1.75] border-[1.5px] border-[#143B82] bg-[#143B82]" : "",
-        ].join(" ")}
-      >
-        <span
-          className={[
-            "size-[6px] rounded-full bg-[#141414] transition-transform duration-300 ease-[cubic-bezier(.2,.8,.2,1)]",
-            cursorState === "open" || cursorState === "btn" ? "scale-0" : "scale-100",
-          ].join(" ")}
-        />
-        <span
-          className={[
-            "absolute inset-0 flex flex-col items-center justify-center text-white text-[9.5px] font-bold tracking-[0.14em] leading-tight transition-transform duration-350 ease-[cubic-bezier(.2,.8,.2,1)] select-none",
-            cursorState === "open" ? "scale-100" : "scale-0",
-          ].join(" ")}
-        >
-          <span>OPEN</span>
-          <span className="text-[7.5px] font-mono tracking-widest opacity-80">DOSSIER</span>
-        </span>
-      </div>
-
-      {/* ─── 9. Opening a Profile: Detail Dialog with SVG Ink Bleed ────────── */}
+      {/* ─── 7. Full Dossier Modal Sheet (Straight, Comprehensive) ─────────── */}
       <div
         ref={detailDialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={`${activeBook.name} Dossier`}
-        className="fixed inset-0 z-[60] bg-[#F4F2ED] text-[#141414] overflow-y-auto invisible"
+        aria-label={`${dossierBook.name} Dossier`}
+        className="fixed inset-0 z-[110] bg-[#F4F2ED] text-[#141414] overflow-y-auto invisible"
         style={{
-          padding: "90px 6vw 50px 7vw",
+          padding: "85px 6vw 50px 7vw",
         }}
       >
         <button
           type="button"
           onClick={closeDetail}
-          className="fixed top-8 left-8 z-20 inline-flex items-center gap-1.5 h-[32px] px-3.5 border border-[rgba(20,20,20,0.85)] text-[10.5px] font-semibold tracking-wider uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors cursor-pointer shadow-sm"
+          className="fixed top-7 left-7 z-20 inline-flex items-center gap-1.5 h-[32px] px-3.5 border border-[rgba(20,20,20,0.85)] text-[10.5px] font-semibold tracking-wider uppercase bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors cursor-pointer shadow-sm"
         >
           <X size={14} aria-hidden />
           <span>Close Dossier</span>
         </button>
 
-        <div className="fixed top-8 inset-x-0 h-[60px] pointer-events-none flex flex-col items-center justify-center text-center z-10">
+        <div className="fixed top-7 inset-x-0 h-[60px] pointer-events-none flex flex-col items-center justify-center text-center z-10">
           <span className="font-['Newsreader',serif] font-bold text-lg text-[#143B82]">
             IIST Manufacturing Technology
           </span>
@@ -1560,46 +1288,47 @@ export function PeopleShelf() {
           </span>
         </div>
 
-        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-[4vw] items-center min-h-[calc(100vh-160px)]">
-          <div className="flex flex-col justify-center max-w-[540px] gap-4">
+        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-[4vw] items-center min-h-[calc(100vh-150px)]">
+          <div className="flex flex-col justify-center max-w-[540px] gap-3.5">
             <div className="detail-mask-line overflow-hidden">
               <span
                 className="inline-block text-[11px] font-bold tracking-[0.14em] uppercase"
-                style={{ color: activeTheme.bg }}
+                style={{ color: themeStyles[dossierBook.theme || "cobalt"].bg }}
               >
-                {activeBook.roll} · {activeBook.cohort}
+                {dossierBook.roll} · {dossierBook.cohort}
               </span>
             </div>
 
+            {/* FULL NAME proudly displayed inside dossier */}
             <div className="detail-mask-line overflow-hidden">
               <h1 className="inline-block font-['Newsreader',serif] font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.02] tracking-tight text-[#141414]">
-                {activeBook.name}
+                {dossierBook.name}
               </h1>
             </div>
 
             <div className="detail-mask-line overflow-hidden">
               <span className="inline-block text-[12px] font-semibold tracking-wider uppercase text-[#6D6A63]">
-                {activeBook.role} · {activeBook.specialization}
+                {dossierBook.role} · {dossierBook.specialization}
               </span>
             </div>
 
-            {activeBook.graduatedNote && (
+            {dossierBook.graduatedNote && (
               <div className="detail-mask-line overflow-hidden">
                 <div className="inline-block px-3 py-1.5 rounded-sm border border-[rgba(20,20,20,0.6)] bg-white/70 font-mono text-[11px] text-[#143B82] font-bold">
-                  🎓 {activeBook.graduatedNote}
+                  🎓 {dossierBook.graduatedNote}
                 </div>
               </div>
             )}
 
             <div className="detail-mask-line overflow-hidden">
               <p className="inline-block font-['Newsreader',serif] text-base sm:text-lg leading-[1.6] text-[#141414] max-w-[44ch] text-justify">
-                {activeBook.synopsis}
+                {dossierBook.synopsis}
               </p>
             </div>
 
             <div className="detail-mask-line overflow-hidden">
               <div className="inline-flex flex-wrap gap-2 pt-1">
-                {activeBook.skills.slice(0, 5).map((skill) => (
+                {dossierBook.skills?.slice(0, 5).map((skill) => (
                   <span
                     key={skill}
                     className="border border-[rgba(20,20,20,0.65)] px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase bg-white/40"
@@ -1610,26 +1339,20 @@ export function PeopleShelf() {
               </div>
             </div>
 
-            <div className="detail-mask-line overflow-hidden">
-              <p className="inline-block font-['Newsreader',serif] italic text-[14px] text-[#6D6A63]">
-                Aerospace Engineering Department, Indian Institute of Space Science and Technology.
-              </p>
-            </div>
-
-            <div className="detail-mask-line overflow-hidden pt-3">
+            <div className="detail-mask-line overflow-hidden pt-2">
               <div className="inline-flex flex-wrap items-center gap-3">
                 <Link
-                  href={`/people/${activeBook.slug}`}
-                  className="inline-flex items-center gap-2 h-[44px] px-6 text-white text-[11px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-all cursor-pointer shadow-md"
-                  style={{ background: activeTheme.bg }}
+                  href={`/people/${dossierBook.slug}`}
+                  className="inline-flex items-center gap-2 h-[42px] px-5 text-white text-[10.5px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-all cursor-pointer shadow-md"
+                  style={{ background: themeStyles[dossierBook.theme || "cobalt"].bg }}
                 >
-                  <span>View Full Dossier</span>
+                  <span>Full Profile Page</span>
                   <ArrowRight size={14} aria-hidden />
                 </Link>
 
                 <a
-                  href={`mailto:${activeBook.officialEmail}`}
-                  className="inline-flex items-center gap-2 h-[44px] px-5 border border-[rgba(20,20,20,0.85)] bg-transparent text-[#141414] text-[11px] font-semibold tracking-[0.1em] uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-all cursor-pointer"
+                  href={`mailto:${dossierBook.officialEmail}`}
+                  className="inline-flex items-center gap-2 h-[42px] px-4 border border-[rgba(20,20,20,0.85)] bg-transparent text-[#141414] text-[10.5px] font-semibold tracking-[0.1em] uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-all cursor-pointer"
                 >
                   <Mail size={14} aria-hidden />
                   <span>Contact Scholar</span>
@@ -1638,8 +1361,9 @@ export function PeopleShelf() {
             </div>
           </div>
 
+          {/* Right Vector Illustration Cover Sheet with SVG Ink Bleed */}
           <div className="flex items-center justify-center w-full">
-            <div className="relative w-full max-w-[420px] aspect-[474/900] max-h-[78vh] border border-[rgba(20,20,20,0.8)] shadow-2xl bg-[#EDEBE6] overflow-hidden rounded-[2px]">
+            <div className="relative w-full max-w-[420px] aspect-[474/900] max-h-[76vh] border border-[rgba(20,20,20,0.8)] shadow-2xl bg-[#EDEBE6] overflow-hidden rounded-[2px]">
               <svg viewBox="0 0 474 900" className="w-full h-full" aria-hidden="true">
                 <defs>
                   <filter id="ink-bleed-filter" x="-20%" y="-20%" width="140%" height="140%">
@@ -1662,9 +1386,9 @@ export function PeopleShelf() {
                 </defs>
 
                 <g mask="url(#ink-mask)">
-                  <rect width="474" height="900" fill={activeTheme.coverBg} />
+                  <rect width="474" height="900" fill={themeStyles[dossierBook.theme || "cobalt"].coverBg} />
 
-                  <g stroke={activeTheme.illustrationColor} strokeWidth="0.4" opacity="0.25">
+                  <g stroke={themeStyles[dossierBook.theme || "cobalt"].illustrationColor} strokeWidth="0.4" opacity="0.25">
                     {Array.from({ length: 18 }).map((_, i) => (
                       <line key={`h-${i}`} x1="0" y1={i * 50} x2="474" y2={i * 50} />
                     ))}
@@ -1673,34 +1397,34 @@ export function PeopleShelf() {
                     ))}
                   </g>
 
-                  <text x="35" y="60" fontFamily="'Inter Tight', sans-serif" fontSize="10.5" fontWeight="700" letterSpacing="2.5" fill={activeTheme.bg}>
+                  <text x="35" y="60" fontFamily="'Inter Tight', sans-serif" fontSize="10.5" fontWeight="700" letterSpacing="2.5" fill={themeStyles[dossierBook.theme || "cobalt"].bg}>
                     AEROSPACE ARCHIVES · IIST VALIAMALA
                   </text>
                   <text x="35" y="85" fontFamily="'Newsreader', serif" fontSize="30" fontWeight="700" fill="#141414">
-                    {activeBook.name}
+                    {dossierBook.name}
                   </text>
                   <text x="35" y="106" fontFamily="monospace" fontSize="10.5" fill="#6D6A63">
-                    {activeBook.roll} · {activeBook.cohort}
+                    {dossierBook.roll} · {dossierBook.cohort}
                   </text>
 
                   <g transform="translate(47, 180) scale(1.35)">
-                    <TechnicalScreenprint diagram={activeBook.diagram} color={activeTheme.illustrationColor} />
+                    <TechnicalScreenprint diagram={dossierBook.diagram} color={themeStyles[dossierBook.theme || "cobalt"].illustrationColor} />
                   </g>
 
                   <g transform="translate(35, 680)">
-                    <rect width="404" height="150" fill={activeTheme.bg} fillOpacity="0.08" stroke={activeTheme.bg} strokeWidth="1" />
-                    <text x="18" y="30" fontFamily="'Inter Tight', sans-serif" fontSize="9.5" fontWeight="700" letterSpacing="1.5" fill={activeTheme.bg}>
+                    <rect width="404" height="150" fill={themeStyles[dossierBook.theme || "cobalt"].bg} fillOpacity="0.08" stroke={themeStyles[dossierBook.theme || "cobalt"].bg} strokeWidth="1" />
+                    <text x="18" y="30" fontFamily="'Inter Tight', sans-serif" fontSize="9.5" fontWeight="700" letterSpacing="1.5" fill={themeStyles[dossierBook.theme || "cobalt"].bg}>
                       SPECIALIZATION & CORE COMPETENCIES
                     </text>
                     <text x="18" y="55" fontFamily="'Newsreader', serif" fontSize="16" fontWeight="600" fill="#141414">
-                      {activeBook.specialization}
+                      {dossierBook.specialization}
                     </text>
                     <line x1="18" y1="75" x2="386" y2="75" stroke="#141414" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.4" />
                     <text x="18" y="100" fontFamily="monospace" fontSize="9.5" fill="#6D6A63">
-                      STATUS :: {activeBook.placedAt ? `Destination: ${activeBook.placedAt}` : "Active Research Scholar"}
+                      STATUS :: {dossierBook.placedAt ? `Destination: ${dossierBook.placedAt}` : "Active Research Scholar"}
                     </text>
-                    <text x="18" y="122" fontFamily="monospace" fontSize="9.5" fontWeight="bold" fill={activeTheme.bg}>
-                      {activeBook.graduatedNote || "VERIFIED ACADEMIC DOSSIER RECORD"}
+                    <text x="18" y="122" fontFamily="monospace" fontSize="9.5" fontWeight="bold" fill={themeStyles[dossierBook.theme || "cobalt"].bg}>
+                      {dossierBook.graduatedNote || "VERIFIED ACADEMIC DOSSIER RECORD"}
                     </text>
                   </g>
                 </g>

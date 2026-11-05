@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { GraduationCap, LogIn, Menu, Rocket, X } from "lucide-react";
+import { IndicTranslate } from "@/components/IndicTranslate";
 
 const navItems = [
   ["About", "/about"],
@@ -78,6 +79,11 @@ export function SiteHeader() {
           })}
         </nav>
 
+        {/* Indic Language Translation Switcher - available on every page */}
+        <div className="w-full flex items-center justify-center py-2 border-t border-[var(--edge)]">
+          <IndicTranslate compact />
+        </div>
+
         {/* Login — always pinned to bottom, never hidden */}
         <Link
           href={isLoggedIn ? "/dashboard" : "/login"}
@@ -107,6 +113,7 @@ export function SiteHeader() {
           </span>
         </Link>
         <div className="flex items-center gap-2">
+          <IndicTranslate />
           <Link
             href={isLoggedIn ? "/dashboard" : "/login"}
             className="inline-flex items-center gap-1.5 h-9 px-3 rounded border border-[var(--arc-blue)] bg-[var(--arc-blue-dim)] text-[var(--arc-blue)] text-xs font-semibold hover:bg-[var(--arc-blue)] hover:text-white transition-all"
