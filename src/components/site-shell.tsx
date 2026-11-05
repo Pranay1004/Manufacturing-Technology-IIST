@@ -16,7 +16,7 @@ const navItems = [
   ["Placements", "/placements"],
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ hideMobile = false }: { hideMobile?: boolean } = {}) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -103,33 +103,35 @@ export function SiteHeader() {
       </aside>
 
       {/* Mobile Top Bar (collapsed on desktop, visible on mobile) */}
-      <header className="lg:hidden sticky top-0 z-40 border-b border-[var(--edge)] bg-[var(--void)]/85 backdrop-blur-md py-3 px-4 flex items-center justify-between shadow-sm">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid size-9 place-items-center rounded bg-gradient-to-br from-[var(--arc-blue)] to-[var(--cool-zone)] text-white">
-            <Rocket size={16} aria-hidden />
-          </span>
-          <span className="font-display text-sm font-bold text-[var(--ceramic)]">
-            Manufacturing Tech
-          </span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <IndicTranslate />
-          <Link
-            href={isLoggedIn ? "/dashboard" : "/login"}
-            className="inline-flex items-center gap-1.5 h-9 px-3 rounded border border-[var(--arc-blue)] bg-[var(--arc-blue-dim)] text-[var(--arc-blue)] text-xs font-semibold hover:bg-[var(--arc-blue)] hover:text-white transition-all"
-          >
-            <LogIn size={13} aria-hidden />
-            {isLoggedIn ? "Dashboard" : "Login"}
+      {!hideMobile && (
+        <header className="lg:hidden sticky top-0 z-40 border-b border-[var(--edge)] bg-[var(--void)]/85 backdrop-blur-md py-3 px-4 flex items-center justify-between shadow-sm">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className="grid size-9 place-items-center rounded bg-gradient-to-br from-[var(--arc-blue)] to-[var(--cool-zone)] text-white">
+              <Rocket size={16} aria-hidden />
+            </span>
+            <span className="font-display text-sm font-bold text-[var(--ceramic)]">
+              Manufacturing Tech
+            </span>
           </Link>
-          <button
-            type="button"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="grid size-9 place-items-center rounded border border-[var(--edge)] bg-[var(--panel)] text-[var(--ceramic-muted)] hover:text-[var(--ceramic)] cursor-pointer"
-          >
-            {mobileOpen ? <X size={16} aria-hidden /> : <Menu size={16} aria-hidden />}
-          </button>
-        </div>
-      </header>
+          <div className="flex items-center gap-2">
+            <IndicTranslate />
+            <Link
+              href={isLoggedIn ? "/dashboard" : "/login"}
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded border border-[var(--arc-blue)] bg-[var(--arc-blue-dim)] text-[var(--arc-blue)] text-xs font-semibold hover:bg-[var(--arc-blue)] hover:text-white transition-all"
+            >
+              <LogIn size={13} aria-hidden />
+              {isLoggedIn ? "Dashboard" : "Login"}
+            </Link>
+            <button
+              type="button"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="grid size-9 place-items-center rounded border border-[var(--edge)] bg-[var(--panel)] text-[var(--ceramic-muted)] hover:text-[var(--ceramic)] cursor-pointer"
+            >
+              {mobileOpen ? <X size={16} aria-hidden /> : <Menu size={16} aria-hidden />}
+            </button>
+          </div>
+        </header>
+      )}
 
       {/* Mobile Overlay Menu */}
       {mobileOpen && (

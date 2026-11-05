@@ -906,8 +906,8 @@ export function PeopleShelf() {
 
   return (
     <div className="flex flex-col lg:flex-row h-screen h-[100dvh] w-full overflow-hidden bg-[#EDEBE6] text-[#141414] font-['Inter_Tight',sans-serif]">
-      {/* ─── Left Bar: Maintained on Desktop, Top Bar on Mobile ───────────── */}
-      <SiteHeader />
+      {/* ─── Left Bar: Maintained on Desktop, Top Bar hidden on Mobile (avoids duplicate line) ─── */}
+      <SiteHeader hideMobile />
 
       {/* ─── Main Right Canvas for 3D Shelf / Stack ───────────────────────── */}
       <div className="relative flex-1 min-w-0 min-h-0 w-full h-full overflow-hidden select-none flex flex-col justify-between">
@@ -919,73 +919,71 @@ export function PeopleShelf() {
           }}
         />
 
-        {/* ─── 1. Sub-Header Toolbar (Responsive across iPhone, Android & Desktop) ── */}
-        <header className="relative z-30 h-12 sm:h-14 lg:h-[60px] px-3 sm:px-6 flex items-center justify-between border-b border-[rgba(20,20,20,0.1)] bg-[#EDEBE6]/90 backdrop-blur-xs">
+        {/* ─── 1. Top Bar (Exact Original Desktop Layout + Clean Mobile Adaptation) ─── */}
+        <header className="relative z-30 h-14 sm:h-[72px] px-4 sm:px-8 grid grid-cols-[auto_1fr_auto] sm:grid-cols-[1fr_auto_1fr] items-center border-b border-[rgba(20,20,20,0.1)] bg-[#EDEBE6]/90 backdrop-blur-xs">
           {/* Left Title Area */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="inline-flex items-center gap-1 sm:gap-1.5 h-[26px] sm:h-[28px] px-2 sm:px-2.5 border border-[rgba(20,20,20,0.85)] text-[9.5px] sm:text-[10px] font-semibold tracking-wider uppercase text-[#141414] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors"
+              className="inline-flex items-center gap-1.5 h-[27px] px-2.5 border border-[rgba(20,20,20,0.85)] text-[10px] font-semibold tracking-wider uppercase text-[#141414] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors"
             >
-              <ArrowLeft size={11} aria-hidden />
+              <ArrowLeft size={12} aria-hidden />
               <span>Back</span>
             </Link>
           </div>
 
           {/* Center Logo Band */}
-          <div className="flex flex-col items-center justify-center text-center px-1">
-            <span className="font-['Newsreader',serif] font-bold text-base sm:text-xl lg:text-2xl tracking-tight text-[#143B82] leading-tight">
-              IIST Manufacturing Tech
+          <div className="flex flex-col items-center justify-center text-center px-2">
+            <span className="font-['Newsreader',serif] font-bold text-lg sm:text-2xl tracking-tight text-[#143B82] leading-tight">
+              IIST Manufacturing Technology
             </span>
-            <span className="text-[7.5px] sm:text-[8.5px] font-semibold tracking-[0.16em] sm:tracking-[0.24em] uppercase text-[#6D6A63] hidden xs:block">
-              Aerospace Engineering · Scholar Archive
+            <span className="text-[7.5px] sm:text-[8.5px] font-semibold tracking-[0.24em] uppercase text-[#6D6A63] hidden xs:block">
+              Department of Aerospace Engineering · Scholar Archive
             </span>
           </div>
 
-          {/* Right Action: Orientation Switcher + Indic Translate (Desktop/Tablet) */}
-          <div className="flex items-center justify-end gap-1.5 sm:gap-3">
+          {/* Right Action: Orientation Switcher + Indic Translate */}
+          <div className="flex items-center justify-end gap-2 sm:gap-3">
             <div className="inline-flex items-center p-0.5 rounded-sm border border-[rgba(20,20,20,0.85)] bg-white/60 shadow-xs">
               <button
                 type="button"
                 onClick={() => setOrientation("horizontal")}
                 className={[
-                  "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 text-[9.5px] sm:text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
+                  "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
                   orientation === "horizontal"
                     ? "bg-[#143B82] text-white rounded-xs shadow-xs"
                     : "text-[#6D6A63] hover:text-[#141414]",
                 ].join(" ")}
                 title="Horizontal Standing Books Shelf"
               >
-                <Columns size={11} aria-hidden />
-                <span>Shelf</span>
+                <Columns size={12} aria-hidden />
+                <span className="hidden sm:inline">Shelf</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setOrientation("vertical")}
                 className={[
-                  "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 text-[9.5px] sm:text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
+                  "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
                   orientation === "vertical"
                     ? "bg-[#143B82] text-white rounded-xs shadow-xs"
                     : "text-[#6D6A63] hover:text-[#141414]",
                 ].join(" ")}
                 title="Vertical Flat Books Stack"
               >
-                <Rows size={11} aria-hidden />
-                <span>Stack</span>
+                <Rows size={12} aria-hidden />
+                <span className="hidden sm:inline">Stack</span>
               </button>
             </div>
 
-            <div className="hidden sm:block">
-              <IndicTranslate />
-            </div>
+            <IndicTranslate />
           </div>
         </header>
 
         {/* ─── 2. Cohort Segregation Tabs (Horizontally Scrollable on Mobile) ── */}
         <nav
           aria-label="Cohort Batches"
-          className="relative z-30 w-full flex flex-col items-center justify-center pt-1.5 sm:pt-2 pb-1 gap-1 px-2"
+          className="relative z-30 w-full flex flex-col items-center justify-center pt-2 pb-1 gap-1 px-2"
         >
           <div className="w-full max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex justify-start sm:justify-center py-0.5">
             <div
@@ -1007,12 +1005,12 @@ export function PeopleShelf() {
                     data-cohort={tab.id}
                     onClick={() => setSelectedCohort(tab.id)}
                     className={[
-                      "relative z-10 h-[26px] sm:h-[29px] px-2.5 sm:px-3 border-r last:border-r-0 border-[rgba(20,20,20,0.25)] text-[9.5px] sm:text-[10.5px] font-semibold tracking-wider uppercase transition-colors duration-250 select-none whitespace-nowrap cursor-pointer",
+                      "relative z-10 h-[29px] px-3 border-r last:border-r-0 border-[rgba(20,20,20,0.25)] text-[10.5px] font-semibold tracking-wider uppercase transition-colors duration-250 select-none whitespace-nowrap cursor-pointer",
                       isActive ? "text-white font-bold" : "text-[#141414] hover:bg-[#141414]/8",
                     ].join(" ")}
                   >
                     <span>{tab.label}</span>
-                    <span className={`ml-1 text-[8.5px] sm:text-[9px] font-mono opacity-80 ${isActive ? "text-white/80" : "text-[#6D6A63]"}`}>
+                    <span className={`ml-1 text-[9px] font-mono opacity-80 ${isActive ? "text-white/80" : "text-[#6D6A63]"}`}>
                       ({tab.count})
                     </span>
                   </button>
@@ -1021,9 +1019,9 @@ export function PeopleShelf() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-mono text-[#6D6A63]">
+          <div className="flex items-center gap-2 text-[10px] font-mono text-[#6D6A63]">
             <span className="size-1.5 rounded-full bg-[#143B82]" />
-            <span className="truncate max-w-[320px]">{currentTab.statusText}</span>
+            <span>{currentTab.statusText}</span>
           </div>
         </nav>
 

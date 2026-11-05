@@ -62,13 +62,18 @@ export function IndicTranslate({ compact = false }: { compact?: boolean }) {
 
     readCookie();
 
-    // Dynamically inject script once globally
+    // Dynamically inject script once globally and ensure single container on body
     if (!document.getElementById("google-translate-script")) {
-      const script = document.createElement("script");
-      script.id = "google-translate-script";
-      script.src = "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-      script.async = true;
-      document.body.appendChild(script);
+      if (!document.getElementById("global_google_translate_element")) {
+        const container = document.createElement("div");
+        container.id = "global_google_translate_element";
+        container.style.position = "absolute";
+        container.style.top = "-9999px";
+        container.style.left = "-9999px";
+        container.style.opacity = "0";
+        container.style.pointerEvents = "none";
+        document.body.appendChild(container);
+      }
 
       window.googleTranslateElementInit = () => {
         if (window.google?.translate?.TranslateElement) {
@@ -82,6 +87,12 @@ export function IndicTranslate({ compact = false }: { compact?: boolean }) {
           );
         }
       };
+
+      const script = document.createElement("script");
+      script.id = "google-translate-script";
+      script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+      script.async = true;
+      document.body.appendChild(script);
     }
 
     // Close on outside click
@@ -98,54 +109,52 @@ export function IndicTranslate({ compact = false }: { compact?: boolean }) {
     setSelectedLang(code);
     setIsOpen(false);
 
-    const hostname = window.location.hostname;
-
+    // Save cookie for persistence across pages (no domain restriction so it works on vercel.app and localhost)
     if (code === "en") {
-      // Clear cookies across all domains and paths
       document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${hostname}; path=/;`;
-      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=.${hostname}; path=/;`;
       document.cookie = "googtrans=/en/en; path=/;";
+    } else {
+      document.cookie = `googtrans=/en/${code}; path=/;`;
+    }
 
+    try {
+      const hostname = window.location.hostname;
+      if (!hostname.endsWith(".vercel.app") && hostname !== "localhost") {
+        if (code === "en") {
+          document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${hostname}; path=/;`;
+          document.cookie = `googtrans=/en/en; domain=${hostname}; path=/;`;
+        } else {
+          document.cookie = `googtrans=/en/${code}; domain=${hostname}; path=/;`;
+        }
+      }
+    } catch {}
+
+    // In-place live DOM translation: DO NOT RELOAD PAGE (reloading aborts in-flight Google translation)
+    const triggerCombo = () => {
       const select = document.querySelector(".goog-te-combo") as HTMLSelectElement | null;
       if (select) {
-        select.value = "en";
+        select.value = code;
         select.dispatchEvent(new Event("change"));
+        return true;
       }
+      return false;
+    };
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 120);
-      return;
+    if (!triggerCombo()) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (triggerCombo() || attempts > 25) {
+          clearInterval(interval);
+        }
+      }, 100);
     }
-
-    // Set new cookie across root and domain
-    document.cookie = `googtrans=/en/${code}; path=/;`;
-    document.cookie = `googtrans=/en/${code}; domain=${hostname}; path=/;`;
-    document.cookie = `googtrans=/en/${code}; domain=.${hostname}; path=/;`;
-
-    const select = document.querySelector(".goog-te-combo") as HTMLSelectElement | null;
-    if (select) {
-      select.value = code;
-      select.dispatchEvent(new Event("change"));
-    }
-
-    setTimeout(() => {
-      window.location.reload();
-    }, 120);
   };
 
   const current = indicLanguages.find((l) => l.code === selectedLang) || indicLanguages[0];
 
   return (
     <div ref={dropdownRef} className="relative z-50 inline-block text-left">
-      {/* Visually hidden container that Google Translate can safely attach to without display:none breaking it */}
-      <div
-        id="global_google_translate_element"
-        className="absolute opacity-0 pointer-events-none -z-50 size-0 overflow-hidden"
-        aria-hidden="true"
-      />
-
       {/* Button Variant */}
       {compact ? (
         <button
