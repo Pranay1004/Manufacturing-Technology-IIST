@@ -15,14 +15,19 @@ if "--still" in ARGV:
             break
         STILLS.append(int(a))
 NO_ENCODE = "--no-encode" in ARGV
+FAST = "--fast" in ARGV
 
 OUT_DIR = os.path.join(os.path.expanduser("~"), "Desktop",
                        "mt_hero_preview" if PREVIEW else "mt_hero")
 FRAMES_DIR = os.path.join(OUT_DIR, "frames")
 FPS = 24
 N_FRAMES = 168                      # 7.0 s
-RES_X, RES_Y = (960, 540) if PREVIEW else (1920, 1080)
-SAMPLES = 24 if PREVIEW else 96
+if FAST:
+    RES_X, RES_Y = 480, 270
+    SAMPLES = 8
+else:
+    RES_X, RES_Y = (960, 540) if PREVIEW else (1920, 1080)
+    SAMPLES = 24 if PREVIEW else 96
 os.makedirs(FRAMES_DIR, exist_ok=True)
 
 # part / build geometry

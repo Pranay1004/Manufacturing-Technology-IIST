@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Mail, X, FileText, Columns, Rows } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Mail, X, Columns, Rows } from "lucide-react";
 import { people } from "@/lib/data";
 import { IndicTranslate } from "@/components/IndicTranslate";
 import { SiteHeader } from "@/components/site-shell";
@@ -150,7 +150,6 @@ export function getShortName(fullName: string): string {
   if (parts.length === 0) return fullName;
   if (parts.length === 1) return `${title}${parts[0]}`.trim();
 
-  // If leading parts are single-letter initials (e.g. "P J Arjun" or "T V Divya")
   const isInit = (s: string) => s.length === 1 || (s.length === 2 && s.endsWith("."));
   if (isInit(parts[0])) {
     const mainName = parts.find((p) => !isInit(p)) || parts[parts.length - 1];
@@ -158,7 +157,6 @@ export function getShortName(fullName: string): string {
     return `${title}${mainName} ${initial}.`.trim();
   }
 
-  // Standard: First name + Last initial (e.g. "Pranay Kumar Pandey" -> "Pranay P.")
   const firstName = parts[0];
   const lastName = parts[parts.length - 1];
   const lastInitial = lastName.charAt(0).toUpperCase();
@@ -457,14 +455,20 @@ export function PeopleShelf() {
   const cohortBooks = useMemo(() => getCohortBooks(selectedCohort), [selectedCohort]);
   const M = cohortBooks.length;
 
-  // Active book index: null by default so no book opens automatically!
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const activeIdxRef = useRef<number | null>(null);
+  // Active book index: starts on 0 so rolling physics are active immediately!
+  const [activeIdx, setActiveIdx] = useState<number>(0);
+  const activeIdxRef = useRef<number>(0);
   activeIdxRef.current = activeIdx;
 
   const sRef = useRef(0);
   const targetRef = useRef(0);
   const hoverRef = useRef(-1);
+
+  // Dragging & Momentum Physics
+  const isDraggingRef = useRef(false);
+  const dragStartRef = useRef({ pos: 0, target: 0 });
+  const lastWheelTimeRef = useRef(0);
+  const wheelSnapTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [dossierBook, setDossierBook] = useState<BookItem>(cohortBooks[0] || ({} as BookItem));
@@ -486,8 +490,8 @@ export function PeopleShelf() {
 
   // Reset physics when switching cohort or orientation
   useEffect(() => {
-    setActiveIdx(null);
-    activeIdxRef.current = null;
+    setActiveIdx(0);
+    activeIdxRef.current = 0;
     sRef.current = 0;
     targetRef.current = 0;
 
@@ -557,7 +561,6 @@ export function PeopleShelf() {
       { duration: 600, easing: "cubic-bezier(.16,1,.3,1)", fill: "both" }
     );
 
-    // Text lines rise
     const textLines = dialog.querySelectorAll(".detail-mask-line > *");
     textLines.forEach((line, idx) => {
       line.animate(
@@ -574,7 +577,6 @@ export function PeopleShelf() {
       );
     });
 
-    // Ink bleed circles
     const blobDelays = [0, 80, 160, 240, 300, 360, 140];
     const startTime = performance.now() + 180;
 
@@ -628,7 +630,7 @@ export function PeopleShelf() {
     };
   }, []);
 
-  // ─── Animation Loop (Spring Physics & Center Alignment) ───────────────────
+  // ─── Animation Loop (Continuous Spring Physics & 3D Rolling) ───────────────
   useEffect(() => {
     let animId = 0;
     let lastTime = performance.now();
@@ -637,8 +639,9 @@ export function PeopleShelf() {
       const dt = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
 
-      // Spring physics
-      const k = 10.0;
+      // 1. Spring physics with dynamic damping
+      const k = isDraggingRef.current ? 18.0 : 7.0;
+      const prevS = sRef.current;
       targetRef.current = clamp(targetRef.current, 0, Math.max(0, M - 1));
       sRef.current += (targetRef.current - sRef.current) * (1 - Math.exp(-k * dt));
 
@@ -646,10 +649,20 @@ export function PeopleShelf() {
         sRef.current = targetRef.current;
       }
 
-      // Sizing
+      // Automatically sync active index as the shelf rolls past integers!
+      const currentActive = clamp(Math.round(sRef.current), 0, Math.max(0, M - 1));
+      if (currentActive !== activeIdxRef.current && cohortBooks[currentActive]) {
+        const dir = targetRef.current >= prevS ? 1 : -1;
+        activeIdxRef.current = currentActive;
+        setActiveIdx(currentActive);
+        swapCaption(cohortBooks[currentActive], dir);
+      }
+
+      // 2. Dimensions & Sizing
       const stageContainer = stageRef.current?.parentElement;
       const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
-      // 1. Stack Mode Dimensions (Dynamic horizontal stack sizing):
+
+      // Stack Mode Dimensions (Dynamic horizontal stack sizing):
       const isCompact = M <= 5;
       const isMedium = M <= 8;
       const idealSpineH = isCompact ? 60 : isMedium ? 46 : 37;
@@ -658,7 +671,7 @@ export function PeopleShelf() {
       const baseWidth = isCompact ? 540 : isMedium ? 480 : 420;
       const stackWidth = Math.min(baseWidth, W * 0.85);
 
-      // 2. Shelf Mode Dimensions (Reverted to default):
+      // Shelf Mode Dimensions (Reverted to default):
       const H = Math.min(W >= 768 ? window.innerHeight * 0.48 : window.innerWidth * 0.65, W >= 768 ? W * 0.32 : window.innerHeight * 0.42);
       const ws = H * (135 / 840);
       const d = H * (460 / 900);
@@ -672,8 +685,7 @@ export function PeopleShelf() {
         stageRef.current.style.setProperty("--stack-h", `${stackSpineH}px`);
       }
 
-      const active = activeIdxRef.current;
-
+      // 3. Transform strictly M books with continuous 3D rolling!
       for (let v = 0; v < M; v++) {
         const el = bookElsRef.current[v];
         if (!el) continue;
@@ -684,51 +696,39 @@ export function PeopleShelf() {
         const nextLift = currentLift + (targetLift - currentLift) * (1 - Math.exp(-14 * dt));
         el.setAttribute("data-lift", String(nextLift));
 
+        const r = v - sRef.current;
+        const o = smoothStep(Math.max(0, 1 - Math.abs(r)));
+
         if (orientation === "horizontal") {
           // ══════════════════════════════════════════════════════════════════
-          // MODE A: HORIZONTAL SHELF
+          // MODE A: HORIZONTAL SHELF (Rolling in 3D: Spine to Cover and back!)
           // ══════════════════════════════════════════════════════════════════
-          if (active === null) {
-            // ALL CLOSED: Perfectly centered symmetrically
-            const centerIdx = (M - 1) / 2;
-            const x = (v - centerIdx) * (ws + gap);
-            const transY = -nextLift * 18;
-            const transZ = nextLift * 24;
+          const x = r * (ws + gap) + (d - ws + 1.4 * gap) * smoothStepB(r);
 
-            el.style.transform = `translate3d(${x}px, ${transY}px, ${transZ}px) rotateY(0deg) rotateX(0deg) rotateZ(0deg)`;
-            el.style.zIndex = String(10 + Math.round(nextLift * 20));
-            el.style.setProperty("--shade-spine", "0");
-            el.style.setProperty("--shade-cover", "0.5");
-          } else {
-            // ONE BOOK ACTIVE: Slides to focus and opens STRAIGHT (no incline!)
-            const r = v - sRef.current;
-            const o = smoothStep(Math.max(0, 1 - Math.abs(r)));
-            const x = r * (ws + gap) + (d - ws + gap) * smoothStepB(r);
+          // rotY turns smoothly from 0deg (spine) to -90deg (cover) as r reaches 0!
+          const rotY = -90 * o;
+          const rotX = 0;
+          const rotZ = 0; // Straight preview, zero diagonal tilt
+          const transZ = o * 48 + nextLift * 15;
+          const transY = -o * 8 - nextLift * 16;
 
-            // rotZ = 0deg: Kept 100% straight and square without diagonal incline!
-            const rotY = -90 * o;
-            const rotX = 0;
-            const rotZ = 0;
-            const transZ = o * 45 + nextLift * 15;
-            const transY = -nextLift * 15;
-
-            el.style.transform = `translate3d(${x}px, ${transY}px, ${transZ}px) rotateY(${rotY}deg) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
-            el.style.zIndex = String(Math.round(100 - Math.abs(r) * 5));
-            el.style.setProperty("--shade-spine", String(o * 0.65));
-            el.style.setProperty("--shade-cover", String((1 - o) * 0.5));
-          }
+          el.style.transform = `translate3d(${x}px, ${transY}px, ${transZ}px) rotateY(${rotY}deg) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
+          el.style.zIndex = String(Math.round(100 - Math.abs(r) * 5));
+          el.style.setProperty("--shade-spine", String(o * 0.65));
+          el.style.setProperty("--shade-cover", String((1 - o) * 0.5));
         } else {
           // ══════════════════════════════════════════════════════════════════
-          // MODE B: VERTICAL STACK (Zoomed out, flat on desk, perfectly centered)
+          // MODE B: VERTICAL STACK (Smooth vertical glide & 3D forward lift)
           // ══════════════════════════════════════════════════════════════════
-          const centerIdx = (M - 1) / 2;
-          const y = (v - centerIdx) * (stackSpineH + stackGap);
-          const slideX = nextLift * -18;
-          const transZ = nextLift * 25;
+          const y = r * (stackSpineH + stackGap) + 14 * smoothStepB(r);
+          const slideX = -o * 24 + (isHovered ? -14 : 0);
+          const transZ = o * 42 + (isHovered ? 20 : 0) - Math.abs(r) * 4;
+          const rotX = -10 * o;
+          const rotZ = -1.5 * o;
 
-          el.style.transform = `translate3d(${slideX}px, ${y}px, ${transZ}px)`;
-          el.style.zIndex = String(Math.round(50 - v + nextLift * 30));
-          el.style.setProperty("--shade-spine", "0");
+          el.style.transform = `translate3d(${slideX}px, ${y}px, ${transZ}px) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
+          el.style.zIndex = String(Math.round(80 - Math.abs(r) * 5 + nextLift * 20));
+          el.style.setProperty("--shade-spine", String(o * 0.2));
           el.style.setProperty("--shade-cover", "0");
         }
       }
@@ -738,35 +738,69 @@ export function PeopleShelf() {
 
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
-  }, [M, orientation]);
+  }, [M, orientation, swapCaption, cohortBooks]);
 
-  // ─── Book Click Handler ───────────────────────────────────────────────────
+  // ─── Input Handlers: Wheel, Drag & Keyboard ───────────────────────────────
+  const handleShelfWheel = (e: React.WheelEvent) => {
+    if (detailOpen) return;
+    const delta = orientation === "horizontal"
+      ? (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY)
+      : e.deltaY;
+
+    const H = Math.min(window.innerHeight * 0.48, window.innerWidth * 0.32);
+    const step = orientation === "horizontal" ? H * (135 / 840) + H * 0.038 : 50;
+
+    targetRef.current = clamp(targetRef.current + (delta / step) * 0.5, 0, M - 1);
+    lastWheelTimeRef.current = Date.now();
+
+    if (wheelSnapTimerRef.current) clearTimeout(wheelSnapTimerRef.current);
+    wheelSnapTimerRef.current = setTimeout(() => {
+      targetRef.current = clamp(Math.round(targetRef.current), 0, M - 1);
+    }, 140);
+  };
+
+  const handleShelfPointerDown = (e: React.PointerEvent) => {
+    if (detailOpen) return;
+    isDraggingRef.current = false;
+    const startCoord = orientation === "horizontal" ? e.clientX : e.clientY;
+    dragStartRef.current = { pos: startCoord, target: targetRef.current };
+
+    const handlePointerMoveDrag = (ev: PointerEvent) => {
+      const currentCoord = orientation === "horizontal" ? ev.clientX : ev.clientY;
+      const delta = currentCoord - dragStartRef.current.pos;
+      if (Math.abs(delta) > 4) {
+        isDraggingRef.current = true;
+        const H = Math.min(window.innerHeight * 0.48, window.innerWidth * 0.32);
+        const step = orientation === "horizontal" ? H * (135 / 840) + H * 0.038 : 50;
+        targetRef.current = clamp(dragStartRef.current.target - delta / step, 0, M - 1);
+      }
+    };
+
+    const handlePointerUpDrag = () => {
+      if (isDraggingRef.current) {
+        targetRef.current = clamp(Math.round(targetRef.current), 0, M - 1);
+      }
+      window.removeEventListener("pointermove", handlePointerMoveDrag);
+      window.removeEventListener("pointerup", handlePointerUpDrag);
+    };
+
+    window.addEventListener("pointermove", handlePointerMoveDrag);
+    window.addEventListener("pointerup", handlePointerUpDrag);
+  };
+
   const handleBookClick = (idx: number) => {
+    if (isDraggingRef.current) return;
     const book = cohortBooks[idx];
     if (!book) return;
 
-    if (orientation === "vertical") {
-      // In stack mode: click directly opens full dossier!
-      openDetail(book);
-      return;
-    }
-
-    // In shelf mode:
-    if (activeIdx === idx) {
-      // Already open: open full dossier!
+    const r = idx - sRef.current;
+    if (Math.abs(r) < 0.45) {
+      // In active focus: open full dossier!
       openDetail(book);
     } else {
-      // Open straight preview
-      setActiveIdx(idx);
-      activeIdxRef.current = idx;
-      targetRef.current = idx;
-      swapCaption(book, targetRef.current >= sRef.current ? 1 : -1);
+      // Slide and roll into active center focus!
+      targetRef.current = clamp(idx, 0, M - 1);
     }
-  };
-
-  const closePreview = () => {
-    setActiveIdx(null);
-    activeIdxRef.current = null;
   };
 
   // Keyboard navigation
@@ -777,29 +811,20 @@ export function PeopleShelf() {
         return;
       }
 
-      if (e.key === "Escape" && activeIdx !== null) {
-        closePreview();
-        return;
-      }
-
       if (orientation === "horizontal") {
         if (e.key === "ArrowLeft") {
-          const next = activeIdx === null ? 0 : clamp(activeIdx - 1, 0, M - 1);
-          handleBookClick(next);
+          targetRef.current = clamp(Math.round(targetRef.current) - 1, 0, M - 1);
         } else if (e.key === "ArrowRight") {
-          const next = activeIdx === null ? 0 : clamp(activeIdx + 1, 0, M - 1);
-          handleBookClick(next);
-        } else if (e.key === "Enter" && activeIdx !== null && cohortBooks[activeIdx]) {
+          targetRef.current = clamp(Math.round(targetRef.current) + 1, 0, M - 1);
+        } else if (e.key === "Enter" && cohortBooks[activeIdx]) {
           openDetail(cohortBooks[activeIdx]);
         }
       } else {
         if (e.key === "ArrowUp") {
-          const next = activeIdx === null ? 0 : clamp(activeIdx - 1, 0, M - 1);
-          setActiveIdx(next);
+          targetRef.current = clamp(Math.round(targetRef.current) - 1, 0, M - 1);
         } else if (e.key === "ArrowDown") {
-          const next = activeIdx === null ? 0 : clamp(activeIdx + 1, 0, M - 1);
-          setActiveIdx(next);
-        } else if (e.key === "Enter" && activeIdx !== null && cohortBooks[activeIdx]) {
+          targetRef.current = clamp(Math.round(targetRef.current) + 1, 0, M - 1);
+        } else if (e.key === "Enter" && cohortBooks[activeIdx]) {
           openDetail(cohortBooks[activeIdx]);
         }
       }
@@ -809,7 +834,7 @@ export function PeopleShelf() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [detailOpen, activeIdx, orientation, M, cohortBooks, openDetail, closeDetail]);
 
-  const activeBook = activeIdx !== null ? cohortBooks[activeIdx] : null;
+  const activeBook = cohortBooks[activeIdx] || cohortBooks[0];
   const activeTheme = themeStyles[activeBook?.theme || "cobalt"];
 
   return (
@@ -931,20 +956,19 @@ export function PeopleShelf() {
           </div>
         </nav>
 
-        {/* ─── 3. The 3D Stage (Center Aligned, No Laggy Cursor) ────────────── */}
+        {/* ─── 3. The 3D Stage (Continuous Drag & Wheel Rolling Physics) ────── */}
         <section
           aria-label="Archival book presentation"
-          className="relative flex-1 w-full z-20 flex items-center justify-center overflow-visible select-none"
+          onPointerDown={handleShelfPointerDown}
+          onWheel={handleShelfWheel}
+          className="relative flex-1 w-full z-20 flex items-center justify-center cursor-grab active:cursor-grabbing overflow-visible select-none"
           style={{
             perspective: "2000px",
             perspectiveOrigin: "50% 50%",
-          }}
-          onClick={(e) => {
-            if ((e.target as HTMLElement).closest(".tape")) return;
-            if (activeIdx !== null) closePreview();
+            touchAction: "pan-y",
           }}
         >
-          {/* Zero-size Stage Origin in Dead Center */}
+          {/* Zero-size Stage Origin in Center */}
           <div
             ref={stageRef}
             className="relative size-0"
@@ -953,13 +977,12 @@ export function PeopleShelf() {
               ["--ws" as string]: "76px",
               ["--d" as string]: "230px",
               ["--H" as string]: "460px",
-              ["--stack-w" as string]: "360px",
-              ["--stack-h" as string]: "34px",
+              ["--stack-w" as string]: "480px",
+              ["--stack-h" as string]: "46px",
             }}
           >
             {cohortBooks.map((book, v) => {
               const theme = themeStyles[book.theme];
-              const isSelected = activeIdx === v;
 
               return (
                 <div
@@ -985,7 +1008,7 @@ export function PeopleShelf() {
                 >
                   {orientation === "horizontal" ? (
                     // ══════════════════════════════════════════════════════════
-                    // MODE A: HORIZONTAL SHELF (Standing books, side by side)
+                    // MODE A: HORIZONTAL SHELF (Rolling 3D: Spine to Cover!)
                     // ══════════════════════════════════════════════════════════
                     <>
                       {/* Spine Face (.sp) */}
@@ -1103,7 +1126,7 @@ export function PeopleShelf() {
                     </>
                   ) : (
                     // ══════════════════════════════════════════════════════════
-                    // MODE B: VERTICAL STACK (Zoomed out flat pile, Screenshot 7)
+                    // MODE B: VERTICAL STACK (Dynamic Horizontal Sizing, 3D Lift)
                     // ══════════════════════════════════════════════════════════
                     <div
                       className={[
@@ -1187,76 +1210,52 @@ export function PeopleShelf() {
           </div>
         </section>
 
-        {/* ─── 4. Caption Stack & Preview Close Button ─────────────────────── */}
+        {/* ─── 4. Caption Stack ────────────────────────────────────────────── */}
         <div
           aria-live="polite"
           className="relative z-20 flex flex-col items-center text-center gap-1 pb-3 pointer-events-auto"
         >
-          {activeBook ? (
-            <>
-              {/* Close Button to return to centered closed shelf */}
-              <button
-                type="button"
-                onClick={closePreview}
-                className="mb-1 inline-flex items-center gap-1 px-2.5 py-0.5 border border-[rgba(20,20,20,0.7)] rounded-xs bg-white/70 hover:bg-[#141414] hover:text-white text-[9.5px] font-mono uppercase tracking-wider transition-colors cursor-pointer"
-              >
-                <X size={11} aria-hidden />
-                <span>Close Preview (Center All)</span>
-              </button>
+          <div
+            ref={captionTitleRef}
+            className="overflow-hidden h-[30px] flex items-center justify-center font-['Newsreader',serif] font-bold text-[22px] sm:text-[26px] leading-[1.1] text-[#141414]"
+          >
+            <span>{activeBook.name}</span>
+          </div>
 
-              <div
-                ref={captionTitleRef}
-                className="overflow-hidden h-[30px] flex items-center justify-center font-['Newsreader',serif] font-bold text-[22px] sm:text-[26px] leading-[1.1] text-[#141414]"
-              >
-                <span>{activeBook.name}</span>
-              </div>
+          <div
+            ref={captionSubRef}
+            className="overflow-hidden h-[16px] flex items-center justify-center text-[10px] font-bold tracking-[0.1em] uppercase"
+            style={{ color: activeTheme.bg }}
+          >
+            <span>
+              {activeBook.graduatedNote
+                ? `${activeBook.roll} · ${activeBook.specialization.toUpperCase()} · ${activeBook.graduatedNote.toUpperCase()}`
+                : `${activeBook.roll} · ${(activeBook.specialization || "").toUpperCase()}`}
+            </span>
+          </div>
 
-              <div
-                ref={captionSubRef}
-                className="overflow-hidden h-[16px] flex items-center justify-center text-[10px] font-bold tracking-[0.1em] uppercase"
-                style={{ color: activeTheme.bg }}
-              >
-                <span>
-                  {activeBook.graduatedNote
-                    ? `${activeBook.roll} · ${activeBook.specialization.toUpperCase()} · ${activeBook.graduatedNote.toUpperCase()}`
-                    : `${activeBook.roll} · ${(activeBook.specialization || "").toUpperCase()}`}
-                </span>
-              </div>
-
-              <div
-                ref={captionYearRef}
-                className="overflow-hidden h-[15px] flex items-center justify-center text-[10.5px] font-medium tracking-wider text-[#6D6A63]"
-              >
-                <span>{activeBook.cohort} · IIST AEROSPACE MANUFACTURING · PROFILE {(activeIdx || 0) + 1} OF {M}</span>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-center gap-1 py-1 text-center">
-              <span className="font-['Newsreader',serif] font-bold text-[20px] sm:text-[23px] text-[#141414]">
-                Select any scholar book to open dossier
-              </span>
-              <span className="text-[10px] font-mono tracking-wider uppercase text-[#6D6A63]">
-                {orientation === "horizontal"
-                  ? "Click any spine to pull out straight preview or view full dossier"
-                  : "Click any stacked book to view full academic dossier record"}
-              </span>
-            </div>
-          )}
+          <div
+            ref={captionYearRef}
+            className="overflow-hidden h-[15px] flex items-center justify-center text-[10.5px] font-medium tracking-wider text-[#6D6A63]"
+          >
+            <span>{activeBook.cohort} · IIST AEROSPACE MANUFACTURING · PROFILE {activeIdx + 1} OF {M}</span>
+          </div>
         </div>
 
-        {/* ─── 5. Navigation Arrows in Shelf Mode ───────────────────────────── */}
-        {orientation === "horizontal" && activeBook && (
+        {/* ─── 5. Navigation Arrows (Shelf: Left/Right; Stack: Up/Down) ───── */}
+        {orientation === "horizontal" ? (
           <>
             <button
               type="button"
               aria-label="Previous scholar"
               disabled={activeIdx === 0}
               onClick={() => {
-                if (activeIdx !== null && activeIdx > 0) handleBookClick(activeIdx - 1);
+                targetRef.current = clamp(Math.round(targetRef.current) - 1, 0, M - 1);
               }}
-              className="absolute left-6 top-1/2 -translate-y-1/2 z-30 size-[38px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              className="absolute left-6 top-1/2 -translate-y-1/2 z-30 size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              title="Previous Book (Arrow Left / Scroll Left)"
             >
-              <ArrowLeft size={15} />
+              <ArrowLeft size={16} />
             </button>
 
             <button
@@ -1264,11 +1263,40 @@ export function PeopleShelf() {
               aria-label="Next scholar"
               disabled={activeIdx === M - 1}
               onClick={() => {
-                if (activeIdx !== null && activeIdx < M - 1) handleBookClick(activeIdx + 1);
+                targetRef.current = clamp(Math.round(targetRef.current) + 1, 0, M - 1);
               }}
-              className="absolute right-6 top-1/2 -translate-y-1/2 z-30 size-[38px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              className="absolute right-6 top-1/2 -translate-y-1/2 z-30 size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              title="Next Book (Arrow Right / Scroll Right)"
             >
-              <ArrowRight size={15} />
+              <ArrowRight size={16} />
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              aria-label="Previous scholar in stack"
+              disabled={activeIdx === 0}
+              onClick={() => {
+                targetRef.current = clamp(Math.round(targetRef.current) - 1, 0, M - 1);
+              }}
+              className="absolute right-6 top-[42%] -translate-y-1/2 z-30 size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              title="Previous Book in Stack (Arrow Up / Scroll Up)"
+            >
+              <ArrowUp size={16} />
+            </button>
+
+            <button
+              type="button"
+              aria-label="Next scholar in stack"
+              disabled={activeIdx === M - 1}
+              onClick={() => {
+                targetRef.current = clamp(Math.round(targetRef.current) + 1, 0, M - 1);
+              }}
+              className="absolute right-6 top-[58%] -translate-y-1/2 z-30 size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              title="Next Book in Stack (Arrow Down / Scroll Down)"
+            >
+              <ArrowDown size={16} />
             </button>
           </>
         )}
@@ -1276,15 +1304,13 @@ export function PeopleShelf() {
         {/* ─── 6. Bottom Bar ──────────────────────────────────────────────── */}
         <footer className="relative z-30 h-[48px] px-8 flex items-center justify-between border-t border-[rgba(20,20,20,0.1)] text-[9.5px] font-semibold tracking-wider uppercase text-[#6D6A63]">
           <span>© IIST Aerospace Engineering · All Rights Reserved</span>
-          {activeBook && (
-            <button
-              type="button"
-              onClick={() => openDetail(activeBook)}
-              className="text-[#143B82] hover:underline underline-offset-4 font-bold cursor-pointer"
-            >
-              Open Full Dossier ({activeBook.name}) →
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => openDetail(activeBook)}
+            className="text-[#143B82] hover:underline underline-offset-4 font-bold cursor-pointer"
+          >
+            Open Full Dossier ({activeBook.name}) →
+          </button>
         </footer>
       </div>
 
