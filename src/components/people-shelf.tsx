@@ -661,21 +661,28 @@ export function PeopleShelf() {
       // 2. Dimensions & Sizing
       const stageContainer = stageRef.current?.parentElement;
       const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
+      const H_container = stageContainer ? stageContainer.clientHeight : window.innerHeight;
+      const isMobile = W < 640;
 
       // Stack Mode Dimensions (Dynamic horizontal stack sizing):
       const isCompact = M <= 5;
       const isMedium = M <= 8;
-      const idealSpineH = isCompact ? 60 : isMedium ? 46 : 37;
-      const stackSpineH = Math.round(clamp(idealSpineH, 35, 64));
-      const stackGap = isCompact ? 6 : isMedium ? 5 : 4;
+      const idealSpineH = isMobile
+        ? (isCompact ? 46 : isMedium ? 36 : 28)
+        : (isCompact ? 60 : isMedium ? 46 : 37);
+      const stackSpineH = Math.round(clamp(idealSpineH, 26, 64));
+      const stackGap = isMobile ? 4 : (isCompact ? 6 : isMedium ? 5 : 4);
       const baseWidth = isCompact ? 540 : isMedium ? 480 : 420;
-      const stackWidth = Math.min(baseWidth, W * 0.85);
+      const stackWidth = isMobile ? Math.min(baseWidth, W - 24) : Math.min(baseWidth, W * 0.85);
 
-      // Shelf Mode Dimensions (Reverted to default):
-      const H = Math.min(W >= 768 ? window.innerHeight * 0.48 : window.innerWidth * 0.65, W >= 768 ? W * 0.32 : window.innerHeight * 0.42);
-      const ws = H * (135 / 840);
-      const d = H * (460 / 900);
-      const gap = H * 0.038;
+      // Shelf Mode Dimensions:
+      // Mobile screens are portrait-oriented (taller than wide), so scale from container height:
+      const H = isMobile
+        ? clamp(H_container * 0.50, 240, 310)
+        : Math.min(H_container * 0.48, W * 0.32);
+      const ws = isMobile ? Math.max(46, H * (135 / 840)) : H * (135 / 840);
+      const d = isMobile ? Math.max(160, H * (460 / 900)) : H * (460 / 900);
+      const gap = isMobile ? 8 : H * 0.038;
 
       if (stageRef.current) {
         stageRef.current.style.setProperty("--ws", `${ws}px`);
@@ -747,8 +754,10 @@ export function PeopleShelf() {
       ? (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY)
       : e.deltaY;
 
-    const H = Math.min(window.innerHeight * 0.48, window.innerWidth * 0.32);
-    const step = orientation === "horizontal" ? H * (135 / 840) + H * 0.038 : 50;
+    const stageContainer = stageRef.current?.parentElement;
+    const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
+    const isMobile = W < 640;
+    const step = orientation === "horizontal" ? (isMobile ? 120 : 80) : (isMobile ? 38 : 50);
 
     targetRef.current = clamp(targetRef.current + (delta / step) * 0.5, 0, M - 1);
     lastWheelTimeRef.current = Date.now();
@@ -765,13 +774,18 @@ export function PeopleShelf() {
     const startCoord = orientation === "horizontal" ? e.clientX : e.clientY;
     dragStartRef.current = { pos: startCoord, target: targetRef.current };
 
+    const targetEl = e.currentTarget as HTMLElement;
+    targetEl.setPointerCapture?.(e.pointerId);
+
     const handlePointerMoveDrag = (ev: PointerEvent) => {
       const currentCoord = orientation === "horizontal" ? ev.clientX : ev.clientY;
       const delta = currentCoord - dragStartRef.current.pos;
-      if (Math.abs(delta) > 4) {
+      if (Math.abs(delta) > 5) {
         isDraggingRef.current = true;
-        const H = Math.min(window.innerHeight * 0.48, window.innerWidth * 0.32);
-        const step = orientation === "horizontal" ? H * (135 / 840) + H * 0.038 : 50;
+        const stageContainer = stageRef.current?.parentElement;
+        const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
+        const isMobile = W < 640;
+        const step = orientation === "horizontal" ? (isMobile ? 120 : 80) : (isMobile ? 38 : 50);
         targetRef.current = clamp(dragStartRef.current.target - delta / step, 0, M - 1);
       }
     };
@@ -780,12 +794,17 @@ export function PeopleShelf() {
       if (isDraggingRef.current) {
         targetRef.current = clamp(Math.round(targetRef.current), 0, M - 1);
       }
+      setTimeout(() => {
+        isDraggingRef.current = false;
+      }, 60);
       window.removeEventListener("pointermove", handlePointerMoveDrag);
       window.removeEventListener("pointerup", handlePointerUpDrag);
+      window.removeEventListener("pointercancel", handlePointerUpDrag);
     };
 
     window.addEventListener("pointermove", handlePointerMoveDrag);
     window.addEventListener("pointerup", handlePointerUpDrag);
+    window.addEventListener("pointercancel", handlePointerUpDrag);
   };
 
   const handleBookClick = (idx: number) => {
@@ -838,12 +857,12 @@ export function PeopleShelf() {
   const activeTheme = themeStyles[activeBook?.theme || "cobalt"];
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#EDEBE6] text-[#141414] font-['Inter_Tight',sans-serif]">
-      {/* ─── Left Bar: Maintained exactly as in Screenshot 3 ──────────────── */}
+    <div className="flex flex-col lg:flex-row h-screen h-[100dvh] w-full overflow-hidden bg-[#EDEBE6] text-[#141414] font-['Inter_Tight',sans-serif]">
+      {/* ─── Left Bar: Maintained on Desktop, Top Bar on Mobile ───────────── */}
       <SiteHeader />
 
       {/* ─── Main Right Canvas for 3D Shelf / Stack ───────────────────────── */}
-      <div className="relative flex-1 min-w-0 h-screen overflow-hidden select-none flex flex-col justify-between">
+      <div className="relative flex-1 min-w-0 min-h-0 w-full h-full overflow-hidden select-none flex flex-col justify-between">
         {/* Paper Grain Overlay */}
         <div
           className="fixed inset-0 z-10 pointer-events-none mix-blend-multiply opacity-55"
@@ -852,107 +871,111 @@ export function PeopleShelf() {
           }}
         />
 
-        {/* ─── 1. Top Bar (Clean Native English + Indic Translate Button) ────── */}
-        <header className="relative z-30 h-[72px] px-6 sm:px-8 grid grid-cols-[1fr_auto_1fr] items-center border-b border-[rgba(20,20,20,0.1)] bg-[#EDEBE6]/90 backdrop-blur-xs">
+        {/* ─── 1. Sub-Header Toolbar (Responsive across iPhone, Android & Desktop) ── */}
+        <header className="relative z-30 h-12 sm:h-14 lg:h-[60px] px-3 sm:px-6 flex items-center justify-between border-b border-[rgba(20,20,20,0.1)] bg-[#EDEBE6]/90 backdrop-blur-xs">
           {/* Left Title Area */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 h-[27px] px-2.5 border border-[rgba(20,20,20,0.85)] text-[10px] font-semibold tracking-wider uppercase text-[#141414] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors"
+              className="inline-flex items-center gap-1 sm:gap-1.5 h-[26px] sm:h-[28px] px-2 sm:px-2.5 border border-[rgba(20,20,20,0.85)] text-[9.5px] sm:text-[10px] font-semibold tracking-wider uppercase text-[#141414] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors"
             >
-              <ArrowLeft size={12} aria-hidden />
+              <ArrowLeft size={11} aria-hidden />
               <span>Back</span>
             </Link>
           </div>
 
           {/* Center Logo Band */}
-          <div className="flex flex-col items-center justify-center text-center">
-            <span className="font-['Newsreader',serif] font-bold text-xl sm:text-2xl tracking-tight text-[#143B82]">
-              IIST Manufacturing Technology
+          <div className="flex flex-col items-center justify-center text-center px-1">
+            <span className="font-['Newsreader',serif] font-bold text-base sm:text-xl lg:text-2xl tracking-tight text-[#143B82] leading-tight">
+              IIST Manufacturing Tech
             </span>
-            <span className="text-[8.5px] font-semibold tracking-[0.24em] uppercase text-[#6D6A63]">
-              Department of Aerospace Engineering · Scholar Archive
+            <span className="text-[7.5px] sm:text-[8.5px] font-semibold tracking-[0.16em] sm:tracking-[0.24em] uppercase text-[#6D6A63] hidden xs:block">
+              Aerospace Engineering · Scholar Archive
             </span>
           </div>
 
-          {/* Right Action: Orientation Switcher + Indic Translate */}
-          <div className="flex items-center justify-end gap-3">
+          {/* Right Action: Orientation Switcher + Indic Translate (Desktop/Tablet) */}
+          <div className="flex items-center justify-end gap-1.5 sm:gap-3">
             <div className="inline-flex items-center p-0.5 rounded-sm border border-[rgba(20,20,20,0.85)] bg-white/60 shadow-xs">
               <button
                 type="button"
                 onClick={() => setOrientation("horizontal")}
                 className={[
-                  "inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
+                  "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 text-[9.5px] sm:text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
                   orientation === "horizontal"
                     ? "bg-[#143B82] text-white rounded-xs shadow-xs"
                     : "text-[#6D6A63] hover:text-[#141414]",
                 ].join(" ")}
                 title="Horizontal Standing Books Shelf"
               >
-                <Columns size={12} aria-hidden />
-                <span className="hidden sm:inline">Shelf</span>
+                <Columns size={11} aria-hidden />
+                <span>Shelf</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setOrientation("vertical")}
                 className={[
-                  "inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
+                  "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 text-[9.5px] sm:text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
                   orientation === "vertical"
                     ? "bg-[#143B82] text-white rounded-xs shadow-xs"
                     : "text-[#6D6A63] hover:text-[#141414]",
                 ].join(" ")}
                 title="Vertical Flat Books Stack"
               >
-                <Rows size={12} aria-hidden />
-                <span className="hidden sm:inline">Stack</span>
+                <Rows size={11} aria-hidden />
+                <span>Stack</span>
               </button>
             </div>
 
-            <IndicTranslate />
+            <div className="hidden sm:block">
+              <IndicTranslate />
+            </div>
           </div>
         </header>
 
-        {/* ─── 2. Cohort Segregation Tabs ──────────────────────────────────── */}
+        {/* ─── 2. Cohort Segregation Tabs (Horizontally Scrollable on Mobile) ── */}
         <nav
           aria-label="Cohort Batches"
-          className="relative z-30 flex flex-col items-center justify-center pt-2 pb-1 gap-1"
+          className="relative z-30 w-full flex flex-col items-center justify-center pt-1.5 sm:pt-2 pb-1 gap-1 px-2"
         >
-          <div
-            ref={tabsContainerRef}
-            className="relative inline-flex items-center bg-[#EDEBE6] border border-[rgba(20,20,20,0.85)] rounded-sm overflow-hidden shadow-xs"
-          >
+          <div className="w-full max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex justify-start sm:justify-center py-0.5">
             <div
-              ref={tabIndicatorRef}
-              className="absolute top-0 bottom-0 bg-[#143B82] transition-all duration-300 ease-[cubic-bezier(.2,.8,.2,1)] z-0 pointer-events-none"
-              style={{ width: "120px", transform: "translateX(0px)" }}
-            />
+              ref={tabsContainerRef}
+              className="relative inline-flex items-center bg-[#EDEBE6] border border-[rgba(20,20,20,0.85)] rounded-sm overflow-hidden shadow-xs shrink-0 mx-auto"
+            >
+              <div
+                ref={tabIndicatorRef}
+                className="absolute top-0 bottom-0 bg-[#143B82] transition-all duration-300 ease-[cubic-bezier(.2,.8,.2,1)] z-0 pointer-events-none"
+                style={{ width: "120px", transform: "translateX(0px)" }}
+              />
 
-            {cohortTabs.map((tab) => {
-              const isActive = selectedCohort === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  data-cohort={tab.id}
-                  onClick={() => setSelectedCohort(tab.id)}
-                  className={[
-                    "relative z-10 h-[29px] px-3 border-r last:border-r-0 border-[rgba(20,20,20,0.25)] text-[10.5px] font-semibold tracking-wider uppercase transition-colors duration-250 select-none whitespace-nowrap cursor-pointer",
-                    isActive ? "text-white font-bold" : "text-[#141414] hover:bg-[#141414]/8",
-                  ].join(" ")}
-                >
-                  <span>{tab.label}</span>
-                  <span className={`ml-1 text-[9px] font-mono opacity-80 ${isActive ? "text-white/80" : "text-[#6D6A63]"}`}>
-                    ({tab.count})
-                  </span>
-                </button>
-              );
-            })}
+              {cohortTabs.map((tab) => {
+                const isActive = selectedCohort === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    data-cohort={tab.id}
+                    onClick={() => setSelectedCohort(tab.id)}
+                    className={[
+                      "relative z-10 h-[26px] sm:h-[29px] px-2.5 sm:px-3 border-r last:border-r-0 border-[rgba(20,20,20,0.25)] text-[9.5px] sm:text-[10.5px] font-semibold tracking-wider uppercase transition-colors duration-250 select-none whitespace-nowrap cursor-pointer",
+                      isActive ? "text-white font-bold" : "text-[#141414] hover:bg-[#141414]/8",
+                    ].join(" ")}
+                  >
+                    <span>{tab.label}</span>
+                    <span className={`ml-1 text-[8.5px] sm:text-[9px] font-mono opacity-80 ${isActive ? "text-white/80" : "text-[#6D6A63]"}`}>
+                      ({tab.count})
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 text-[10px] font-mono text-[#6D6A63]">
+          <div className="flex items-center gap-1.5 text-[9px] sm:text-[10px] font-mono text-[#6D6A63]">
             <span className="size-1.5 rounded-full bg-[#143B82]" />
-            <span>{currentTab.statusText}</span>
+            <span className="truncate max-w-[320px]">{currentTab.statusText}</span>
           </div>
         </nav>
 
@@ -961,11 +984,12 @@ export function PeopleShelf() {
           aria-label="Archival book presentation"
           onPointerDown={handleShelfPointerDown}
           onWheel={handleShelfWheel}
-          className="relative flex-1 w-full z-20 flex items-center justify-center cursor-grab active:cursor-grabbing overflow-visible select-none"
+          className="relative flex-1 min-h-0 w-full z-20 flex items-center justify-center cursor-grab active:cursor-grabbing overflow-visible select-none"
           style={{
             perspective: "2000px",
+            WebkitPerspective: "2000px",
             perspectiveOrigin: "50% 50%",
-            touchAction: "pan-y",
+            touchAction: "none",
           }}
         >
           {/* Zero-size Stage Origin in Center */}
@@ -974,6 +998,7 @@ export function PeopleShelf() {
             className="relative size-0"
             style={{
               transformStyle: "preserve-3d",
+              WebkitTransformStyle: "preserve-3d",
               ["--ws" as string]: "76px",
               ["--d" as string]: "230px",
               ["--H" as string]: "460px",
@@ -1021,6 +1046,7 @@ export function PeopleShelf() {
                           left: "calc(-1 * var(--ws) / 2)",
                           transform: "translateZ(calc(var(--d) / 2))",
                           backfaceVisibility: "hidden",
+                          WebkitBackfaceVisibility: "hidden",
                           background: theme.gradient,
                           color: theme.text,
                         }}
@@ -1036,10 +1062,10 @@ export function PeopleShelf() {
 
                         {/* Top Spine Vignette & Roll Badge */}
                         <div className="relative z-10 flex flex-col items-center gap-1 border-b border-white/20 pb-1.5">
-                          <div className="size-7 rounded-full border border-white/30 flex items-center justify-center bg-black/20 shadow-inner">
+                          <div className="size-6 sm:size-7 rounded-full border border-white/30 flex items-center justify-center bg-black/20 shadow-inner">
                             <SpineVignette symbol={book.symbol} color={theme.accent} />
                           </div>
-                          <span className="font-mono text-[8.5px] font-bold tracking-wider px-1 py-0.5 rounded-xs bg-black/30 border border-white/25">
+                          <span className="font-mono text-[7.5px] sm:text-[8.5px] font-bold tracking-wider px-1 py-0.5 rounded-xs bg-black/30 border border-white/25">
                             {book.roll}
                           </span>
                         </div>
@@ -1047,7 +1073,7 @@ export function PeopleShelf() {
                         {/* Scholar Name (Pranay P. - Shortened, 90° clockwise) */}
                         <div className="relative z-10 flex-1 flex items-center justify-center my-2 overflow-visible">
                           <span
-                            className="font-['Newsreader',serif] font-bold text-[16px] sm:text-[18px] tracking-[0.06em] uppercase whitespace-nowrap drop-shadow-md select-none text-center"
+                            className="font-['Newsreader',serif] font-bold text-[13px] sm:text-[18px] tracking-[0.06em] uppercase whitespace-nowrap drop-shadow-md select-none text-center"
                             style={{
                               transform: "rotate(90deg)",
                               transformOrigin: "center center",
@@ -1060,10 +1086,10 @@ export function PeopleShelf() {
 
                         {/* Bottom Spine IIST Stamp */}
                         <div className="relative z-10 flex flex-col items-center gap-0.5 pt-1.5 border-t border-white/20">
-                          <span className="text-[7px] font-bold tracking-[0.16em] uppercase text-white/80">
+                          <span className="text-[6.5px] sm:text-[7px] font-bold tracking-[0.16em] uppercase text-white/80">
                             AEROSPACE
                           </span>
-                          <span className="px-1 py-0.5 border border-white/40 rounded-xs text-[7.5px] font-mono font-bold tracking-widest bg-black/25">
+                          <span className="px-1 py-0.5 border border-white/40 rounded-xs text-[7px] sm:text-[7.5px] font-mono font-bold tracking-widest bg-black/25">
                             IIST·MT
                           </span>
                         </div>
@@ -1071,7 +1097,7 @@ export function PeopleShelf() {
 
                       {/* Cover Face (.cv) - Straight preview when open */}
                       <div
-                        className="cv absolute rounded-[2px] overflow-hidden select-none border border-black/80 flex flex-col justify-between p-4.5"
+                        className="cv absolute rounded-[2px] overflow-hidden select-none border border-black/80 flex flex-col justify-between p-3 sm:p-4.5"
                         style={{
                           width: "var(--d)",
                           height: "var(--H)",
@@ -1079,44 +1105,45 @@ export function PeopleShelf() {
                           left: "calc(-1 * var(--d) / 2)",
                           transform: "rotateY(90deg) translateZ(calc(var(--ws) / 2))",
                           backfaceVisibility: "hidden",
+                          WebkitBackfaceVisibility: "hidden",
                           background: theme.coverBg,
                           boxShadow: "0 30px 60px -20px rgba(0,0,0,0.55)",
                         }}
                       >
-                        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none flex items-center justify-center p-3">
+                        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none flex items-center justify-center p-2 sm:p-3">
                           <TechnicalScreenprint diagram={book.diagram} color={theme.illustrationColor} className="w-full h-auto max-h-[72%]" />
                         </div>
 
-                        <div className="relative z-10 flex items-center justify-between border-b border-[rgba(20,20,20,0.8)] pb-1.5">
-                          <span className="text-[7.5px] font-bold tracking-[0.18em] uppercase" style={{ color: theme.bg }}>
+                        <div className="relative z-10 flex items-center justify-between border-b border-[rgba(20,20,20,0.8)] pb-1">
+                          <span className="text-[7px] sm:text-[7.5px] font-bold tracking-[0.16em] uppercase" style={{ color: theme.bg }}>
                             AEROSPACE ARCHIVES · IIST
                           </span>
-                          <span className="font-mono text-[7.5px] font-bold px-1.5 py-0.5 border border-[rgba(20,20,20,0.8)] bg-white/70">
+                          <span className="font-mono text-[7px] sm:text-[7.5px] font-bold px-1.5 py-0.5 border border-[rgba(20,20,20,0.8)] bg-white/70">
                             {book.roll}
                           </span>
                         </div>
 
-                        <div className="relative z-10 my-auto text-center">
-                          <span className="text-[8.5px] font-bold tracking-[0.14em] uppercase block mb-1 text-[#6D6A63]">
+                        <div className="relative z-10 my-auto text-center px-1">
+                          <span className="text-[7.5px] sm:text-[8.5px] font-bold tracking-[0.12em] uppercase block mb-0.5 sm:mb-1 text-[#6D6A63]">
                             {book.specialization}
                           </span>
-                          <h2 className="font-['Newsreader',serif] font-bold text-2xl sm:text-3xl leading-[1.05] tracking-tight text-[#141414]">
+                          <h2 className="font-['Newsreader',serif] font-bold text-lg sm:text-2xl lg:text-3xl leading-[1.05] tracking-tight text-[#141414]">
                             {book.shortName}
                           </h2>
-                          <span className="text-[9.5px] font-bold font-mono tracking-wider block mt-1.5" style={{ color: theme.bg }}>
+                          <span className="text-[8.5px] sm:text-[9.5px] font-bold font-mono tracking-wider block mt-1" style={{ color: theme.bg }}>
                             {book.graduatedNote ? `${book.cohort} (${book.graduatedNote})` : book.cohort}
                           </span>
                         </div>
 
-                        <div className="relative z-10 flex items-center justify-between border-t border-[rgba(20,20,20,0.8)] pt-2">
+                        <div className="relative z-10 flex items-center justify-between border-t border-[rgba(20,20,20,0.8)] pt-1.5 sm:pt-2">
                           <div className="flex flex-col text-left">
-                            <span className="text-[7px] font-mono uppercase text-[#6D6A63]">DESTINATION</span>
-                            <span className="text-[8.5px] font-bold text-[#141414]">
+                            <span className="text-[6.5px] sm:text-[7px] font-mono uppercase text-[#6D6A63]">DESTINATION</span>
+                            <span className="text-[7.5px] sm:text-[8.5px] font-bold text-[#141414] truncate max-w-[100px] sm:max-w-none">
                               {book.placedAt ? book.placedAt : "Research Scholar"}
                             </span>
                           </div>
                           <span
-                            className="font-mono text-[8px] px-2 py-0.5 font-bold text-white rounded-xs shadow-xs"
+                            className="font-mono text-[7px] sm:text-[8px] px-1.5 sm:px-2 py-0.5 font-bold text-white rounded-xs shadow-xs"
                             style={{ background: theme.bg }}
                           >
                             OPEN DOSSIER
@@ -1140,6 +1167,8 @@ export function PeopleShelf() {
                         left: "calc(-1 * var(--stack-w) / 2)",
                         background: theme.gradient,
                         color: theme.text,
+                        backfaceVisibility: "hidden",
+                        WebkitBackfaceVisibility: "hidden",
                       }}
                     >
                       <div
@@ -1213,18 +1242,18 @@ export function PeopleShelf() {
         {/* ─── 4. Caption Stack ────────────────────────────────────────────── */}
         <div
           aria-live="polite"
-          className="relative z-20 flex flex-col items-center text-center gap-1 pb-3 pointer-events-auto"
+          className="relative z-20 flex flex-col items-center text-center gap-0.5 sm:gap-1 pb-1 sm:pb-3 pointer-events-auto px-4"
         >
           <div
             ref={captionTitleRef}
-            className="overflow-hidden h-[30px] flex items-center justify-center font-['Newsreader',serif] font-bold text-[22px] sm:text-[26px] leading-[1.1] text-[#141414]"
+            className="overflow-hidden h-[26px] sm:h-[30px] flex items-center justify-center font-['Newsreader',serif] font-bold text-[19px] sm:text-[26px] leading-[1.1] text-[#141414]"
           >
             <span>{activeBook.name}</span>
           </div>
 
           <div
             ref={captionSubRef}
-            className="overflow-hidden h-[16px] flex items-center justify-center text-[10px] font-bold tracking-[0.1em] uppercase"
+            className="overflow-hidden h-[15px] sm:h-[16px] flex items-center justify-center text-[9px] sm:text-[10px] font-bold tracking-[0.08em] sm:tracking-[0.1em] uppercase"
             style={{ color: activeTheme.bg }}
           >
             <span>
@@ -1236,7 +1265,7 @@ export function PeopleShelf() {
 
           <div
             ref={captionYearRef}
-            className="overflow-hidden h-[15px] flex items-center justify-center text-[10.5px] font-medium tracking-wider text-[#6D6A63]"
+            className="overflow-hidden h-[14px] sm:h-[15px] flex items-center justify-center text-[9px] sm:text-[10.5px] font-medium tracking-wider text-[#6D6A63]"
           >
             <span>{activeBook.cohort} · IIST AEROSPACE MANUFACTURING · PROFILE {activeIdx + 1} OF {M}</span>
           </div>
@@ -1252,10 +1281,10 @@ export function PeopleShelf() {
               onClick={() => {
                 targetRef.current = clamp(Math.round(targetRef.current) - 1, 0, M - 1);
               }}
-              className="absolute left-6 top-1/2 -translate-y-1/2 z-30 size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 size-[34px] sm:size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
               title="Previous Book (Arrow Left / Scroll Left)"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={15} />
             </button>
 
             <button
@@ -1265,10 +1294,10 @@ export function PeopleShelf() {
               onClick={() => {
                 targetRef.current = clamp(Math.round(targetRef.current) + 1, 0, M - 1);
               }}
-              className="absolute right-6 top-1/2 -translate-y-1/2 z-30 size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 size-[34px] sm:size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
               title="Next Book (Arrow Right / Scroll Right)"
             >
-              <ArrowRight size={16} />
+              <ArrowRight size={15} />
             </button>
           </>
         ) : (
@@ -1280,10 +1309,10 @@ export function PeopleShelf() {
               onClick={() => {
                 targetRef.current = clamp(Math.round(targetRef.current) - 1, 0, M - 1);
               }}
-              className="absolute right-6 top-[42%] -translate-y-1/2 z-30 size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              className="absolute right-2 sm:right-6 top-[40%] -translate-y-1/2 z-30 size-[34px] sm:size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
               title="Previous Book in Stack (Arrow Up / Scroll Up)"
             >
-              <ArrowUp size={16} />
+              <ArrowUp size={15} />
             </button>
 
             <button
@@ -1293,23 +1322,25 @@ export function PeopleShelf() {
               onClick={() => {
                 targetRef.current = clamp(Math.round(targetRef.current) + 1, 0, M - 1);
               }}
-              className="absolute right-6 top-[58%] -translate-y-1/2 z-30 size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
+              className="absolute right-2 sm:right-6 top-[60%] -translate-y-1/2 z-30 size-[34px] sm:size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
               title="Next Book in Stack (Arrow Down / Scroll Down)"
             >
-              <ArrowDown size={16} />
+              <ArrowDown size={15} />
             </button>
           </>
         )}
 
         {/* ─── 6. Bottom Bar ──────────────────────────────────────────────── */}
-        <footer className="relative z-30 h-[48px] px-8 flex items-center justify-between border-t border-[rgba(20,20,20,0.1)] text-[9.5px] font-semibold tracking-wider uppercase text-[#6D6A63]">
-          <span>© IIST Aerospace Engineering · All Rights Reserved</span>
+        <footer className="relative z-30 h-10 sm:h-[46px] px-3 sm:px-8 flex items-center justify-between border-t border-[rgba(20,20,20,0.1)] text-[8.5px] sm:text-[9.5px] font-semibold tracking-wider uppercase text-[#6D6A63]">
+          <span className="hidden xs:inline truncate">© IIST Aerospace Engineering</span>
+          <span className="xs:hidden">© IIST MT</span>
           <button
             type="button"
             onClick={() => openDetail(activeBook)}
-            className="text-[#143B82] hover:underline underline-offset-4 font-bold cursor-pointer"
+            className="text-[#143B82] hover:underline underline-offset-4 font-bold cursor-pointer shrink-0 ml-2"
           >
-            Open Full Dossier ({activeBook.name}) →
+            <span className="hidden sm:inline">Open Full Dossier ({activeBook.name}) →</span>
+            <span className="sm:hidden">Open Dossier →</span>
           </button>
         </footer>
       </div>
@@ -1320,27 +1351,29 @@ export function PeopleShelf() {
         role="dialog"
         aria-modal="true"
         aria-label={`${dossierBook.name} Dossier`}
-        className="fixed inset-0 z-[110] bg-[#F4F2ED] text-[#141414] overflow-y-auto invisible"
-        style={{
-          padding: "85px 6vw 50px 7vw",
-        }}
+        className="fixed inset-0 z-[110] bg-[#F4F2ED] text-[#141414] overflow-y-auto invisible pt-16 pb-12 px-4 sm:px-8"
       >
-        <button
-          type="button"
-          onClick={closeDetail}
-          className="fixed top-7 left-7 z-20 inline-flex items-center gap-1.5 h-[32px] px-3.5 border border-[rgba(20,20,20,0.85)] text-[10.5px] font-semibold tracking-wider uppercase bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors cursor-pointer shadow-sm"
-        >
-          <X size={14} aria-hidden />
-          <span>Close Dossier</span>
-        </button>
+        {/* Sticky Modal Top Bar: Mobile & Desktop friendly */}
+        <div className="fixed top-0 inset-x-0 h-14 bg-[#F4F2ED]/95 backdrop-blur-md border-b border-[rgba(20,20,20,0.12)] px-4 sm:px-8 flex items-center justify-between z-30">
+          <button
+            type="button"
+            onClick={closeDetail}
+            className="inline-flex items-center gap-1.5 h-[30px] px-3 border border-[rgba(20,20,20,0.85)] text-[10px] font-semibold tracking-wider uppercase bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors cursor-pointer shadow-sm"
+          >
+            <X size={13} aria-hidden />
+            <span>Close</span>
+          </button>
 
-        <div className="fixed top-7 inset-x-0 h-[60px] pointer-events-none flex flex-col items-center justify-center text-center z-10">
-          <span className="font-['Newsreader',serif] font-bold text-lg text-[#143B82]">
-            IIST Manufacturing Technology
-          </span>
-          <span className="text-[8.5px] font-mono uppercase tracking-[0.2em] text-[#6D6A63]">
-            Aerospace Research Dossier Record
-          </span>
+          <div className="flex flex-col items-center text-center">
+            <span className="font-['Newsreader',serif] font-bold text-sm sm:text-base text-[#143B82] leading-tight">
+              IIST Manufacturing Technology
+            </span>
+            <span className="text-[7.5px] sm:text-[8px] font-mono uppercase tracking-[0.18em] text-[#6D6A63]">
+              Scholar Dossier Record
+            </span>
+          </div>
+
+          <div className="w-[60px] sm:w-[70px]" />
         </div>
 
         <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-[4vw] items-center min-h-[calc(100vh-150px)]">

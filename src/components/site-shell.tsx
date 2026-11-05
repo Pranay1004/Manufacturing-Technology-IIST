@@ -133,7 +133,7 @@ export function SiteHeader() {
 
       {/* Mobile Overlay Menu */}
       {mobileOpen && (
-        <nav className="lg:hidden fixed inset-x-0 top-[53px] bottom-0 z-35 bg-[var(--void)]/95 backdrop-blur-xl px-6 py-8 flex flex-col gap-6 animate-[fadeIn_0.2s_ease-out]">
+        <nav className="lg:hidden fixed inset-x-0 top-[53px] bottom-0 z-50 bg-[var(--void)]/95 backdrop-blur-xl px-6 py-8 flex flex-col gap-6 animate-[fadeIn_0.2s_ease-out]">
           <span className="font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)]/60 select-none">
             Navigation Console
           </span>

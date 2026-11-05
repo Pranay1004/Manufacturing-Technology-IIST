@@ -12,7 +12,7 @@ export function PeopleViewContainer() {
   return (
     <div className="relative min-h-screen">
       {/* Floating View Mode Switcher */}
-      <div className="fixed bottom-5 right-6 z-50 flex items-center bg-[#141414] border border-[rgba(255,255,255,0.2)] rounded-full p-1 shadow-2xl backdrop-blur-md">
+      <div className="fixed bottom-12 sm:bottom-5 right-3 sm:right-6 z-40 flex items-center bg-[#141414]/90 border border-white/20 rounded-full p-1 shadow-2xl backdrop-blur-md">
         <button
           type="button"
           onClick={() => setViewMode("shelf")}
