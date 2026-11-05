@@ -649,30 +649,20 @@ export function PeopleShelf() {
       // Sizing
       const stageContainer = stageRef.current?.parentElement;
       const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
-      // ── Dynamic Responsive Dimensions based on Batch Size M ───────────────
-      // When M is small (e.g. 4 faculty), books expand to fill the stage proudly!
-      // When M is large (e.g. 12 incoming), books scale down to fit cleanly!
+      // 1. Stack Mode Dimensions (Dynamic horizontal stack sizing):
       const isCompact = M <= 5;
       const isMedium = M <= 8;
-
-      // 1. Stack Mode Dimensions:
       const idealSpineH = isCompact ? 60 : isMedium ? 46 : 37;
       const stackSpineH = Math.round(clamp(idealSpineH, 35, 64));
       const stackGap = isCompact ? 6 : isMedium ? 5 : 4;
       const baseWidth = isCompact ? 540 : isMedium ? 480 : 420;
       const stackWidth = Math.min(baseWidth, W * 0.85);
 
-      // 2. Shelf Mode Dimensions:
-      const H = Math.min(
-        window.innerHeight * (isCompact ? 0.52 : isMedium ? 0.48 : 0.45),
-        W * 0.38,
-        isCompact ? 520 : isMedium ? 480 : 450
-      );
-      const targetShelfWidth = Math.min(W * (isCompact ? 0.56 : isMedium ? 0.72 : 0.84), 980);
-      const idealWs = (targetShelfWidth - (M - 1) * 14) / Math.max(1, M);
-      const ws = Math.round(clamp(idealWs, 72, 130));
-      const gap = Math.round(clamp(ws * 0.14, 8, 16));
-      const d = Math.round(H * 0.52);
+      // 2. Shelf Mode Dimensions (Reverted to default):
+      const H = Math.min(W >= 768 ? window.innerHeight * 0.48 : window.innerWidth * 0.65, W >= 768 ? W * 0.32 : window.innerHeight * 0.42);
+      const ws = H * (135 / 840);
+      const d = H * (460 / 900);
+      const gap = H * 0.038;
 
       if (stageRef.current) {
         stageRef.current.style.setProperty("--ws", `${ws}px`);
@@ -938,7 +928,6 @@ export function PeopleShelf() {
           <div className="flex items-center gap-2 text-[10px] font-mono text-[#6D6A63]">
             <span className="size-1.5 rounded-full bg-[#143B82]" />
             <span>{currentTab.statusText}</span>
-            <span className="text-[#143B82] font-bold">· Exactly {M} Profiles</span>
           </div>
         </nav>
 
@@ -1032,13 +1021,10 @@ export function PeopleShelf() {
                           </span>
                         </div>
 
-                        {/* Scholar Name (Pranay P. - Shortened, 90° clockwise, dynamically sized by M) */}
+                        {/* Scholar Name (Pranay P. - Shortened, 90° clockwise) */}
                         <div className="relative z-10 flex-1 flex items-center justify-center my-2 overflow-visible">
                           <span
-                            className={[
-                              "font-['Newsreader',serif] font-bold tracking-[0.06em] uppercase whitespace-nowrap drop-shadow-md select-none text-center",
-                              M <= 5 ? "text-[19px] sm:text-[22px]" : M <= 8 ? "text-[16px] sm:text-[18px]" : "text-[14px] sm:text-[16px]",
-                            ].join(" ")}
+                            className="font-['Newsreader',serif] font-bold text-[16px] sm:text-[18px] tracking-[0.06em] uppercase whitespace-nowrap drop-shadow-md select-none text-center"
                             style={{
                               transform: "rotate(90deg)",
                               transformOrigin: "center center",
