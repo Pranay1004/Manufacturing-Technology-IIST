@@ -6,7 +6,7 @@ import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { MetalButton } from "@/components/ui/MetalButton";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import ManufacturingScrollHero from "@/components/design/ManufacturingScrollHero";
+import Hero from "@/components/design/Hero";
 import { getPeopleByType, industrialVisits, people, programHighlights } from "@/lib/data";
 import type { LucideIcon } from "lucide-react";
 
@@ -30,7 +30,7 @@ export default function Home() {
   return (
     <PageFrame>
       <main>
-        <ManufacturingScrollHero />
+        <Hero />
 
         {/* ═══════════════════════════════════════════
             STATS — Animated counters
