@@ -169,3 +169,4 @@ export function IndicTranslate() {
     </div>
   );
 }
+
