@@ -12,37 +12,37 @@ export function PeopleViewContainer() {
   return (
     <div className="relative min-h-screen">
       {/* Floating View Mode Switcher */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center bg-[#141414] border border-[rgba(255,255,255,0.2)] rounded-full p-1 shadow-2xl backdrop-blur-md">
+      <div className="fixed bottom-5 right-6 z-50 flex items-center bg-[#141414] border border-[rgba(255,255,255,0.2)] rounded-full p-1 shadow-2xl backdrop-blur-md">
         <button
           type="button"
           onClick={() => setViewMode("shelf")}
           className={[
-            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer select-none",
             viewMode === "shelf"
-              ? "bg-[#1F3FB0] text-white shadow-sm"
+              ? "bg-[#143B82] text-white shadow-sm"
               : "text-[#B8C4D0] hover:text-white",
           ].join(" ")}
         >
           <Box size={13} aria-hidden />
-          <span>3D Shelf / 棚</span>
+          <span>3D Shelf</span>
         </button>
 
         <button
           type="button"
           onClick={() => setViewMode("grid")}
           className={[
-            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer select-none",
             viewMode === "grid"
-              ? "bg-[#1F3FB0] text-white shadow-sm"
+              ? "bg-[#143B82] text-white shadow-sm"
               : "text-[#B8C4D0] hover:text-white",
           ].join(" ")}
         >
           <Layers size={13} aria-hidden />
-          <span>Directory / 目録</span>
+          <span>Directory Grid</span>
         </button>
       </div>
 
-      {/* View Rendering: Default is 3D Shelf */}
+      {/* View Rendering: Default is 3D Shelf with SiteHeader included */}
       {viewMode === "shelf" ? (
         <PeopleShelf />
       ) : (
@@ -55,4 +55,3 @@ export function PeopleViewContainer() {
     </div>
   );
 }
-
