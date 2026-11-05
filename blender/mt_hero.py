@@ -33,7 +33,7 @@ BEAD_RAD = 0.0135                   # radial half-width of a weld bead
 BEAD_VERT = 0.0150                  # vertical half-height (overlaps the next layer)
 BEAD_SV = BEAD_VERT / BEAD_RAD
 BEAD_TOP = BEAD_VERT - DZ * 0.5     # bead crown above its layer top
-SHELL_GAP = 0.0008                  # machined skin sits just proud of the rough bead
+SHELL_GAP = 0.0015                  # machined skin sits just proud of the rough bead
 RIB_EXTRA = 0.014
 RIBS = {3, 4, 11, 12, 19, 20}
 PLATE_R = 0.60
@@ -353,22 +353,38 @@ for i, ang in enumerate((30, 150, 270)):
         loc=(PART_X + 0.51 * math.cos(a), 0.51 * math.sin(a), 0.112), rot=(0, 0, a))
 
 # ------------------------------------------------------------------ part meshes
-def shell_radius(k):
-    return R + (RIB_EXTRA if k in RIBS else 0.0) + BEAD_RAD + SHELL_GAP
+SHELL_TOP_Z = Z0 + (NL - 0.5) * DZ + BEAD_VERT
+
+R_NORM = R + BEAD_RAD + SHELL_GAP
+R_RIB = R + RIB_EXTRA + BEAD_RAD + SHELL_GAP
+
+# group consecutive rib layers and use the full vertical extent of their beads
+_rib_groups = []
+for _i in sorted(RIBS):
+    if _rib_groups and _i == _rib_groups[-1][-1] + 1:
+        _rib_groups[-1].append(_i)
+    else:
+        _rib_groups.append([_i])
+RIB_BANDS = [(Z0 + (min(g) + 0.5) * DZ - BEAD_VERT,
+              Z0 + (max(g) + 0.5) * DZ + BEAD_VERT) for g in _rib_groups]
+
+def shell_radius_at(z):
+    """Smooth cylinder, with raised bands covering the full rib-bead shoulder."""
+    z = min(max(z, Z0), SHELL_TOP_Z)
+    for z0, z1 in RIB_BANDS:
+        if z0 <= z <= z1:
+            return R_RIB
+    return R_NORM
 
 def shell_mesh(name, segs=160):
-    """Continuous revolved profile with hard steps at the rib layers."""
-    prof = [(Z0, shell_radius(0))]
-    for k in range(NL):
-        zt = Z0 + (k + 1) * DZ
-        rk = shell_radius(k)
-        prof.append((zt, rk))
-        if k < NL - 1:
-            rn = shell_radius(k + 1)
-            if abs(rn - rk) > 1e-9:
-                prof.append((zt, rn))
-    # cover the crown of the top bead
-    prof.append((Z0 + (NL - 0.5) * DZ + BEAD_VERT, shell_radius(NL - 1)))
+    """Continuous revolved profile: smooth wall with raised rib bands."""
+    prof = [(Z0, R_NORM)]
+    for z0, z1 in RIB_BANDS:
+        prof.append((z0, R_NORM))
+        prof.append((z0, R_RIB))
+        prof.append((z1, R_RIB))
+        prof.append((z1, R_NORM))
+    prof.append((SHELL_TOP_Z, R_NORM))
 
     verts, faces, smooth = [], [], []
     for z, r in prof:
@@ -542,9 +558,7 @@ def mill_tip(t):
     return MILL_END_Z
 
 def final_radius_at(z):
-    k = int(math.floor((z - Z0) / DZ))
-    k = min(max(k, 0), NL - 1)
-    return shell_radius(k)
+    return shell_radius_at(z)
 
 def ik(S, Wp):
     dx, dz = Wp[0] - S[0], Wp[1] - S[1]
@@ -618,7 +632,7 @@ CAM_KEYS = [
     (5.55, 2.10, 0.08, 0.52),
     (6.35, 2.08, 0.08, 0.50),
     (6.55, 2.20, 0.04, 0.46),
-    (6.96, 2.48, -0.08, 0.40),
+    (6.96, 2.48, -0.11, 0.40),
 ]
 
 def cam_state(t):

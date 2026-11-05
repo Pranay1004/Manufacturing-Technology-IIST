@@ -649,16 +649,30 @@ export function PeopleShelf() {
       // Sizing
       const stageContainer = stageRef.current?.parentElement;
       const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
-      const H = Math.min(W >= 768 ? window.innerHeight * 0.48 : window.innerWidth * 0.65, W >= 768 ? W * 0.32 : window.innerHeight * 0.42);
+      // ── Dynamic Responsive Dimensions based on Batch Size M ───────────────
+      // When M is small (e.g. 4 faculty), books expand to fill the stage proudly!
+      // When M is large (e.g. 12 incoming), books scale down to fit cleanly!
+      const isCompact = M <= 5;
+      const isMedium = M <= 8;
 
-      const ws = H * (135 / 840);
-      const d = H * (460 / 900);
-      const gap = H * 0.038;
+      // 1. Stack Mode Dimensions:
+      const idealSpineH = isCompact ? 60 : isMedium ? 46 : 37;
+      const stackSpineH = Math.round(clamp(idealSpineH, 35, 64));
+      const stackGap = isCompact ? 6 : isMedium ? 5 : 4;
+      const baseWidth = isCompact ? 540 : isMedium ? 480 : 420;
+      const stackWidth = Math.min(baseWidth, W * 0.85);
 
-      // Stack dimensions (Zoomed out to fit completely on screen without scrolling)
-      const stackWidth = Math.min(360, W * 0.72);
-      const stackSpineH = 34;
-      const stackGap = 4;
+      // 2. Shelf Mode Dimensions:
+      const H = Math.min(
+        window.innerHeight * (isCompact ? 0.52 : isMedium ? 0.48 : 0.45),
+        W * 0.38,
+        isCompact ? 520 : isMedium ? 480 : 450
+      );
+      const targetShelfWidth = Math.min(W * (isCompact ? 0.56 : isMedium ? 0.72 : 0.84), 980);
+      const idealWs = (targetShelfWidth - (M - 1) * 14) / Math.max(1, M);
+      const ws = Math.round(clamp(idealWs, 72, 130));
+      const gap = Math.round(clamp(ws * 0.14, 8, 16));
+      const d = Math.round(H * 0.52);
 
       if (stageRef.current) {
         stageRef.current.style.setProperty("--ws", `${ws}px`);
@@ -1018,10 +1032,13 @@ export function PeopleShelf() {
                           </span>
                         </div>
 
-                        {/* Scholar Name (Pranay P. - Shortened, 90° clockwise, perfectly legible) */}
+                        {/* Scholar Name (Pranay P. - Shortened, 90° clockwise, dynamically sized by M) */}
                         <div className="relative z-10 flex-1 flex items-center justify-center my-2 overflow-visible">
                           <span
-                            className="font-['Newsreader',serif] font-bold text-[16px] sm:text-[18px] tracking-[0.06em] uppercase whitespace-nowrap drop-shadow-md select-none text-center"
+                            className={[
+                              "font-['Newsreader',serif] font-bold tracking-[0.06em] uppercase whitespace-nowrap drop-shadow-md select-none text-center",
+                              M <= 5 ? "text-[19px] sm:text-[22px]" : M <= 8 ? "text-[16px] sm:text-[18px]" : "text-[14px] sm:text-[16px]",
+                            ].join(" ")}
                             style={{
                               transform: "rotate(90deg)",
                               transformOrigin: "center center",
@@ -1103,7 +1120,10 @@ export function PeopleShelf() {
                     // MODE B: VERTICAL STACK (Zoomed out flat pile, Screenshot 7)
                     // ══════════════════════════════════════════════════════════
                     <div
-                      className="sp absolute rounded-[2px] overflow-hidden select-none border border-black/70 flex items-center justify-between px-3 shadow-md hover:brightness-105 transition-all"
+                      className={[
+                        "sp absolute rounded-[2px] overflow-hidden select-none border border-black/70 flex items-center justify-between shadow-md hover:brightness-105 transition-all",
+                        M <= 5 ? "px-5 sm:px-6" : M <= 8 ? "px-4 sm:px-5" : "px-3 sm:px-3.5",
+                      ].join(" ")}
                       style={{
                         width: "var(--stack-w)",
                         height: "var(--stack-h)",
@@ -1122,11 +1142,21 @@ export function PeopleShelf() {
                       />
 
                       {/* Left Symbol & Roll */}
-                      <div className="relative z-10 flex items-center gap-1.5">
-                        <div className="size-6 rounded-full border border-white/30 flex items-center justify-center bg-black/25">
+                      <div className="relative z-10 flex items-center gap-2">
+                        <div
+                          className={[
+                            "rounded-full border border-white/30 flex items-center justify-center bg-black/25 shrink-0",
+                            M <= 5 ? "size-8" : M <= 8 ? "size-7" : "size-6",
+                          ].join(" ")}
+                        >
                           <SpineVignette symbol={book.symbol} color={theme.accent} />
                         </div>
-                        <span className="font-mono text-[8.5px] font-bold tracking-wider px-1 py-0.5 rounded-xs bg-black/30 border border-white/20">
+                        <span
+                          className={[
+                            "font-mono font-bold tracking-wider rounded-xs bg-black/30 border border-white/20 whitespace-nowrap",
+                            M <= 5 ? "text-[10px] px-1.5 py-0.5" : M <= 8 ? "text-[9px] px-1 py-0.5" : "text-[8px] px-1 py-0.5",
+                          ].join(" ")}
+                        >
                           {book.roll}
                         </span>
                       </div>
@@ -1134,7 +1164,10 @@ export function PeopleShelf() {
                       {/* Shortened Name across the horizontal spine (e.g. PRANAY P.) */}
                       <div className="relative z-10 flex-1 px-3 text-center overflow-hidden">
                         <span
-                          className="font-['Newsreader',serif] font-bold text-[14px] sm:text-[15px] tracking-[0.05em] uppercase whitespace-nowrap text-white block truncate"
+                          className={[
+                            "font-['Newsreader',serif] font-bold tracking-[0.05em] uppercase whitespace-nowrap text-white block truncate",
+                            M <= 5 ? "text-[17px] sm:text-[20px]" : M <= 8 ? "text-[15px] sm:text-[17px]" : "text-[13px] sm:text-[14.5px]",
+                          ].join(" ")}
                           style={{ textShadow: "0 1px 2px rgba(0,0,0,0.7)" }}
                         >
                           {book.shortName}
@@ -1142,11 +1175,21 @@ export function PeopleShelf() {
                       </div>
 
                       {/* Right Department Badge */}
-                      <div className="relative z-10 flex items-center gap-1.5">
-                        <span className="text-[7.5px] font-mono tracking-wider uppercase text-white/80 hidden sm:inline">
-                          {book.specialization.slice(0, 12)}
+                      <div className="relative z-10 flex items-center gap-2">
+                        <span
+                          className={[
+                            "font-mono tracking-wider uppercase text-white/80 hidden sm:inline",
+                            M <= 5 ? "text-[9px]" : M <= 8 ? "text-[8px]" : "text-[7.5px]",
+                          ].join(" ")}
+                        >
+                          {book.specialization.slice(0, 16)}
                         </span>
-                        <span className="px-1 py-0.5 border border-white/40 rounded-xs text-[7.5px] font-mono font-bold tracking-widest bg-black/25">
+                        <span
+                          className={[
+                            "border border-white/40 rounded-xs font-mono font-bold tracking-widest bg-black/25",
+                            M <= 5 ? "text-[9px] px-2 py-0.5" : M <= 8 ? "text-[8px] px-1.5 py-0.5" : "text-[7.5px] px-1 py-0.5",
+                          ].join(" ")}
+                        >
                           IIST
                         </span>
                       </div>
