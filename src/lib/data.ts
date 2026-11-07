@@ -439,7 +439,7 @@ export const people: Person[] = [
         status: "Ongoing",
       },
     ],
-    photoUrl: "/media/photos/rahul-mr.jpg",
+    photoUrl: "/media/photos/rahul-mr.webp",
     sourceUrl: "https://www.iist.ac.in/people-faculty-profile/rahul-m-r",
     profileSections: [
       {
@@ -471,7 +471,7 @@ export const people: Person[] = [
         status: "Ongoing",
       },
     ],
-    photoUrl: "/media/photos/muhammed-rijas.jpg",
+    photoUrl: "/media/photos/muhammed-rijas.webp",
     sourceUrl: "https://www.iist.ac.in/node/2922",
     profileSections: [
       {
@@ -539,7 +539,7 @@ const currentStudents: StudentData[] = [
     supervisor: "Dr. B. S. Girish",
     internship: "Friction Stir Welding",
     projectTitle: "Scheduling of Autoclave (CMSE)",
-    photoUrl: "/media/photos/aniket.jpeg",
+    photoUrl: "/media/photos/aniket.webp",
     synopsis:
       "M.Tech scholar in Manufacturing Technology at IIST specializing in quality engineering, statistical process control, and production scheduling. Conducting master's research on autoclave scheduling optimization with CMSE and friction stir welding parameter evaluation.",
     skills: ["Quality Engineering", "Production Scheduling", "Autoclave Scheduling", "Statistical Process Control", "Friction Stir Welding", "CAD-CAM", "Optimization"],
@@ -573,7 +573,7 @@ const currentStudents: StudentData[] = [
     supervisor: "Dr. Chakravarthy P.",
     internship: "Incremental Forming & High Strain Rate Deformation (IIST/VSSC)",
     projectTitle: "High strain rate forming using shock tubes",
-    photoUrl: "/media/photos/laxmi.jpeg",
+    photoUrl: "/media/photos/laxmi.webp",
     resumeUrl: "/resumes/laxmi.pdf",
     personalEmail: "lakshmikdev08@gmail.com",
     linkedin: "https://www.linkedin.com/in/lakshmi-k-756931229",
@@ -607,7 +607,7 @@ const currentStudents: StudentData[] = [
     supervisor: "Dr. Sooraj V. S",
     internship: "VSSC (Compliant Mechanisms) & AMTDC IIT Madras (CNC Dashboard)",
     projectTitle: "Mathematical and Analytical Modelling of Metal 3D Printed Compliant Mechanism (VSSC)",
-    photoUrl: "/media/photos/shivam.jpg",
+    photoUrl: "/media/photos/shivam.webp",
     resumeUrl: "/resumes/shivam.pdf",
     personalEmail: "shivamsaraswat551@gmail.com",
     linkedin: "https://www.linkedin.com/in/shivam-saraswat-705218238",
@@ -660,7 +660,7 @@ const currentStudents: StudentData[] = [
     externalGuide: "Mr. C Venkateswaran",
     internship: "Experimental and Numerical Investigations on Arc DED (WAAM)",
     projectTitle: "Ultrasonic Vibration-Assisted MIG-WAAM & Phase-Field Solidification Modelling",
-    photoUrl: "/media/photos/pranay.png",
+    photoUrl: "/media/photos/pranay.webp",
     resumeUrl: "/resumes/pranay.pdf",
     personalEmail: "pranaypandey82@gmail.com",
     linkedin: "https://www.linkedin.com/in/pranay10",
@@ -695,7 +695,7 @@ const currentStudents: StudentData[] = [
     supervisor: "Dr. Sooraj V. S",
     internship: "L&T AMCoE Precision Manufacturing Systems Centre (WAAM of Titanium Shielding)",
     projectTitle: "Design of Shielding Systems for WAAM of Titanium Alloys & GTAW of AA7075",
-    photoUrl: "/media/photos/rishad.jpeg",
+    photoUrl: "/media/photos/rishad.webp",
     resumeUrl: "/resumes/rishad.pdf",
     personalEmail: "rishadabdullahemo@gmail.com",
     linkedin: "https://www.linkedin.com/in/abdullah-rishad-721195162",

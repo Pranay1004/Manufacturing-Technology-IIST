@@ -20,9 +20,8 @@ export function CanvasProvider({ className = "" }: { className?: string }) {
       const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
       if (!gl) return undefined;
 
-      /* Skip on devices with low pixel ratio (likely low-end) */
-      const isLowEnd = navigator.hardwareConcurrency !== undefined && navigator.hardwareConcurrency < 4;
-      if (isLowEnd && window.innerWidth < 768) return undefined;
+      /* Skip heavy WebGL on phones to preserve battery, thermals & eliminate scroll lag */
+      if (window.innerWidth < 768) return undefined;
 
       /* Respect reduced motion */
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;

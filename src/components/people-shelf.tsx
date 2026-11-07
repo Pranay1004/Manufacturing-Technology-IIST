@@ -479,10 +479,60 @@ export function PeopleShelf() {
   // DOM Refs
   const stageRef = useRef<HTMLDivElement>(null);
   const bookElsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const cvElsRef = useRef<(HTMLElement | null)[]>([]);
+  const liftsRef = useRef<number[]>([]);
   const tabIndicatorRef = useRef<HTMLDivElement>(null);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const detailDialogRef = useRef<HTMLDivElement>(null);
   const inkBlobsRef = useRef<(SVGCircleElement | null)[]>([]);
+
+  // Cached Layout Dimensions (Zero forced reflow during 60fps animations)
+  const dimsRef = useRef({
+    W: 1000,
+    H_container: 700,
+    isMobile: false,
+    ws: 76,
+    d: 230,
+    H: 460,
+    gap: 16,
+    stackWidth: 480,
+    stackSpineH: 46,
+    stackGap: 5,
+  });
+
+  const updateDimensions = useCallback(() => {
+    const stageContainer = stageRef.current?.parentElement;
+    const W = stageContainer ? stageContainer.clientWidth : (typeof window !== "undefined" ? window.innerWidth : 1000);
+    const H_container = stageContainer ? stageContainer.clientHeight : (typeof window !== "undefined" ? window.innerHeight : 700);
+    const isMobile = W < 640;
+
+    const isCompact = M <= 5;
+    const isMedium = M <= 8;
+    const idealSpineH = isMobile
+      ? (isCompact ? 46 : isMedium ? 36 : 28)
+      : (isCompact ? 60 : isMedium ? 46 : 37);
+    const stackSpineH = Math.round(clamp(idealSpineH, 26, 64));
+    const stackGap = isMobile ? 4 : (isCompact ? 6 : isMedium ? 5 : 4);
+    const baseWidth = isCompact ? 540 : isMedium ? 480 : 420;
+    const stackWidth = isMobile ? Math.min(baseWidth, W - 24) : Math.min(baseWidth, W * 0.85);
+
+    const H = isMobile
+      ? clamp(H_container * 0.50, 240, 310)
+      : Math.min(H_container * 0.48, W * 0.32);
+    const ws = isMobile ? Math.max(46, H * (135 / 840)) : H * (135 / 840);
+    const d = isMobile ? Math.max(160, H * (460 / 900)) : H * (460 / 900);
+    const gap = isMobile ? 8 : H * 0.038;
+
+    dimsRef.current = { W, H_container, isMobile, ws, d, H, gap, stackWidth, stackSpineH, stackGap };
+
+    if (stageRef.current) {
+      stageRef.current.style.setProperty("--ws", `${ws}px`);
+      stageRef.current.style.setProperty("--d", `${d}px`);
+      stageRef.current.style.setProperty("--H", `${H}px`);
+      stageRef.current.style.setProperty("--stack-w", `${stackWidth}px`);
+      stageRef.current.style.setProperty("--stack-h", `${stackSpineH}px`);
+    }
+  }, [M]);
 
   // Masked caption elements
   const captionTitleRef = useRef<HTMLDivElement>(null);
@@ -491,6 +541,37 @@ export function PeopleShelf() {
 
   const currentTab = cohortTabs.find((t) => t.id === selectedCohort) || cohortTabs[0];
 
+  // Active rAF state and loop wake controller
+  const isLoopRunningRef = useRef(false);
+  const animIdRef = useRef<number>(0);
+  const lastTimeRef = useRef<number>(performance.now());
+  const loopFnRef = useRef<(now: number) => void>(() => {});
+
+  const wakeLoop = useCallback(() => {
+    if (isLoopRunningRef.current) return;
+    isLoopRunningRef.current = true;
+    lastTimeRef.current = performance.now();
+    animIdRef.current = requestAnimationFrame((now) => loopFnRef.current(now));
+  }, []);
+
+  // Sync cache & dimensions on mount and cohort change
+  useEffect(() => {
+    updateDimensions();
+    liftsRef.current = new Array(M).fill(0);
+    cvElsRef.current = bookElsRef.current.map((el) => (el ? el.querySelector<HTMLElement>(".cv") : null));
+    wakeLoop();
+  }, [M, selectedCohort, updateDimensions, wakeLoop]);
+
+  // Window resize observer (passive)
+  useEffect(() => {
+    const handleResize = () => {
+      updateDimensions();
+      wakeLoop();
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => window.removeEventListener("resize", handleResize);
+  }, [updateDimensions, wakeLoop]);
+
   // Reset physics when switching cohort or orientation: keep everything centered and closed!
   useEffect(() => {
     const center = Math.max(0, (M - 1) / 2);
@@ -498,6 +579,8 @@ export function PeopleShelf() {
     activeIdxRef.current = null;
     sRef.current = center;
     targetRef.current = center;
+    updateDimensions();
+    wakeLoop();
 
     if (tabsContainerRef.current && tabIndicatorRef.current) {
       const activeBtn = tabsContainerRef.current.querySelector(`button[data-cohort="${selectedCohort}"]`) as HTMLElement | null;
@@ -506,7 +589,7 @@ export function PeopleShelf() {
         tabIndicatorRef.current.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
       }
     }
-  }, [selectedCohort, orientation, M]);
+  }, [selectedCohort, orientation, M, updateDimensions, wakeLoop]);
 
   // ─── Swap Caption with Mask Slide ─────────────────────────────────────────
   const swapCaption = useCallback((newBook: BookItem, dir: number) => {
@@ -634,14 +717,11 @@ export function PeopleShelf() {
     };
   }, []);
 
-  // ─── Animation Loop (Continuous Spring Physics & 3D Rolling) ───────────────
+  // ─── Animation Loop (Dynamic Momentum Physics with Idle Sleep) ─────────────
   useEffect(() => {
-    let animId = 0;
-    let lastTime = performance.now();
-
-    const loop = (now: number) => {
-      const dt = Math.min(0.05, (now - lastTime) / 1000);
-      lastTime = now;
+    loopFnRef.current = (now: number) => {
+      const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
+      lastTimeRef.current = now;
 
       // 1. Spring physics with dynamic damping
       const k = isDraggingRef.current ? 18.0 : 7.0;
@@ -649,7 +729,10 @@ export function PeopleShelf() {
       targetRef.current = clamp(targetRef.current, 0, Math.max(0, M - 1));
       sRef.current += (targetRef.current - sRef.current) * (1 - Math.exp(-k * dt));
 
-      if (Math.abs(targetRef.current - sRef.current) < 1e-4) {
+      const diff = Math.abs(targetRef.current - sRef.current);
+      let isMoving = isDraggingRef.current || diff > 1e-4;
+
+      if (diff < 1e-4) {
         sRef.current = targetRef.current;
       }
 
@@ -664,41 +747,8 @@ export function PeopleShelf() {
         }
       }
 
-      // 2. Dimensions & Sizing
-      const stageContainer = stageRef.current?.parentElement;
-      const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
-      const H_container = stageContainer ? stageContainer.clientHeight : window.innerHeight;
-      const isMobile = W < 640;
-
-      // Stack Mode Dimensions (Dynamic horizontal stack sizing):
-      const isCompact = M <= 5;
-      const isMedium = M <= 8;
-      const idealSpineH = isMobile
-        ? (isCompact ? 46 : isMedium ? 36 : 28)
-        : (isCompact ? 60 : isMedium ? 46 : 37);
-      const stackSpineH = Math.round(clamp(idealSpineH, 26, 64));
-      const stackGap = isMobile ? 4 : (isCompact ? 6 : isMedium ? 5 : 4);
-      const baseWidth = isCompact ? 540 : isMedium ? 480 : 420;
-      const stackWidth = isMobile ? Math.min(baseWidth, W - 24) : Math.min(baseWidth, W * 0.85);
-
-      // Shelf Mode Dimensions:
-      // Mobile screens are portrait-oriented (taller than wide), so scale from container height:
-      const H = isMobile
-        ? clamp(H_container * 0.50, 240, 310)
-        : Math.min(H_container * 0.48, W * 0.32);
-      const ws = isMobile ? Math.max(46, H * (135 / 840)) : H * (135 / 840);
-      const d = isMobile ? Math.max(160, H * (460 / 900)) : H * (460 / 900);
-      const gap = isMobile ? 8 : H * 0.038;
-
-      if (stageRef.current) {
-        stageRef.current.style.setProperty("--ws", `${ws}px`);
-        stageRef.current.style.setProperty("--d", `${d}px`);
-        stageRef.current.style.setProperty("--H", `${H}px`);
-        stageRef.current.style.setProperty("--stack-w", `${stackWidth}px`);
-        stageRef.current.style.setProperty("--stack-h", `${stackSpineH}px`);
-      }
-
-      // 3. Transform strictly M books: all closed & centered by default, rolling only when activated!
+      // 2. Read cached dimensions (Zero layout reflow during animation)
+      const { ws, d, gap, stackSpineH, stackGap } = dimsRef.current;
       const isOpen = activeIdxRef.current !== null;
 
       for (let v = 0; v < M; v++) {
@@ -706,52 +756,45 @@ export function PeopleShelf() {
         if (!el) continue;
 
         const isHovered = hoverRef.current === v;
-        const currentLift = Number(el.getAttribute("data-lift") || "0");
+        const currentLift = liftsRef.current[v] || 0;
         const targetLift = isHovered ? 1 : 0;
         const nextLift = currentLift + (targetLift - currentLift) * (1 - Math.exp(-14 * dt));
-        el.setAttribute("data-lift", String(nextLift));
+        liftsRef.current[v] = nextLift;
+        if (Math.abs(targetLift - nextLift) > 1e-3) isMoving = true;
 
         const r = v - sRef.current;
         const o = isOpen ? smoothStep(Math.max(0, 1 - Math.abs(r))) : 0;
 
         if (orientation === "horizontal") {
-          // ══════════════════════════════════════════════════════════════════
-          // MODE A: HORIZONTAL SHELF
-          // Closed: perfectly centered symmetrically with uniform gaps!
-          // Open: neighbors spread apart symmetrically so active cover stays centered!
-          // ══════════════════════════════════════════════════════════════════
           const spread = isOpen ? (d - ws + 1.4 * gap) * smoothStepB(r) : 0;
           const x = r * (ws + gap) + spread;
 
           const rotY = -90 * o;
           const rotX = 0;
-          const rotZ = 0; // Straight preview, zero diagonal tilt
+          const rotZ = 0;
           const transZ = o * 48 + nextLift * 15;
           const transY = -o * 8 - nextLift * 16;
 
           el.style.transform = `translate3d(${x}px, ${transY}px, ${transZ}px) rotateY(${rotY}deg) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
           el.style.zIndex = String(Math.round(100 - Math.abs(r) * 5 + (o > 0.5 ? 20 : 0)));
-          el.style.setProperty("--shade-spine", String(o * 0.65));
-          el.style.setProperty("--shade-cover", String((1 - o) * 0.5));
 
-          const cvEl = el.querySelector<HTMLElement>(".cv");
+          const cvEl = cvElsRef.current[v] || el.querySelector<HTMLElement>(".cv");
           if (cvEl) {
             if (o < 0.02) {
-              cvEl.style.visibility = "hidden";
-              cvEl.style.opacity = "0";
-              cvEl.style.pointerEvents = "none";
+              if (cvEl.style.visibility !== "hidden") {
+                cvEl.style.visibility = "hidden";
+                cvEl.style.opacity = "0";
+                cvEl.style.pointerEvents = "none";
+              }
             } else {
-              cvEl.style.visibility = "visible";
+              if (cvEl.style.visibility !== "visible") {
+                cvEl.style.visibility = "visible";
+              }
               cvEl.style.opacity = String(Math.min(1, o * 1.5));
               cvEl.style.pointerEvents = o > 0.5 ? "auto" : "none";
             }
           }
         } else {
-          // ══════════════════════════════════════════════════════════════════
-          // MODE B: VERTICAL STACK
-          // Closed: vertically centered pillar in the middle of the screen!
-          // Open: active book smoothly glides forward in 3D!
-          // ══════════════════════════════════════════════════════════════════
           const y = r * (stackSpineH + stackGap) + (isOpen ? 14 * smoothStepB(r) : 0);
           const slideX = isOpen ? -o * 24 + (isHovered ? -14 : 0) : (isHovered ? -14 : 0);
           const transZ = (isOpen ? o * 42 : 0) + (isHovered ? 20 : 0) - Math.abs(r) * 4;
@@ -760,37 +803,42 @@ export function PeopleShelf() {
 
           el.style.transform = `translate3d(${slideX}px, ${y}px, ${transZ}px) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
           el.style.zIndex = String(Math.round(80 - Math.abs(r) * 5 + nextLift * 20));
-          el.style.setProperty("--shade-spine", String(o * 0.2));
-          el.style.setProperty("--shade-cover", "0");
         }
       }
 
-      animId = requestAnimationFrame(loop);
+      if (isMoving) {
+        animIdRef.current = requestAnimationFrame((n) => loopFnRef.current(n));
+      } else {
+        isLoopRunningRef.current = false;
+      }
     };
 
-    animId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animId);
-  }, [M, orientation, swapCaption, cohortBooks]);
+    wakeLoop();
+    return () => {
+      if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
+      isLoopRunningRef.current = false;
+    };
+  }, [M, orientation, swapCaption, cohortBooks, wakeLoop]);
 
-  // ─── Input Handlers: Wheel, Drag & Keyboard ───────────────────────────────
+  // ─── Input Handlers: Wheel, Drag & Keyboard (Zero forced reflow) ───────────
   const handleShelfWheel = (e: React.WheelEvent) => {
     if (detailOpen) return;
     const delta = orientation === "horizontal"
       ? (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY)
       : e.deltaY;
 
-    const stageContainer = stageRef.current?.parentElement;
-    const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
-    const isMobile = W < 640;
+    const isMobile = dimsRef.current.isMobile;
     const step = orientation === "horizontal" ? (isMobile ? 120 : 80) : (isMobile ? 38 : 50);
 
     targetRef.current = clamp(targetRef.current + (delta / step) * 0.5, 0, M - 1);
     lastWheelTimeRef.current = Date.now();
+    wakeLoop();
 
     if (wheelSnapTimerRef.current) clearTimeout(wheelSnapTimerRef.current);
     wheelSnapTimerRef.current = setTimeout(() => {
       if (activeIdxRef.current !== null) {
         targetRef.current = clamp(Math.round(targetRef.current), 0, M - 1);
+        wakeLoop();
       }
     }, 140);
   };
@@ -800,6 +848,7 @@ export function PeopleShelf() {
     isDraggingRef.current = false;
     const startCoord = orientation === "horizontal" ? e.clientX : e.clientY;
     dragStartRef.current = { pos: startCoord, target: targetRef.current };
+    wakeLoop();
 
     const targetEl = e.currentTarget as HTMLElement;
     targetEl.setPointerCapture?.(e.pointerId);
@@ -807,13 +856,12 @@ export function PeopleShelf() {
     const handlePointerMoveDrag = (ev: PointerEvent) => {
       const currentCoord = orientation === "horizontal" ? ev.clientX : ev.clientY;
       const delta = currentCoord - dragStartRef.current.pos;
-      if (Math.abs(delta) > 5) {
+      if (Math.abs(delta) > 4) {
         isDraggingRef.current = true;
-        const stageContainer = stageRef.current?.parentElement;
-        const W = stageContainer ? stageContainer.clientWidth : window.innerWidth;
-        const isMobile = W < 640;
+        const isMobile = dimsRef.current.isMobile;
         const step = orientation === "horizontal" ? (isMobile ? 120 : 80) : (isMobile ? 38 : 50);
         targetRef.current = clamp(dragStartRef.current.target - delta / step, 0, M - 1);
+        wakeLoop();
       }
     };
 
@@ -826,12 +874,13 @@ export function PeopleShelf() {
       setTimeout(() => {
         isDraggingRef.current = false;
       }, 60);
+      wakeLoop();
       window.removeEventListener("pointermove", handlePointerMoveDrag);
       window.removeEventListener("pointerup", handlePointerUpDrag);
       window.removeEventListener("pointercancel", handlePointerUpDrag);
     };
 
-    window.addEventListener("pointermove", handlePointerMoveDrag);
+    window.addEventListener("pointermove", handlePointerMoveDrag, { passive: true });
     window.addEventListener("pointerup", handlePointerUpDrag);
     window.addEventListener("pointercancel", handlePointerUpDrag);
   };
@@ -851,6 +900,7 @@ export function PeopleShelf() {
       setActiveIdx(idx);
       targetRef.current = clamp(idx, 0, M - 1);
       swapCaption(book, prev !== null ? (idx > prev ? 1 : -1) : 1);
+      wakeLoop();
     }
   };
 
@@ -866,6 +916,7 @@ export function PeopleShelf() {
         activeIdxRef.current = null;
         setActiveIdx(null);
         targetRef.current = Math.max(0, (M - 1) / 2);
+        wakeLoop();
         return;
       }
 
@@ -877,6 +928,7 @@ export function PeopleShelf() {
           activeIdxRef.current = nextIdx;
           setActiveIdx(nextIdx);
           targetRef.current = nextIdx;
+          wakeLoop();
           if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], -1);
         } else if (e.key === "ArrowRight") {
           const nextIdx = activeIdxRef.current === null
@@ -885,6 +937,7 @@ export function PeopleShelf() {
           activeIdxRef.current = nextIdx;
           setActiveIdx(nextIdx);
           targetRef.current = nextIdx;
+          wakeLoop();
           if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], 1);
         } else if (e.key === "Enter" && activeIdxRef.current !== null && cohortBooks[activeIdxRef.current]) {
           openDetail(cohortBooks[activeIdxRef.current]);
@@ -897,6 +950,7 @@ export function PeopleShelf() {
           activeIdxRef.current = nextIdx;
           setActiveIdx(nextIdx);
           targetRef.current = nextIdx;
+          wakeLoop();
           if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], -1);
         } else if (e.key === "ArrowDown") {
           const nextIdx = activeIdxRef.current === null
@@ -905,6 +959,7 @@ export function PeopleShelf() {
           activeIdxRef.current = nextIdx;
           setActiveIdx(nextIdx);
           targetRef.current = nextIdx;
+          wakeLoop();
           if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], 1);
         } else if (e.key === "Enter" && activeIdxRef.current !== null && cohortBooks[activeIdxRef.current]) {
           openDetail(cohortBooks[activeIdxRef.current]);
@@ -914,7 +969,7 @@ export function PeopleShelf() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [detailOpen, orientation, M, cohortBooks, openDetail, closeDetail, swapCaption]);
+  }, [detailOpen, orientation, M, cohortBooks, openDetail, closeDetail, swapCaption, wakeLoop]);
 
   const activeBook = activeIdx !== null ? cohortBooks[activeIdx] : null;
   const activeTheme = themeStyles[activeBook?.theme || "cobalt"];
@@ -926,9 +981,9 @@ export function PeopleShelf() {
 
       {/* ─── Main Right Canvas for 3D Shelf / Stack ───────────────────────── */}
       <div className="relative flex-1 min-w-0 min-h-0 w-full h-full overflow-hidden select-none flex flex-col justify-between">
-        {/* Paper Grain Overlay */}
+        {/* Paper Grain Overlay - Hidden on mobile phones to prevent GPU rasterization bottleneck */}
         <div
-          className="fixed inset-0 z-10 pointer-events-none mix-blend-multiply opacity-55"
+          className="fixed inset-0 z-10 pointer-events-none mix-blend-multiply opacity-55 hidden sm:block"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.45 0 0 0 0 0.42 0 0 0 0 0.38 0 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
           }}
@@ -1082,9 +1137,13 @@ export function PeopleShelf() {
                   }}
                   onPointerEnter={() => {
                     hoverRef.current = v;
+                    wakeLoop();
                   }}
                   onPointerLeave={() => {
-                    if (hoverRef.current === v) hoverRef.current = -1;
+                    if (hoverRef.current === v) {
+                      hoverRef.current = -1;
+                      wakeLoop();
+                    }
                   }}
                   className="tape absolute top-0 left-0 size-0 cursor-pointer select-none transition-shadow"
                   style={{
