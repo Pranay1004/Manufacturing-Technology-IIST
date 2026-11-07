@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Mail, X, Columns, Rows } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Mail, X, Columns, Rows, FileText } from "lucide-react";
 import { people } from "@/lib/data";
 import { IndicTranslate } from "@/components/IndicTranslate";
 import { SiteHeader } from "@/components/site-shell";
@@ -182,6 +182,7 @@ export interface BookItem {
   skills: string[];
   projects: string[];
   resumeUrl?: string;
+  photoUrl?: string;
   officialEmail: string;
   placedAt?: string;
   placedRole?: string;
@@ -389,7 +390,7 @@ const cohortTabs: CohortTabConfig[] = [
   { id: "2024-2026", label: "2024–2026 (Graduated)", badge: "Graduated", statusText: "Graduated May 2026 · Convocation July 2026", count: 7 },
   { id: "2026-2028", label: "2026–2028 (Incoming)", badge: "Incoming Batch", statusText: "Incoming M.Tech Batch · Enrolling 2026", count: 12 },
   { id: "phd", label: "PhD Scholars", badge: "Doctoral", statusText: "PhD Research Scholars · Advanced Materials & Space Systems", count: 10 },
-  { id: "faculty", label: "Faculty & Staff", badge: "Leadership", statusText: "Academic Leadership & Laboratory Engineers", count: 4 },
+  { id: "faculty", label: "Faculty & Staff", badge: "Leadership", statusText: "Academic Leadership & Laboratory Engineers", count: 6 },
 ];
 
 function getCohortBooks(cohortId: CohortId): BookItem[] {
@@ -437,6 +438,7 @@ function getCohortBooks(cohortId: CohortId): BookItem[] {
       skills: p.skills,
       projects: p.projects.map((proj) => proj.title),
       resumeUrl: p.resumeUrl,
+      photoUrl: p.photoUrl,
       officialEmail: p.officialEmail,
       placedAt: p.placedAt,
       placedRole: p.placedRole,
@@ -731,6 +733,19 @@ export function PeopleShelf() {
           el.style.zIndex = String(Math.round(100 - Math.abs(r) * 5 + (o > 0.5 ? 20 : 0)));
           el.style.setProperty("--shade-spine", String(o * 0.65));
           el.style.setProperty("--shade-cover", String((1 - o) * 0.5));
+
+          const cvEl = el.querySelector<HTMLElement>(".cv");
+          if (cvEl) {
+            if (o < 0.02) {
+              cvEl.style.visibility = "hidden";
+              cvEl.style.opacity = "0";
+              cvEl.style.pointerEvents = "none";
+            } else {
+              cvEl.style.visibility = "visible";
+              cvEl.style.opacity = String(Math.min(1, o * 1.5));
+              cvEl.style.pointerEvents = o > 0.5 ? "auto" : "none";
+            }
+          }
         } else {
           // ══════════════════════════════════════════════════════════════════
           // MODE B: VERTICAL STACK
@@ -1011,7 +1026,7 @@ export function PeopleShelf() {
                   >
                     <span>{tab.label}</span>
                     <span className={`ml-1 text-[9px] font-mono opacity-80 ${isActive ? "text-white/80" : "text-[#6D6A63]"}`}>
-                      ({tab.count})
+                      ({getCohortBooks(tab.id).length})
                     </span>
                   </button>
                 );
@@ -1132,10 +1147,10 @@ export function PeopleShelf() {
 
                         {/* Bottom Spine IIST Stamp */}
                         <div className="relative z-10 flex flex-col items-center gap-0.5 pt-1.5 border-t border-white/20">
-                          <span className="text-[6.5px] sm:text-[7px] font-bold tracking-[0.16em] uppercase text-white/80">
-                            AEROSPACE
+                          <span className="text-[6.5px] sm:text-[7.5px] font-bold tracking-widest uppercase text-white/90 whitespace-nowrap">
+                            AE
                           </span>
-                          <span className="px-1 py-0.5 border border-white/40 rounded-xs text-[7px] sm:text-[7.5px] font-mono font-bold tracking-widest bg-black/25">
+                          <span className="px-1 py-0.5 border border-white/40 rounded-xs text-[6.5px] sm:text-[7px] font-mono font-bold tracking-wider bg-black/25 whitespace-nowrap">
                             IIST·MT
                           </span>
                         </div>
@@ -1154,6 +1169,8 @@ export function PeopleShelf() {
                           WebkitBackfaceVisibility: "hidden",
                           background: theme.coverBg,
                           boxShadow: "0 30px 60px -20px rgba(0,0,0,0.55)",
+                          visibility: "hidden",
+                          opacity: 0,
                         }}
                       >
                         <div className="absolute inset-0 z-0 opacity-80 pointer-events-none flex items-center justify-center p-2 sm:p-3">
@@ -1483,11 +1500,22 @@ export function PeopleShelf() {
               </span>
             </div>
 
-            {/* FULL NAME proudly displayed inside dossier */}
-            <div className="detail-mask-line overflow-hidden">
-              <h1 className="inline-block font-['Newsreader',serif] font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.02] tracking-tight text-[#141414]">
-                {dossierBook.name}
-              </h1>
+            {/* FULL NAME & Portrait (if available) proudly displayed inside dossier */}
+            <div className="flex items-center gap-4">
+              {dossierBook.photoUrl && (
+                <div className="size-16 sm:size-20 rounded-md overflow-hidden border border-[rgba(20,20,20,0.85)] shadow-md shrink-0 bg-white">
+                  <img
+                    src={dossierBook.photoUrl}
+                    alt={dossierBook.name}
+                    className="w-full h-full object-cover object-top"
+                  />
+                </div>
+              )}
+              <div className="detail-mask-line overflow-hidden">
+                <h1 className="inline-block font-['Newsreader',serif] font-bold text-3xl sm:text-5xl lg:text-6xl leading-[1.02] tracking-tight text-[#141414]">
+                  {dossierBook.name}
+                </h1>
+              </div>
             </div>
 
             <div className="detail-mask-line overflow-hidden">
@@ -1541,6 +1569,18 @@ export function PeopleShelf() {
                   <Mail size={14} aria-hidden />
                   <span>Contact Scholar</span>
                 </a>
+
+                {dossierBook.resumeUrl && (
+                  <a
+                    href={dossierBook.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 h-[42px] px-4 border border-[rgba(20,20,20,0.85)] bg-white text-[#143B82] text-[10.5px] font-bold tracking-[0.1em] uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-all cursor-pointer shadow-xs"
+                  >
+                    <FileText size={14} aria-hidden />
+                    <span>Resume (PDF)</span>
+                  </a>
+                )}
               </div>
             </div>
           </div>

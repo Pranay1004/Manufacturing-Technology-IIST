@@ -15,7 +15,29 @@ export function formatResumeUrl(url: string | undefined): string | undefined {
   return url;
 }
 
-export function Portrait({ name, large = false }: { name: string; large?: boolean }) {
+export function Portrait({ name, photoUrl, large = false }: { name: string; photoUrl?: string; large?: boolean }) {
+  if (photoUrl) {
+    return (
+      <div
+        className={[
+          "relative shrink-0 overflow-hidden rounded-lg border border-[var(--edge)] aspect-[3/4] select-none bg-[var(--panel-alt)] shadow-xs",
+          large ? "w-32 sm:w-40 md:w-44" : "w-16 sm:w-20",
+        ].join(" ")}
+      >
+        <img
+          src={photoUrl}
+          alt={name}
+          className="h-full w-full object-cover object-top"
+          loading="lazy"
+        />
+        <div className="absolute top-1.5 left-1.5 size-2 border-t border-l border-white/40" />
+        <div className="absolute top-1.5 right-1.5 size-2 border-t border-r border-white/40" />
+        <div className="absolute bottom-1.5 left-1.5 size-2 border-b border-l border-white/40" />
+        <div className="absolute bottom-1.5 right-1.5 size-2 border-b border-r border-white/40" />
+      </div>
+    );
+  }
+
   const initials = name
     .replace("Dr.", "")
     .split(" ")
@@ -76,7 +98,7 @@ export function PersonCard({
     >
       <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
         <div className="flex justify-center sm:justify-start">
-          <Portrait name={person.name} />
+          <Portrait name={person.name} photoUrl={person.photoUrl} />
         </div>
         <div className="min-w-0 flex flex-col justify-between">
           <div className="min-w-0">

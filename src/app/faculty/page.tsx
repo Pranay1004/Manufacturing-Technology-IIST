@@ -1,10 +1,8 @@
 import { ExternalLink, Mail, Share2 } from "lucide-react";
 import { getPeopleByType } from "@/lib/data";
 import { PageFrame } from "@/components/site-shell";
-import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { Portrait } from "@/components/person-card";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { SectionLabel } from "@/components/ui/SectionLabel";
 
 export default function FacultyPage() {
   const faculty = getPeopleByType("faculty");
@@ -13,26 +11,13 @@ export default function FacultyPage() {
 
   return (
     <PageFrame>
-      <main>
-        <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
-          <ScrollReveal>
-            <SectionLabel className="mb-3">Faculty & Staff</SectionLabel>
-            <h1 className="mt-4 max-w-4xl font-display text-4xl font-bold leading-tight text-[var(--ceramic)] sm:text-5xl">
-              Faculty & staff anchors for manufacturing technology in aerospace engineering.
-            </h1>
-            <p className="mt-5 max-w-3xl text-base leading-7 text-[var(--ceramic-muted)] sm:text-lg sm:leading-8 text-justify">
-              Research, teaching, labs, and guidance are kept here as a dedicated faculty and support layer,
-              separate from the yearwise student and PhD directory.
-            </p>
-          </ScrollReveal>
-        </section>
-
+      <main className="pt-6 sm:pt-10">
         {/* Faculty & Staff Cards */}
         <section className="mx-auto grid max-w-7xl gap-5 px-4 pb-12 sm:px-6 lg:grid-cols-2 lg:px-8">
           {members.map((person) => (
             <GlassCard key={person.slug} className="flex h-full flex-col">
               <div className="flex items-start gap-4">
-                <Portrait name={person.name} />
+                <Portrait name={person.name} photoUrl={person.photoUrl} />
                 <div className="min-w-0">
                   <p className="font-data text-[10px] uppercase tracking-[0.16em] text-[var(--forge-amber)]">
                     {person.role}

@@ -36,6 +36,7 @@ export type Person = {
   researchInterests?: string[];
   seekingRoles?: string[];
   resumeUrl?: string;
+  photoUrl?: string;
   sourceUrl?: string;
   admissionYear?: string;
   mode?: "Regular" | "Sponsored";
@@ -382,6 +383,103 @@ export const people: Person[] = [
       },
     ],
   },
+  {
+    slug: "rahul-m-r",
+    type: "faculty",
+    name: "Dr. Rahul M. R.",
+    role: "Assistant Professor",
+    specialization: "Alloy Design & Microstructure Informatics",
+    officialEmail: "rahulmr@iist.ac.in",
+    location: "Department of Aerospace Engineering",
+    availability: "Research focused",
+    synopsis:
+      "Assistant Professor in the Department of Aerospace Engineering at IIST (formerly at IIT (ISM) Dhanbad). Specializes in alloy design and development via experimental and multi-scale simulation routes, microstructure informatics, thermo-mechanical processing, and solidification metallurgy for critical space hardware.",
+    skills: [
+      "Alloy Design",
+      "Microstructure Informatics",
+      "Thermo-Mechanical Processing",
+      "Solidification Metallurgy",
+      "ICME",
+      "Welding Metallurgy",
+    ],
+    skillGroups: {
+      Research: [
+        "Alloy design & development (Experimental & Simulation)",
+        "Microstructure informatics",
+        "Thermo-mechanical processing",
+        "Solidification and welding",
+        "ICME and Materials informatics",
+      ],
+      Teaching: [
+        "Heat Treatment Techniques",
+        "Advanced Engineering Materials",
+        "Joining of Materials",
+        "Metal Forming Technology",
+        "Welding Metallurgy",
+      ],
+    },
+    researchInterests: [
+      "Alloy design and development: Experimental and Simulation",
+      "Microstructure Informatics",
+      "Thermo-Mechanical processing",
+      "Solidification and Welding",
+      "ICME and Materials Informatics",
+    ],
+    courses: [
+      "Heat Treatment Techniques",
+      "Advanced Engineering Materials",
+      "Joining of Materials",
+      "Metal Forming Technology",
+      "Welding Metallurgy",
+    ],
+    projects: [
+      {
+        title: "Alloy Design & Microstructure Informatics for Aerospace Systems",
+        summary: "Integrated computational materials engineering (ICME) and experimental thermo-mechanical processing for aerospace structural alloys.",
+        status: "Ongoing",
+      },
+    ],
+    photoUrl: "/media/photos/rahul-mr.jpg",
+    sourceUrl: "https://www.iist.ac.in/people-faculty-profile/rahul-m-r",
+    profileSections: [
+      {
+        title: "Fellowships & Honors",
+        body: "Recipient of the IGSTC Paired Early Career Fellowship in Applied Research (University of Duisburg-Essen, Germany), Keshav Ranganath Award (IIT Madras Best Researcher), Sudarshan Bhat Memorial Prize for best thesis, and IIM-SJEF travel grant (THERMEC 2025, France).",
+      },
+    ],
+  },
+  {
+    slug: "muhammed-rijas-a-staff",
+    type: "staff",
+    name: "Muhammed Rijas A.",
+    role: "Technical Officer-C",
+    specialization: "Welding, Forming & Laboratory Operations",
+    officialEmail: "muhammedrijas@iist.ac.in",
+    location: "Aerospace Engineering Laboratories",
+    availability: "Research focused",
+    synopsis:
+      "Technical Officer-C in the Department of Aerospace Engineering at IIST. Anchors laboratory instrumentation, precision welding and forming equipment, technical support for advanced manufacturing trials, and experimental characterization workflows for aerospace student and faculty research.",
+    skills: ["Lab Instrumentation", "Advanced Welding", "Metal Forming", "Process Setup", "Safety Compliance"],
+    skillGroups: {
+      Technical: ["Welding systems", "Metal forming rigs", "Metallography preparation", "Equipment calibration"],
+      Operations: ["Laboratory management", "Safety engineering", "Experimental fixture setup", "Student guidance"],
+    },
+    projects: [
+      {
+        title: "Aerospace Manufacturing Lab Operations & Process Setups",
+        summary: "Supervising experimental rigs for welding, forming, and metallographic evaluation of refractory and high-strength aerospace alloys.",
+        status: "Ongoing",
+      },
+    ],
+    photoUrl: "/media/photos/muhammed-rijas.jpg",
+    sourceUrl: "https://www.iist.ac.in/node/2922",
+    profileSections: [
+      {
+        title: "Department Role",
+        body: "Staff Code: IN13194. Technical Officer-C, Department of Aerospace Engineering, IIST. Contact: +91-471-2568-494.",
+      },
+    ],
+  },
 ];
 
 // Lab Staff & Technical Support
@@ -420,6 +518,15 @@ interface StudentData {
   internship: string;
   projectTitle: string;
   externalGuide?: string;
+  photoUrl?: string;
+  resumeUrl?: string;
+  personalEmail?: string;
+  linkedin?: string;
+  portfolio?: string;
+  synopsis?: string;
+  skills?: string[];
+  skillGroups?: Record<string, string[]>;
+  projects?: Project[];
 }
 
 const currentStudents: StudentData[] = [
@@ -427,11 +534,15 @@ const currentStudents: StudentData[] = [
     slug: "aniket-balaji-parnale",
     name: "Aniket Balaji Parnale",
     roll: "SC25M141",
-    specialization: "Quality Engineering",
+    specialization: "Quality Engineering & Production Scheduling",
     broadIdea: "Quality Engineering & Production Scheduling",
     supervisor: "Dr. B. S. Girish",
     internship: "Friction Stir Welding",
     projectTitle: "Scheduling of Autoclave (CMSE)",
+    photoUrl: "/media/photos/aniket.jpeg",
+    synopsis:
+      "M.Tech scholar in Manufacturing Technology at IIST specializing in quality engineering, statistical process control, and production scheduling. Conducting master's research on autoclave scheduling optimization with CMSE and friction stir welding parameter evaluation.",
+    skills: ["Quality Engineering", "Production Scheduling", "Autoclave Scheduling", "Statistical Process Control", "Friction Stir Welding", "CAD-CAM", "Optimization"],
   },
   {
     slug: "anushyanth-a",
@@ -457,21 +568,76 @@ const currentStudents: StudentData[] = [
     slug: "lakshmi-k",
     name: "Lakshmi K",
     roll: "SC25M144",
-    specialization: "Forming Technology",
-    broadIdea: "Incremental Forming",
+    specialization: "Incremental Forming & Molecular Dynamics",
+    broadIdea: "Incremental Forming & Shock Tube High Strain Rate Deformation",
     supervisor: "Dr. Chakravarthy P.",
-    internship: "Incremental Forming (IIST/VSSC)",
+    internship: "Incremental Forming & High Strain Rate Deformation (IIST/VSSC)",
     projectTitle: "High strain rate forming using shock tubes",
+    photoUrl: "/media/photos/laxmi.jpeg",
+    resumeUrl: "/resumes/laxmi.pdf",
+    personalEmail: "lakshmikdev08@gmail.com",
+    linkedin: "https://www.linkedin.com/in/lakshmi-k-756931229",
+    synopsis:
+      "M.Tech scholar in Manufacturing Technology at IIST with a B.Tech in Production Engineering from GEC Thrissur. Specializes in advanced metal forming, single point incremental sheet forming, molecular dynamics simulations (LAMMPS, OVITO), CAD/CAM modeling (SolidWorks, AutoCAD, Creo), and CNC programming for aerospace components.",
+    skills: ["Incremental Forming", "LAMMPS", "OVITO", "Atomsk", "SolidWorks", "AutoCAD", "Creo", "Fusion 360", "CNC Programming", "Metrology", "MATLAB"],
+    skillGroups: {
+      "Simulation & Physics": ["LAMMPS", "OVITO", "Atomsk", "MATLAB"],
+      "CAD & CAM": ["SolidWorks", "AutoCAD", "Creo", "Autodesk Fusion 360", "CNC G-Code"],
+      "Manufacturing Processes": ["Incremental Forming", "Metal Forming", "Metrology", "Production Planning"],
+    },
+    projects: [
+      {
+        title: "Incremental Sheet Forming of Aerospace Alloys",
+        summary: "Toolpath generation, deformation limits, and thinning behavior in single point incremental forming of lightweight sheets.",
+        status: "Ongoing",
+      },
+      {
+        title: "Formula Bharat 2023 Suspension Fabrication",
+        summary: "Design, FEA stress analysis, and precision fabrication of suspension wishbones and uprights for formula-style racecar.",
+        status: "Completed",
+      },
+    ],
   },
   {
     slug: "shivam-ajay-saraswat",
     name: "Shivam Ajay Saraswat",
     roll: "SC25M145",
-    specialization: "Welding and Joining",
-    broadIdea: "AMTDC IIT Madras - AM",
+    specialization: "Mechanical Design & Additive Manufacturing",
+    broadIdea: "Metal 3D Printed Compliant Mechanisms (VSSC) & AMTDC CNC Systems",
     supervisor: "Dr. Sooraj V. S",
-    internship: "AMTDC - IIT Madras",
-    projectTitle: "Additive Manufacturing (IIST/LPSC/VSSC)",
+    internship: "VSSC (Compliant Mechanisms) & AMTDC IIT Madras (CNC Dashboard)",
+    projectTitle: "Mathematical and Analytical Modelling of Metal 3D Printed Compliant Mechanism (VSSC)",
+    photoUrl: "/media/photos/shivam.jpg",
+    resumeUrl: "/resumes/shivam.pdf",
+    personalEmail: "shivamsaraswat551@gmail.com",
+    linkedin: "https://www.linkedin.com/in/shivam-saraswat-705218238",
+    portfolio: "https://github.com/WILLSHAPER5-10-5",
+    synopsis:
+      "M.Tech scholar in Manufacturing Technology at IIST with research and industrial experience at VSSC (mathematical modeling of metal 3D printed compliant mechanisms), AMTDC IIT Madras (CNC machine dashboard using Eclipse Milo OPC-UA), and DRDO ARDE (servo laying system kinematics). Expert in CAD/CAE simulations and microgravity positioning systems.",
+    skills: ["Creo", "SolidWorks", "Fusion 360", "ANSYS Workbench", "Abaqus", "Simufact Additive", "3D Printing (Cura/Prusa)", "MATLAB & Simulink", "Compliant Mechanisms", "Python"],
+    skillGroups: {
+      "CAD & Design": ["Creo", "Fusion 360", "SolidWorks", "CATIA", "OnShape", "AutoCAD"],
+      "CAE & Simulation": ["ANSYS Workbench", "Abaqus", "Simufact Additive"],
+      "Programming & Tools": ["Python", "Java", "MATLAB", "Simulink", "Eclipse Milo"],
+      "Core Competencies": ["Additive Manufacturing", "FEA & Structural Analysis", "Compliant Mechanisms", "Servo Systems"],
+    },
+    projects: [
+      {
+        title: "Metal 3D Printed Compliant Mechanisms (VSSC)",
+        summary: "Mathematical and analytical modelling of additively manufactured compliant flexures and mechanisms for space payloads at VSSC.",
+        status: "Ongoing",
+      },
+      {
+        title: "Industrial CNC Machine Dashboard (AMTDC IIT Madras)",
+        summary: "OPC-UA server generation via Eclipse Milo and monitoring dashboard for Jyoti MTX 300 multi-axis CNC machines.",
+        status: "Completed",
+      },
+      {
+        title: "Random Positioning Machine for Microgravity Simulation",
+        summary: "Multi-axis rotational simulator to emulate microgravity environments for biological and material testing.",
+        status: "Ongoing",
+      },
+    ],
   },
   {
     slug: "bishodeep-sardar",
@@ -488,24 +654,73 @@ const currentStudents: StudentData[] = [
     slug: "pranay-kumar-pandey",
     name: "Pranay Kumar Pandey",
     roll: "SC25M147",
-    specialization: "Additive Manufacturing",
-    broadIdea: "TPS Coatings",
+    specialization: "Wire Arc Additive Manufacturing (WAAM) & Multi-scale Modeling",
+    broadIdea: "Ultrasonic Vibration-Assisted MIG-WAAM & Phase-Field Solidification",
     supervisor: "Dr. Chakravarthy P.",
     externalGuide: "Mr. C Venkateswaran",
-    internship: "Awaiting Inputs",
-    projectTitle: "Additive Manufacturing (IIST/LPSC/VSSC)",
+    internship: "Experimental and Numerical Investigations on Arc DED (WAAM)",
+    projectTitle: "Ultrasonic Vibration-Assisted MIG-WAAM & Phase-Field Solidification Modelling",
+    photoUrl: "/media/photos/pranay.png",
+    resumeUrl: "/resumes/pranay.pdf",
+    personalEmail: "pranaypandey82@gmail.com",
+    linkedin: "https://www.linkedin.com/in/pranay10",
+    portfolio: "https://pandeyjii.vercel.app",
+    synopsis:
+      "M.Tech scholar in Manufacturing Technology at IIST (B.Tech Aerospace Engineering). Thesis research on Arc Directed Energy Deposition (WAAM) of austenitic stainless steel, integrating ultrasonic vibration coupling to refine dendritic grain structures, multi-scale macro FEM/CFD thermal models, and micro-scale Phase-Field Solidification Modelling (PFM). Former Research Assistant at FOSSEE, IIT Bombay.",
+    skills: ["Wire Arc Additive (WAAM)", "Phase-Field Modeling (PFM)", "Solidification Kinetics", "Ansys FEA & CFD", "SolidWorks", "Thermal Protection Systems", "Python", "Generative AI"],
+    skillGroups: {
+      "Additive Manufacturing": ["MIG-WAAM", "Arc DED", "Ultrasonic-Assisted WAAM", "Solidification Control"],
+      "Modeling & Simulation": ["Phase-Field Solidification (PFM)", "Macro FEM/CFD", "Ansys Fluent", "Thermo-mechanical Analysis"],
+      "Design & Computing": ["SolidWorks", "Python", "Generative AI", "C++"],
+    },
+    projects: [
+      {
+        title: "Ultrasonic Vibration-Assisted Arc DED of Stainless Steel",
+        summary: "Parametric optimization and hybrid acoustic vibration coupling to refine columnar dendritic grains into equiaxed structures in WAAM.",
+        status: "Ongoing",
+      },
+      {
+        title: "Phase-Field Solidification Modeling (PFM)",
+        summary: "Micro-scale phase-field numerical simulation capturing dendritic morphology, solute partitioning, and cooling rates during metal deposition.",
+        status: "Ongoing",
+      },
+    ],
   },
   {
     slug: "abdullah-rishad",
     name: "Abdullah Rishad",
     roll: "SC25M179",
-    specialization: "Smart Manufacturing",
-    broadIdea: "WAAM of Titanium (L&T)",
+    specialization: "Smart Manufacturing & Titanium WAAM",
+    broadIdea: "WAAM of Titanium Shielding Design (L&T AMCoE) & AA7075 SCC Studies",
     supervisor: "Dr. Sooraj V. S",
-    internship: "L&T (Waiting response/sooraj sir), backup option CMSE (composites)",
-    projectTitle: "GTAW Of AL7075 and SCC Studies (IIST/VSSC)",
+    internship: "L&T AMCoE Precision Manufacturing Systems Centre (WAAM of Titanium Shielding)",
+    projectTitle: "Design of Shielding Systems for WAAM of Titanium Alloys & GTAW of AA7075",
+    photoUrl: "/media/photos/rishad.jpeg",
+    resumeUrl: "/resumes/rishad.pdf",
+    personalEmail: "rishadabdullahemo@gmail.com",
+    linkedin: "https://www.linkedin.com/in/abdullah-rishad-721195162",
+    synopsis:
+      "M.Tech scholar in Manufacturing Technology at IIST (CGPA 8.92) and 1st Year M.Tech Student Representative. Conducted industrial internship at L&T AMCoE Precision Manufacturing Systems Centre designing trailing shielding systems for WAAM of Titanium alloys. Research on GTAW of AA7075 and stress corrosion cracking (SCC) mitigation.",
+    skills: ["Titanium WAAM", "Shielding Gas Design", "Abaqus CAE", "Fusion 360", "Simufact Additive", "Ansys Fluent", "CAPP & CAM", "Process Optimization", "Time Study"],
+    skillGroups: {
+      "Engineering Software": ["Fusion 360", "AutoCAD", "Abaqus CAE", "Simufact Additive", "Ansys Fluent", "MATLAB"],
+      "Manufacturing Engineering": ["WAAM of Titanium", "Shielding Gas Design", "CAPP", "CAM Programming", "GTAW"],
+      "Industrial Operations": ["Process Optimization", "Time Study", "Plant Layout Planning", "Operations Management"],
+    },
+    projects: [
+      {
+        title: "Shielding System for WAAM of Titanium Alloys (L&T AMCoE)",
+        summary: "Trailing shield and chamber design to prevent atmospheric contamination and alpha-case embrittlement during wire arc deposition of Ti-6Al-4V.",
+        status: "Ongoing",
+      },
+      {
+        title: "GTAW of AA7075 and Stress Corrosion Cracking (SCC)",
+        summary: "Investigation of weld joint integrity, heat affected zone susceptibility, and corrosion cracking resistance in aircraft aluminum alloys.",
+        status: "Ongoing",
+      },
+    ],
   }
-] as const;
+];
 
 const outgoingStudents = [
   {
@@ -594,6 +809,7 @@ const outgoingStudents = [
     personalEmail: "aaromalpj@gmail.com",
     officialEmail: "arjun.sc24m027@pg.iist.ac.in",
     linkedin: "https://linkedin.com/in/p-j-arjun-1036b01b7",
+    resumeUrl: "/resumes/arjun.pdf",
     internship: "Preliminary Insights into the Comparative Behavior of Titanium Alloy Ti-6Al-4V with and without Boron Addition Produced by Laser Powder Bed Fusion",
     internalGuide: "Dr. V S Sooraj",
     placedAt: "Bharat Electronics Ltd.",
@@ -630,19 +846,21 @@ people.push(
     cohort: "2025-2027",
     specialization: s.specialization,
     officialEmail: `${s.name.split(" ")[0].toLowerCase()}.${s.roll.toLowerCase()}@pg.iist.ac.in`,
-    personalEmail: `${s.slug.replaceAll("-", ".")}@gmail.com`,
-    portfolio: `https://${s.slug}.portfolio.example`,
-    linkedin: `https://www.linkedin.com/in/${s.slug}`,
+    personalEmail: s.personalEmail ?? `${s.slug.replaceAll("-", ".")}@gmail.com`,
+    portfolio: s.portfolio ?? `https://${s.slug}.portfolio.example`,
+    linkedin: s.linkedin ?? `https://www.linkedin.com/in/${s.slug}`,
+    photoUrl: s.photoUrl,
+    resumeUrl: s.resumeUrl,
     availability: "Open to internships",
     supervisor: s.supervisor,
-    synopsis: `M.Tech Manufacturing Technology scholar building aerospace-oriented manufacturing depth through coursework, lab work, process planning, and applied project documentation. Specializing in ${s.specialization} with active research focus on ${s.broadIdea || s.specialization}.`,
-    skills: [s.specialization, "Process planning", "Technical documentation", "Aerospace manufacturing"],
-    skillGroups: {
+    synopsis: s.synopsis ?? `M.Tech Manufacturing Technology scholar building aerospace-oriented manufacturing depth through coursework, lab work, process planning, and applied project documentation. Specializing in ${s.specialization} with active research focus on ${s.broadIdea || s.specialization}.`,
+    skills: s.skills ?? [s.specialization, "Process planning", "Technical documentation", "Aerospace manufacturing"],
+    skillGroups: s.skillGroups ?? {
       Core: [s.specialization, "Materials and processes", "Design for manufacturing"],
       Tools: ["CAD", "Process sheets", "Inspection planning"],
       Professional: ["Technical writing", "Project reviews", "Presentation"],
     },
-    projects: [
+    projects: s.projects ?? [
       {
         title: s.projectTitle,
         summary: `M.Tech project work: ${s.projectTitle}. Guided by ${s.supervisor}${s.externalGuide ? ` and ${s.externalGuide}` : ""}.`,
@@ -669,7 +887,7 @@ people.push(
     officialEmail: student.officialEmail,
     personalEmail: student.personalEmail,
     linkedin: student.linkedin,
-
+    resumeUrl: (student as { resumeUrl?: string }).resumeUrl,
     supervisor: student.internalGuide,
     internship: student.internship,
     internalGuide: student.internalGuide,
@@ -677,8 +895,13 @@ people.push(
     placedRole: student.placedRole,
     availability: "Open to roles",
     synopsis:
-      `M.Tech Manufacturing Technology (2024-2026) scholar specializing in ${student.specialization}. Thesis project: "${student.internship}" guided by ${student.internalGuide}.${student.placedAt ? ` Placed at ${student.placedAt}${student.placedRole ? ` as ${student.placedRole}` : ""}.` : ""}`,
-    skills: Array.from(new Set([student.specialization, "Process Analysis", "Aerospace Materials", "Process Planning"])),
+      student.slug === "p-j-arjun"
+        ? "M.Tech Manufacturing Technology (2024-2026, CGPA 9.26) scholar placed at Bharat Electronics Ltd. (BEL) as Probationary Engineer. Researched Laser Powder Bed Fusion (LPBF) of Titanium Alloy Ti-6Al-4V with boron additions under Dr. V S Sooraj. First author of peer-reviewed review in MDPI Coatings (2022); KTU top 2% rank holder."
+        : `M.Tech Manufacturing Technology (2024-2026) scholar specializing in ${student.specialization}. Thesis project: "${student.internship}" guided by ${student.internalGuide}.${student.placedAt ? ` Placed at ${student.placedAt}${student.placedRole ? ` as ${student.placedRole}` : ""}.` : ""}`,
+    skills:
+      student.slug === "p-j-arjun"
+        ? ["Laser Powder Bed Fusion", "Titanium Alloys (Ti-6Al-4V)", "ANSYS FEA", "Abaqus", "Autodesk Fusion 360", "Inventor", "Microstructure Characterization"]
+        : Array.from(new Set([student.specialization, "Process Analysis", "Aerospace Materials", "Process Planning"])),
     skillGroups: {
       Core: Array.from(new Set([student.specialization, "Process optimization", "Materials processing"])),
       Tools: ["CAD-CAM", "Data analysis", "Quality review"],
@@ -701,7 +924,7 @@ people.push(
         title: "Placement / Career Destination",
         body: `Placed at: ${student.placedAt}${student.placedRole ? ` (${student.placedRole})` : ""}`,
       }] : []),
-      ...defaultStudentSections.filter(sec => sec.title !== "Summary"),
+      ...defaultStudentSections.filter(sec => sec.title !== "Summary")
     ],
   })),
   ...incomingStudents.map(({ slug, name, specialization }): Person => ({

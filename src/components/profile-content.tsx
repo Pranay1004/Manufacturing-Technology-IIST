@@ -31,7 +31,7 @@ export function ProfileContent({ initialPerson }: { initialPerson: Person }) {
               <div className="grid gap-6 md:grid-cols-[180px_minmax(0,1fr)] md:gap-8">
                 <ScrollReveal variant="scale">
                   <div className="w-fit">
-                    <Portrait name={person.name} large />
+                    <Portrait name={person.name} photoUrl={person.photoUrl} large />
                   </div>
                 </ScrollReveal>
                 <ScrollReveal delay={100}>
