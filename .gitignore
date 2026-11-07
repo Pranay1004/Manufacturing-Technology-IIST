@@ -37,6 +37,9 @@ yarn-error.log*
 !.env.example
 vercel.env
 
+# user scratch media
+gemini_generated_video_*.mp4
+
 # secrets & keys
 *.api
 bedrock.api

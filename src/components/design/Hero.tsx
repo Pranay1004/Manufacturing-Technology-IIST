@@ -1,5 +1,5 @@
-import { ArrowRight, Box, ChevronDown } from "lucide-react";
-import { CanvasProvider } from "@/components/three/CanvasProvider";
+import { ArrowRight, ChevronDown } from "lucide-react";
+import { HeroVideoPlayer } from "@/components/design/HeroVideoPlayer";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { MetalButton } from "@/components/ui/MetalButton";
 
@@ -44,43 +44,9 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right Column: Premium metrology CAD simulation panel */}
+          {/* Right Column: Premium aerospace additive manufacturing video player */}
           <div className="lg:col-span-6 w-full flex items-center justify-center animate-[fadeIn_0.9s_ease-out]">
-            <div className="relative w-full max-w-[480px] aspect-square rounded-2xl border border-[var(--edge)] bg-[var(--panel)]/40 backdrop-blur-md shadow-card overflow-hidden flex flex-col surface-grid">
-              
-              {/* Metrology Frame Headers & Coordinate Notches */}
-              <div className="absolute top-3 left-4 font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)]/60 z-10 flex items-center gap-1.5 select-none">
-                <Box size={10} className="text-[var(--arc-blue)]" />
-                <span>Sim: Bracket_v4.2.obj</span>
-              </div>
-
-              <div className="absolute top-3 right-4 font-data text-[9px] uppercase tracking-wider text-[var(--laser-green)] z-10 flex items-center gap-1 select-none font-bold">
-                <span className="inline-block size-1.5 rounded-full bg-[var(--laser-green)] animate-ping" />
-                <span>R3F: Active</span>
-              </div>
-
-              {/* Corner blueprints crosshairs (highly detailed CAD vibe) */}
-              <div className="absolute top-2 left-2 size-3 border-t border-l border-[var(--ceramic-muted)]/30 z-10 pointer-events-none" />
-              <div className="absolute top-2 right-2 size-3 border-t border-r border-[var(--ceramic-muted)]/30 z-10 pointer-events-none" />
-              <div className="absolute bottom-2 left-2 size-3 border-b border-l border-[var(--ceramic-muted)]/30 z-10 pointer-events-none" />
-              <div className="absolute bottom-2 right-2 size-3 border-b border-r border-[var(--ceramic-muted)]/30 z-10 pointer-events-none" />
-
-              {/* The 3D Canvas itself inside interactive metrology card */}
-              <div className="flex-1 w-full h-full relative z-0">
-                <CanvasProvider className="h-full w-full" />
-              </div>
-
-              {/* Sub-metrology telemetries at bottom */}
-              <div className="border-t border-[var(--edge)] bg-[var(--void)]/80 py-2.5 px-4 flex items-center justify-between font-data text-[9px] uppercase tracking-widest text-[var(--ceramic-muted)]/70 select-none z-10">
-                <div className="flex items-center gap-4">
-                  <span>SCALE: 1.18x</span>
-                  <span>ROT: AUTO-Y</span>
-                </div>
-                <div className="flex items-center gap-1 font-bold text-[var(--arc-blue)]">
-                  <span>METROLOGY CONSOLE</span>
-                </div>
-              </div>
-            </div>
+            <HeroVideoPlayer />
           </div>
 
         </div>
