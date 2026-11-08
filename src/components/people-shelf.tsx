@@ -181,6 +181,9 @@ export interface BookItem {
   synopsis: string;
   skills: string[];
   projects: string[];
+  projectDetails?: { title: string; summary: string }[];
+  researchInterests?: string[];
+  profileSections?: { title: string; body: string }[];
   resumeUrl?: string;
   photoUrl?: string;
   officialEmail: string;
@@ -437,6 +440,9 @@ function getCohortBooks(cohortId: CohortId): BookItem[] {
       synopsis: p.synopsis,
       skills: p.skills,
       projects: p.projects.map((proj) => proj.title),
+      projectDetails: p.projects,
+      researchInterests: p.researchInterests,
+      profileSections: p.profileSections,
       resumeUrl: p.resumeUrl,
       photoUrl: p.photoUrl,
       officialEmail: p.officialEmail,
@@ -890,18 +896,13 @@ export function PeopleShelf() {
     const book = cohortBooks[idx];
     if (!book) return;
 
-    if (activeIdxRef.current === idx) {
-      // In active focus: open full dossier!
-      openDetail(book);
-    } else {
-      // Open this book and center it!
-      const prev = activeIdxRef.current;
-      activeIdxRef.current = idx;
-      setActiveIdx(idx);
-      targetRef.current = clamp(idx, 0, M - 1);
-      swapCaption(book, prev !== null ? (idx > prev ? 1 : -1) : 1);
-      wakeLoop();
-    }
+    // Immediately activate, center, and open the full complete dossier modal!
+    activeIdxRef.current = idx;
+    setActiveIdx(idx);
+    targetRef.current = clamp(idx, 0, M - 1);
+    swapCaption(book, 1);
+    wakeLoop();
+    openDetail(book);
   };
 
   // Keyboard navigation
@@ -1217,7 +1218,11 @@ export function PeopleShelf() {
 
                       {/* Cover Face (.cv) - Straight preview when open */}
                       <div
-                        className="cv absolute rounded-[2px] overflow-hidden select-none border border-black/80 flex flex-col justify-between p-3 sm:p-4.5"
+                        className="cv absolute rounded-[2px] overflow-hidden select-none border border-black/80 flex flex-col justify-between p-3 sm:p-4.5 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openDetail(book);
+                        }}
                         style={{
                           width: "var(--d)",
                           height: "var(--H)",
@@ -1559,28 +1564,32 @@ export function PeopleShelf() {
               </span>
             </div>
 
-            {/* FULL NAME & Portrait (if available) proudly displayed inside dossier */}
-            <div className="flex items-center gap-4">
-              {dossierBook.photoUrl && (
-                <div className="size-16 sm:size-20 rounded-md overflow-hidden border border-[rgba(20,20,20,0.85)] shadow-md shrink-0 bg-white">
+            {/* FULL NAME & Portrait proudly displayed inside dossier */}
+            <div className="flex items-center gap-4 sm:gap-5">
+              {dossierBook.photoUrl ? (
+                <div className="w-20 sm:w-24 md:w-28 aspect-[3/4] rounded-xl overflow-hidden border border-[rgba(20,20,20,0.85)] shadow-md shrink-0 bg-white">
                   <img
                     src={dossierBook.photoUrl}
                     alt={dossierBook.name}
-                    className="w-full h-full object-cover object-top"
+                    className="w-full h-full object-cover object-[center_20%] sm:object-top"
                   />
                 </div>
+              ) : (
+                <div
+                  className="w-20 sm:w-24 md:w-28 aspect-[3/4] rounded-xl border border-[rgba(20,20,20,0.85)] shadow-md shrink-0 flex items-center justify-center font-bold text-white text-xl sm:text-2xl select-none"
+                  style={{ background: themeStyles[dossierBook.theme || "cobalt"].bg }}
+                >
+                  {dossierBook.shortName.slice(0, 2).toUpperCase()}
+                </div>
               )}
-              <div className="detail-mask-line overflow-hidden">
-                <h1 className="inline-block font-['Newsreader',serif] font-bold text-3xl sm:text-5xl lg:text-6xl leading-[1.02] tracking-tight text-[#141414]">
+              <div className="detail-mask-line overflow-hidden min-w-0">
+                <h1 className="font-['Newsreader',serif] font-bold text-2xl sm:text-4xl lg:text-5xl leading-[1.05] tracking-tight text-[#141414]">
                   {dossierBook.name}
                 </h1>
+                <span className="block text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase text-[#6D6A63] mt-1">
+                  {dossierBook.role} · {dossierBook.specialization}
+                </span>
               </div>
-            </div>
-
-            <div className="detail-mask-line overflow-hidden">
-              <span className="inline-block text-[12px] font-semibold tracking-wider uppercase text-[#6D6A63]">
-                {dossierBook.role} · {dossierBook.specialization}
-              </span>
             </div>
 
             {dossierBook.graduatedNote && (
@@ -1591,18 +1600,46 @@ export function PeopleShelf() {
               </div>
             )}
 
+            {dossierBook.placedAt && (
+              <div className="detail-mask-line overflow-hidden">
+                <div className="inline-block px-3 py-1 rounded-sm border border-[rgba(20,20,20,0.4)] bg-emerald-50 text-emerald-900 font-mono text-[10.5px] font-semibold">
+                  🚀 Placement / Destination: <span className="font-bold">{dossierBook.placedAt}</span> {dossierBook.placedRole ? `(${dossierBook.placedRole})` : ""}
+                </div>
+              </div>
+            )}
+
             <div className="detail-mask-line overflow-hidden">
-              <p className="inline-block font-['Newsreader',serif] text-base sm:text-lg leading-[1.6] text-[#141414] max-w-[44ch] text-justify">
+              <p className="font-['Newsreader',serif] text-sm sm:text-base leading-[1.65] text-[#141414] max-w-[50ch] text-justify">
                 {dossierBook.synopsis}
               </p>
             </div>
 
+            {/* Research Focus & Interests */}
+            {dossierBook.researchInterests && dossierBook.researchInterests.length > 0 && (
+              <div className="detail-mask-line overflow-hidden pt-1">
+                <span className="text-[9.5px] font-mono uppercase tracking-wider text-[#6D6A63] block mb-1 font-bold">
+                  Research Specialization
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {dossierBook.researchInterests.slice(0, 4).map((ri) => (
+                    <span
+                      key={ri}
+                      className="px-2 py-0.5 rounded-xs bg-[#143B82]/10 border border-[#143B82]/30 text-[#143B82] font-semibold text-[10px]"
+                    >
+                      {ri}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Core Competencies & Skills */}
             <div className="detail-mask-line overflow-hidden">
-              <div className="inline-flex flex-wrap gap-2 pt-1">
-                {dossierBook.skills?.slice(0, 5).map((skill) => (
+              <div className="inline-flex flex-wrap gap-1.5 pt-1">
+                {dossierBook.skills?.slice(0, 6).map((skill) => (
                   <span
                     key={skill}
-                    className="border border-[rgba(20,20,20,0.65)] px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase bg-white/40"
+                    className="border border-[rgba(20,20,20,0.65)] px-2 py-0.5 text-[9.5px] font-semibold tracking-wider uppercase bg-white/60"
                   >
                     {skill}
                   </span>
@@ -1610,11 +1647,50 @@ export function PeopleShelf() {
               </div>
             </div>
 
-            <div className="detail-mask-line overflow-hidden pt-2">
+            {/* Key Projects & Publications */}
+            {dossierBook.projectDetails && dossierBook.projectDetails.length > 0 && (
+              <div className="detail-mask-line overflow-hidden pt-1">
+                <span className="text-[9.5px] font-mono uppercase tracking-wider text-[#6D6A63] block mb-1 font-bold">
+                  Key Projects & Research
+                </span>
+                <div className="flex flex-col gap-1.5 max-w-[520px]">
+                  {dossierBook.projectDetails.slice(0, 2).map((proj) => (
+                    <div key={proj.title} className="p-2 rounded-xs border border-[rgba(20,20,20,0.2)] bg-white/60">
+                      <span className="font-['Newsreader',serif] font-bold text-[12px] text-[#141414] block leading-tight">
+                        {proj.title}
+                      </span>
+                      <span className="text-[10.5px] text-[#6D6A63] line-clamp-2 block mt-0.5">
+                        {proj.summary}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Profile Sections: Honors, Fellowships, Credentials */}
+            {dossierBook.profileSections && dossierBook.profileSections.length > 0 && (
+              <div className="detail-mask-line overflow-hidden pt-1">
+                <div className="flex flex-col gap-1.5 max-w-[520px]">
+                  {dossierBook.profileSections.slice(0, 2).map((sec) => (
+                    <div key={sec.title} className="p-2 rounded-xs border border-[rgba(20,20,20,0.2)] bg-white/50">
+                      <span className="text-[9px] font-mono uppercase tracking-wider text-[#143B82] font-bold block">
+                        {sec.title}
+                      </span>
+                      <p className="text-[10.5px] text-[#141414] leading-relaxed line-clamp-3 mt-0.5">
+                        {sec.body}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="detail-mask-line overflow-hidden pt-3">
               <div className="inline-flex flex-wrap items-center gap-3">
                 <Link
                   href={`/people/${dossierBook.slug}`}
-                  className="inline-flex items-center gap-2 h-[42px] px-5 text-white text-[10.5px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-all cursor-pointer shadow-md"
+                  className="inline-flex items-center gap-2 h-[40px] px-5 text-white text-[10px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-all cursor-pointer shadow-md"
                   style={{ background: themeStyles[dossierBook.theme || "cobalt"].bg }}
                 >
                   <span>Full Profile Page</span>
@@ -1623,10 +1699,10 @@ export function PeopleShelf() {
 
                 <a
                   href={`mailto:${dossierBook.officialEmail}`}
-                  className="inline-flex items-center gap-2 h-[42px] px-4 border border-[rgba(20,20,20,0.85)] bg-transparent text-[#141414] text-[10.5px] font-semibold tracking-[0.1em] uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 h-[40px] px-4 border border-[rgba(20,20,20,0.85)] bg-transparent text-[#141414] text-[10px] font-semibold tracking-[0.1em] uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-all cursor-pointer"
                 >
                   <Mail size={14} aria-hidden />
-                  <span>Contact Scholar</span>
+                  <span>Contact Scholar / Faculty</span>
                 </a>
 
                 {dossierBook.resumeUrl && (
@@ -1634,7 +1710,7 @@ export function PeopleShelf() {
                     href={dossierBook.resumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 h-[42px] px-4 border border-[rgba(20,20,20,0.85)] bg-white text-[#143B82] text-[10.5px] font-bold tracking-[0.1em] uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-all cursor-pointer shadow-xs"
+                    className="inline-flex items-center gap-2 h-[40px] px-4 border border-[rgba(20,20,20,0.85)] bg-white text-[#143B82] text-[10px] font-bold tracking-[0.1em] uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-all cursor-pointer shadow-xs"
                   >
                     <FileText size={14} aria-hidden />
                     <span>Resume (PDF)</span>

@@ -171,7 +171,7 @@ export function PeopleDirectory() {
         </div>
 
         <section className="flex flex-col gap-6">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
             {filtered.slice(0, visibleCount).map((person) => (
               <PersonCard key={person.slug} person={person} onPreview={setPreview} />
             ))}

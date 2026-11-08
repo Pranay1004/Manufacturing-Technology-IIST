@@ -3,7 +3,9 @@ import { getPerson, people } from "@/lib/data";
 import { ProfileContent } from "@/components/profile-content";
 
 export function generateStaticParams() {
-  return people.map((person) => ({ slug: person.slug }));
+  const params = people.map((person) => ({ slug: person.slug }));
+  params.push({ slug: "prakash" });
+  return params;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

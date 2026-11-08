@@ -275,36 +275,84 @@ export const people: Person[] = [
     type: "faculty",
     name: "Dr. Sooraj V. S",
     role: "Professor and Program Coordinator",
-    specialization: "Additive and Subtractive Manufacturing",
+    specialization: "Additive & Subtractive Manufacturing, Space Payloads & Precision Engineering",
     officialEmail: "sooraj@iist.ac.in",
-    location: "R-103, D4",
+    location: "R-103, D4, Department of Aerospace Engineering",
     availability: "Research focused",
-
     synopsis:
-      "Faculty lead for space-oriented manufacturing design, additive and subtractive processes, precision engineering, and payload-oriented prototype development. His work anchors the program's advanced manufacturing direction for aerospace applications.",
-    skills: ["Additive manufacturing", "Precision engineering", "Space payloads", "CAD-CAM"],
+      "Professor and Program Coordinator for Manufacturing Technology in the Department of Aerospace Engineering at IIST. Anchors advanced manufacturing research for space applications, small satellite microgravity payloads, precision subtractive tooling, and additive manufacturing. Led the mechanical design, development, and qualification of the ARIS payload flown on the PSLV-C45 PS4 orbital platform, earning the ISRO Team Excellence Award and national accolades from first Indian cosmonaut Wing Commander Rakesh Sharma.",
+    skills: [
+      "Additive Manufacturing",
+      "Subtractive Manufacturing",
+      "Space Payloads",
+      "Precision Engineering",
+      "Microgravity Experiments",
+      "Topology Optimization",
+      "CAD-CAM",
+      "Advanced Grinding",
+    ],
     skillGroups: {
-      Research: ["Additive manufacturing", "Subtractive manufacturing", "Microgravity experiments"],
-      Teaching: ["Manufacturing design", "Precision engineering", "Prototype development"],
+      Research: [
+        "Additive and subtractive manufacturing for space",
+        "Microgravity experiments & small satellite payloads",
+        "Eccentric Sleeve Grinding (ESG)",
+        "Generative design and metallic lattice structures",
+        "3D printing for biomedical instrumentation",
+      ],
+      Teaching: [
+        "AE645 Additive Manufacturing and Smart Practices",
+        "AE643 Manufacturing Planning and Control",
+        "AE642 Subtractive and Computer Aided Manufacturing",
+        "AE804 Machine Tools and Metrology Practice",
+      ],
     },
     researchInterests: [
-      "Additive and subtractive manufacturing for space applications",
-      "Manufacturing design and processes for microgravity experiments",
-      "3D printing and prototyping",
+      "Additive and subtractive manufacturing for space, aerospace, and precision engineering",
+      "Manufacturing design and processes for microgravity experiments (small spacecrafts and payloads)",
+      "3D printing and prototyping for aerospace and bio-medical instrumentation",
+      "Eccentric Sleeve Grinding (ESG) and smart re-configurable grinding systems",
+      "Generative design and topology optimization for metallic lattice structures",
     ],
-    courses: ["Additive Manufacturing", "Manufacturing Design", "CAD-CAM Workflows"],
+    courses: [
+      "AE645 Additive Manufacturing and Smart Practices",
+      "AE643 Manufacturing Planning and Control",
+      "AE642 Subtractive and Computer Aided Manufacturing",
+      "AE804 Machine Tools and Metrology Practice",
+    ],
     projects: [
       {
-        title: "Space manufacturing demonstrators",
-        summary: "Design-for-manufacturing studies connected to small spacecraft, payloads, and precision assemblies.",
+        title: "ARIS Payload Development on PSLV-C45 Orbital Platform",
+        summary:
+          "Design, fabrication, structural-thermal qualification, and successful mission operations of the Advanced Retarding Potential Analyzer for Ionospheric Studies (ARIS) payload launched on the PSLV PS4 orbital stage.",
+        status: "Completed",
+      },
+      {
+        title: "Smart Additive Grinding Wheels & Eccentric Sleeve Grinding (ESG)",
+        summary:
+          "Development of 3D printed re-configurable grinding tools with in-situ self-generated cold air and adaptive lubrication for sustainable machining of Ti6Al4V and CFRPs (ISAMPE 2024 Award).",
+        status: "Ongoing",
+      },
+      {
+        title: "Metallic Lattice Interstage Structures for Launch Vehicles",
+        summary:
+          "Topology optimization, generative design, and LPBF additive manufacturing of lightweight metallic lattice structures for nano and small satellite launch vehicle interstages.",
         status: "Ongoing",
       },
     ],
+    photoUrl: "/media/photos/sooraj-vs.webp",
     sourceUrl: "https://www.iist.ac.in/people-faculty-profile/sooraj-v-s",
     profileSections: [
       {
-        title: "Sponsored and guided work",
-        body: "Faculty profile sections can hold sponsored projects, patents, publications, guided students, invited talks, and lab capabilities.",
+        title: "Education & Academic Honors",
+        body: "Ph.D. in Aerospace Manufacturing, IIST (Guide: Prof. V. Radhakrishnan) · M.Tech in Manufacturing (Topper / Gold Medalist, NIT Calicut, 2008, ISTE National Award for Best M.Tech Thesis) · B.Tech (First Rank, University of Kerala, 2003).",
+      },
+      {
+        title: "Fellowships, Awards & Recognitions",
+        body: "ISRO Team Excellence Award for ARIS Payload on PSLV-C45 · IIST Space Science and Technology Excellence Certificate presented by Cosmonaut Wg Cdr Rakesh Sharma & Padma Bhushan Dr. B. N. Suresh · ISAMPE National Award for Smart Materials and Systems Technology Development (2024) · First Prize at IMTEX 2013 Academic Pavilion · Best Project Award in Aerospace Manufacturing (2025).",
+      },
+      {
+        title: "IRINS & Academic Impact",
+        body: "Publications, patent disclosures, and citations indexed on IRINS (ID: 55873). Contact: +91 (471) 2568449 | Office: R-103, D4.",
       },
     ],
   },
@@ -313,36 +361,84 @@ export const people: Person[] = [
     type: "faculty",
     name: "Dr. Chakravarthy P.",
     role: "Professor",
-    specialization: "Aerospace Materials and Metallurgy",
+    specialization: "Aerospace Materials, Metallurgy & Metal Forming",
     officialEmail: "chakravarthy@iist.ac.in",
-    location: "R-121",
+    location: "R-121, Department of Aerospace Engineering",
     availability: "Research focused",
     synopsis:
-      "Metallurgist and manufacturing researcher working across aerospace materials, hot working of metallic materials, plasticity, forming processes, and additive manufacturing. His work gives the program a strong materials-process-property foundation.",
-    skills: ["Metallurgy", "Hot working", "Aerospace materials", "Metal forming"],
+      "Professor in the Department of Aerospace Engineering at IIST (formerly R&D Assistant Manager at Sundram Fasteners Ltd). Leading research in aerospace metallurgy, hot deformation and processing maps of titanium and aluminum alloys, flux-bounded TIG (FBTIG) welding of Inconel 600, electron beam welding of Monel 400, cryogenic deformation, and shape memory nanocomposites for space missions. Mentor of multiple national award-winning M.Tech and Ph.D. dissertations.",
+    skills: [
+      "Aerospace Metallurgy",
+      "Hot Working & Plasticity",
+      "Advanced Metal Forming",
+      "FBTIG Welding",
+      "Electron Beam Welding",
+      "Powder Metallurgy",
+      "Cryogenic Deformation",
+      "Shape Memory Composites",
+    ],
     skillGroups: {
-      Research: ["Aerospace materials", "Hot working", "Additive manufacturing"],
-      Teaching: ["Engineering materials", "Theory of plasticity", "Advanced metal forming"],
+      Research: [
+        "Hot deformation of aerospace alloys (AA2219, AA2014, Ti6Al4V)",
+        "FBTIG & Electron Beam welding of superalloys and refractory metals",
+        "Shape memory polyurethene nanocomposites",
+        "Cryogenic deformation & transformation-induced plasticity",
+        "Processing maps and constitutive flow modeling",
+      ],
+      Teaching: [
+        "AE641 Advanced Engineering Materials",
+        "AE644 Plasticity and Advanced Deformation Processes",
+        "AE647 Advanced Welding Technology",
+        "AE805 Materials Processing and Characterization Practice",
+      ],
     },
-    researchInterests: ["Aerospace materials", "Hot working of metallic materials", "Additive manufacturing"],
+    researchInterests: [
+      "Hot deformation, constitutive flow modeling, and processing maps of aerospace alloys",
+      "Advanced welding techniques: Flux-Bounded TIG (FBTIG) and Electron Beam Welding (EBW)",
+      "Theory of plasticity and formability limit diagrams of sintered steel and light alloys",
+      "Cryogenic mechanical deformation and transformation-induced plasticity (TRIP) in steels",
+      "Electro-active shape memory polymer nanocomposites for deployable space mechanisms",
+    ],
     courses: [
-      "Manufacturing Techniques",
-      "Aerospace Materials and Processes",
-      "Mechanical Behavior of Materials",
-      "Theory of Plasticity and Advanced Metal Forming Processes",
+      "AE641 Advanced Engineering Materials",
+      "AE644 Plasticity and Advanced Deformation Processes",
+      "AE647 Advanced Welding Technology",
+      "AE805 Materials Processing and Characterization Practice",
     ],
     projects: [
       {
-        title: "Hot deformation of aerospace alloys",
-        summary: "Process-microstructure studies for metallic systems used in demanding aerospace manufacturing environments.",
+        title: "Flux Bounded TIG (FBTIG) Welding of Inconel 600 Superalloys",
+        summary:
+          "Experimental investigation and thermo-mechanical finite element simulations on flux-assisted keyhole TIG welding, increasing penetration depth and minimizing HAZ micro-fissuring.",
+        status: "Completed",
+      },
+      {
+        title: "Cryogenic Deformation & TRIP Behavior in Cryogenic Engine Alloys",
+        summary:
+          "Constitutive modelling of cryogenic deformation behaviour of ICSS 1218-321 and AISI 202 braze joints utilized in liquid propulsion rocket cryogenic engines (ICAMPS 2026).",
+        status: "Ongoing",
+      },
+      {
+        title: "Processing and Mechanical Quality of Autoclave-Grade Carbon/Epoxy Prepregs",
+        summary:
+          "Influence of out-life, laminate thickness, and vacuum bagging strategies on laminate consolidation and void content for aerospace structural components (ICAMPS 2026 Best Poster Award).",
         status: "Ongoing",
       },
     ],
+    photoUrl: "/media/photos/chakravarthy-p.webp",
     sourceUrl: "https://www.iist.ac.in/people-faculty-profile/chakravarthy-p",
     profileSections: [
       {
-        title: "Materials and process scholarship",
-        body: "Additional sections can document publications, funded projects, student supervision, and specialist facilities.",
+        title: "Education & Academic Background",
+        body: "Ph.D. in Metallurgical and Materials Engineering, IIT Madras · M.Tech in Materials Science · B.E. in Production Engineering · Sundram Fasteners Ltd R&D Assistant Manager (2008-2010).",
+      },
+      {
+        title: "Awards & Honors",
+        body: "Prof. Brahm Prakash Best Thesis Award (Guide, IIM Trivandrum 2023) · Best Published Paper Award under Young Researcher Category (IIM 2023 & 2019) · ICAMPS 2026 Best Poster Award · NMD-ATM 2022 Best Oral Presentation Award · NIT Tiruchirappalli 2019 Best Paper Award.",
+      },
+      {
+        title: "Academic Appointments & Guidance",
+        body: "Professor (since 2022), Associate Professor (2016-2022), Assistant Professor (2010-2016) at IIST. Extensive supervision across M.Tech and PhD aerospace manufacturing programs. Office: R-121 | Email: chakravarthy@iist.ac.in.",
       },
     ],
   },
@@ -351,35 +447,86 @@ export const people: Person[] = [
     type: "faculty",
     name: "Dr. B. S. Girish",
     role: "Associate Professor",
-    specialization: "Manufacturing Systems and Quality Engineering",
+    specialization: "Manufacturing Systems, Operations Research & Quality Engineering",
     officialEmail: "girish@iist.ac.in",
-    location: "R-120",
+    location: "R-120, Department of Aerospace Engineering",
     availability: "Research focused",
     synopsis:
-      "Quality and systems-oriented manufacturing faculty working on sequencing, scheduling, supply chains, cellular manufacturing, JIT systems, and optimization for manufacturing and aerospace operations.",
-    skills: ["Quality engineering", "Scheduling", "Supply chain", "Operations research"],
+      "Associate Professor in the Department of Aerospace Engineering at IIST (formerly Assistant Professor at NIT Calicut and Lecturer at TCE Madurai). Specializes in sequencing and scheduling in manufacturing and aerospace environments, multi-objective Pareto optimization, Just-in-Time (JIT) scheduling, cellular manufacturing, supply chain optimization, and heuristic/metaheuristic algorithms (PSO, Genetic Algorithms).",
+    skills: [
+      "Operations Research",
+      "Production Scheduling",
+      "Supply Chain Management",
+      "Pareto Optimization",
+      "Just-in-Time (JIT)",
+      "Cellular Manufacturing",
+      "Particle Swarm Optimization",
+      "Quality Engineering",
+    ],
     skillGroups: {
-      Research: ["Sequencing and scheduling", "Supply chain management", "Cellular manufacturing"],
-      Teaching: ["Operations research", "Facility layout", "Optimization techniques"],
+      Research: [
+        "Sequencing and scheduling in manufacturing and aerospace systems",
+        "Bi-objective Pareto optimization of earliness and tardiness",
+        "Supply chain design and coordination",
+        "Cellular manufacturing and machine-part cell formation",
+        "Heuristic and metaheuristic algorithms (PSO, GA)",
+      ],
+      Teaching: [
+        "AE801 Operations Research",
+        "Manufacturing Planning and Control",
+        "Supply Chain Management",
+        "Facility Location and Layout Design",
+        "Quality Engineering & TQM",
+      ],
     },
     researchInterests: [
-      "Sequencing and scheduling in manufacturing and aerospace systems",
-      "Supply chain management",
-      "Just-in-Time systems",
+      "Sequencing and scheduling in aerospace component manufacturing and assembly job shops",
+      "Pareto-based bi-objective optimization for total earliness and tardiness in JIT systems",
+      "Supply chain management and network design for strategic aerospace logistics",
+      "Cellular manufacturing systems and group technology",
+      "Particle swarm optimization and nature-inspired algorithms for industrial scheduling",
     ],
-    courses: ["Operations Research", "Supply Chain Management", "Facility Location and Layout Design"],
+    courses: [
+      "Operations Research (AE801)",
+      "Supply Chain Management",
+      "Manufacturing Planning and Control",
+      "Facility Location and Layout Design",
+      "Optimization Techniques in Engineering",
+    ],
     projects: [
       {
-        title: "Aerospace manufacturing scheduling models",
-        summary: "Decision support for production sequencing, lateness control, and flow planning in constrained systems.",
+        title: "Bi-Objective Single-Machine & Flow Shop Scheduling Models",
+        summary:
+          "Development of Pareto-based heuristic algorithms minimizing total earliness and total tardiness for high-mix low-volume aerospace manufacturing schedules.",
+        status: "Completed",
+      },
+      {
+        title: "Particle Swarm Optimization for Multi-Routing Assembly Job Shops",
+        summary:
+          "Metaheuristic scheduling architecture addressing dynamic routings, machine disruptions, and assembly precedence constraints in aerospace manufacturing environments.",
+        status: "Completed",
+      },
+      {
+        title: "Supply Chain Coordination & Safety Stock Optimization for Space Programs",
+        summary:
+          "Mathematical models balancing procurement lead times, storage criticality, and lateness penalties for specialized alloy and component inventories.",
         status: "Ongoing",
       },
     ],
+    photoUrl: "/media/photos/girish-bs.webp",
     sourceUrl: "https://www.iist.ac.in/people-faculty-profile/b-s-girish",
     profileSections: [
       {
-        title: "Systems and quality scholarship",
-        body: "Additional sections can document publications, optimization tools, industry problems, and guided student work.",
+        title: "Education & Academic Background",
+        body: "Ph.D. in Industrial Engineering, Anna University, Chennai (2009) · M.E. in Manufacturing Technology, Regional Engineering College (REC / NIT) Tiruchirappalli (2003) · B.Tech in Production Engineering, Government Engineering College, Thrissur (2001).",
+      },
+      {
+        title: "Awards & Honors",
+        body: "Third Best Paper Award (PhD Scholar category) at ORSI-2023 & ICBAI-2023 (IISc Bangalore & IIM Bangalore) · 'Omega Best Reviewer 2018' Award from Elsevier Journal Omega: The International Journal of Management Science · Best Paper Award and Cash Prize at ICOREM-2009 (Anna University).",
+      },
+      {
+        title: "Experience & Departmental Appointments",
+        body: "Associate Professor in Aerospace Engineering at IIST (April 2010 onwards) · Assistant Professor in Mechanical Engineering, NIT Calicut (2009-2010) · Lecturer, Thiagarajar College of Engineering, Madurai (2003-2009). Office: R-120.",
       },
     ],
   },
@@ -484,26 +631,67 @@ export const people: Person[] = [
 
 // Lab Staff & Technical Support
 people.push({
-  slug: "prakash",
+  slug: "prakash-rs",
   type: "staff",
-  name: "Mr. Prakash",
-  role: "Technical Staff",
-  specialization: "Laboratory Operations & Technical Support",
-  officialEmail: "prakash@iist.ac.in",
-  location: "Manufacturing Technology Lab",
+  name: "Shri Prakash R. S.",
+  role: "Technical Officer - C",
+  specialization: "Laboratory Operations, Experimental Rigs & Manufacturing Support",
+  officialEmail: "prakashrs@iist.ac.in",
+  location: "Department of Aerospace Engineering Laboratories",
   availability: "Research focused",
   synopsis:
-    "Technical staff supporting the Manufacturing Technology program at IIST. Responsible for laboratory operations, equipment maintenance, and hands-on support for student experiments and research activities.",
-  skills: ["Lab management", "Equipment maintenance", "Technical support", "Student assistance"],
+    "Technical Officer - C in the Department of Aerospace Engineering at IIST (Staff Code: IN10120). Anchors laboratory operations, precision manufacturing machinery, machine tool calibration, student and scholar project fabrication, and experimental rig development. Co-inventor on granted Indian Patent No: 530958 for swirl-stabilized burner technology with aerospace faculty.",
+  skills: [
+    "Lab Operations",
+    "Machine Tool Maintenance",
+    "Experimental Rigs",
+    "Precision Fabrication",
+    "Combustion Setups",
+    "Safety Compliance",
+    "Metrology Practice",
+  ],
   skillGroups: {
-    Technical: ["Lab operations", "Equipment calibration", "Process support"],
-    Support: ["Student assistance", "Safety compliance", "Resource management"],
+    Technical: [
+      "Precision machine tools (lathes, milling, grinding)",
+      "Experimental combustion and propulsion rigs",
+      "Metrology and inspection calibration",
+      "Tooling and fixture fabrication",
+    ],
+    Operations: [
+      "Laboratory safety and protocols",
+      "Preventive maintenance scheduling",
+      "Student project hardware assistance",
+      "Raw material inventory management",
+    ],
   },
-  projects: [],
+  projects: [
+    {
+      title: "Swirl Stabilized Liquid Fuel Burner with Multi-point Aerated Injector",
+      summary:
+        "Co-inventor on granted Indian Patent No: 530958, designing and manufacturing specialized aerated injection burner hardware for combustion studies.",
+      status: "Completed",
+    },
+    {
+      title: "Aerospace Manufacturing Studio Operations & Practice Setup",
+      summary:
+        "Supervising hands-on practice setups, metrology calibration, and fabrication fixtures for M.Tech AE804 and AE805 laboratory coursework.",
+      status: "Ongoing",
+    },
+  ],
+  photoUrl: "/media/photos/prakash-rs.webp",
+  sourceUrl: "https://www.iist.ac.in/node/2902",
   profileSections: [
     {
-      title: "Role & Responsibilities",
-      body: "Provides technical support for all manufacturing laboratory activities, maintains equipment, and assists students and faculty in research and coursework.",
+      title: "Official Credentials",
+      body: "Designation: Technical Officer - C · Staff Code: IN10120 · Department of Aerospace Engineering, Indian Institute of Space Science and Technology · Telephone: +91 (471) 2568489 · Email: prakashrs@iist.ac.in.",
+    },
+    {
+      title: "Patents & Innovation",
+      body: "Co-inventor on Indian Patent No: 530958 ('Swirl Stabilized Liquid Fuel Burner With Multi-point Aerated Injector'), contributing prototype machining, injector fixture development, and experimental rig integration.",
+    },
+    {
+      title: "Laboratory & Student Support",
+      body: "Provides direct hands-on support for M.Tech and PhD aerospace manufacturing thesis work, material characterization sample preparation, machine tool tooling setups, and workshop safety protocols.",
     },
   ],
 });
@@ -984,7 +1172,12 @@ people.push(
 
 
 export function getPerson(slug: string) {
-  return people.find((person) => person.slug === slug);
+  return people.find(
+    (person) =>
+      person.slug === slug ||
+      (slug === "prakash" && person.slug === "prakash-rs") ||
+      (slug === "prakash-rs" && person.slug === "prakash")
+  );
 }
 
 export function getPeopleByType(type: PersonType) {

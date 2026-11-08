@@ -20,26 +20,28 @@ export function Portrait({ name, photoUrl, large = false }: { name: string; phot
     return (
       <div
         className={[
-          "relative shrink-0 overflow-hidden rounded-lg border border-[var(--edge)] aspect-[3/4] select-none bg-[var(--panel-alt)] shadow-xs",
-          large ? "w-32 sm:w-40 md:w-44" : "w-16 sm:w-20",
+          "relative shrink-0 overflow-hidden rounded-xl border border-[var(--edge)] aspect-[3/4] select-none bg-[var(--panel-alt)] shadow-sm",
+          large ? "w-36 sm:w-48 md:w-56" : "w-28 sm:w-32 md:w-36",
         ].join(" ")}
       >
         <img
           src={photoUrl}
           alt={name}
-          className="h-full w-full object-cover object-top"
+          className="h-full w-full object-cover object-[center_20%] sm:object-top transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute top-1.5 left-1.5 size-2 border-t border-l border-white/40" />
-        <div className="absolute top-1.5 right-1.5 size-2 border-t border-r border-white/40" />
-        <div className="absolute bottom-1.5 left-1.5 size-2 border-b border-l border-white/40" />
-        <div className="absolute bottom-1.5 right-1.5 size-2 border-b border-r border-white/40" />
+        <div className="absolute top-1.5 left-1.5 size-2 border-t border-l border-white/50" />
+        <div className="absolute top-1.5 right-1.5 size-2 border-t border-r border-white/50" />
+        <div className="absolute bottom-1.5 left-1.5 size-2 border-b border-l border-white/50" />
+        <div className="absolute bottom-1.5 right-1.5 size-2 border-b border-r border-white/50" />
       </div>
     );
   }
 
   const initials = name
     .replace("Dr.", "")
+    .replace("Mr.", "")
+    .replace("Shri", "")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
@@ -54,8 +56,8 @@ export function Portrait({ name, photoUrl, large = false }: { name: string; phot
   return (
     <div
       className={[
-        "relative shrink-0 overflow-hidden rounded-lg border border-[var(--edge)] aspect-[3/4] select-none",
-        large ? "w-32 sm:w-40 md:w-44" : "w-16 sm:w-20",
+        "relative shrink-0 overflow-hidden rounded-xl border border-[var(--edge)] aspect-[3/4] select-none shadow-sm",
+        large ? "w-36 sm:w-48 md:w-56" : "w-28 sm:w-32 md:w-36",
       ].join(" ")}
       style={{ background: gradient }}
       aria-label={`${name} portrait placeholder`}
@@ -68,12 +70,12 @@ export function Portrait({ name, photoUrl, large = false }: { name: string; phot
       <div className="absolute inset-0 flex items-center justify-center">
         <span className={[
           "font-display font-bold text-white/90 drop-shadow-sm",
-          large ? "text-3xl" : "text-base",
+          large ? "text-4xl sm:text-5xl" : "text-xl sm:text-2xl",
         ].join(" ")}>
           {initials}
         </span>
       </div>
-      <span className="absolute bottom-1.5 left-1.5 font-data text-[7px] tracking-wider text-white/50 select-none uppercase">
+      <span className="absolute bottom-1.5 left-1.5 font-data text-[7.5px] tracking-wider text-white/60 select-none uppercase">
         ID-{initials || "NA"}
       </span>
     </div>
@@ -91,12 +93,12 @@ export function PersonCard({
 
   return (
     <GlassCard 
-      className="p-3 cursor-pointer hover:border-[var(--arc-blue)] transition-colors duration-200 group" 
+      className="p-4 sm:p-5 cursor-pointer hover:border-[var(--arc-blue)] transition-colors duration-200 group" 
       hover={true} 
       as="article"
       onClick={() => onPreview?.(person)}
     >
-      <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-4 sm:gap-5 items-start">
         <div className="flex justify-center sm:justify-start">
           <Portrait name={person.name} photoUrl={person.photoUrl} />
         </div>
