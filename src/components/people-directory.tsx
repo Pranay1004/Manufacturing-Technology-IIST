@@ -72,7 +72,7 @@ export function PeopleDirectory() {
         
         <div className="flex flex-col lg:flex-row gap-6 justify-between items-start border-b border-[var(--edge)] pb-6">
           <div className="max-w-2xl">
-            <span className="font-data text-[10px] uppercase tracking-wider text-[var(--arc-blue)] select-none">
+            <span className="font-data text-xs font-semibold tracking-wider text-[var(--arc-blue)] select-none">
               People Directory
             </span>
             <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-[var(--ceramic)] sm:text-4xl">
@@ -85,7 +85,7 @@ export function PeopleDirectory() {
 
           <div className="flex flex-wrap sm:flex-nowrap gap-4 w-full lg:w-auto shrink-0">
             <div className="flex flex-col gap-1.5 rounded-lg border border-[var(--edge)] bg-[var(--panel)] p-2.5 w-full sm:w-[220px]">
-              <span className="font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)] select-none">
+              <span className="font-data text-[10px] font-semibold tracking-wider text-[var(--ceramic-muted)] select-none">
                 Category
               </span>
               <div className="flex flex-col gap-1">
@@ -115,7 +115,7 @@ export function PeopleDirectory() {
 
             {availableCohorts.length > 0 && (
               <div className="flex flex-col gap-1.5 rounded-lg border border-[var(--edge)] bg-[var(--panel)] p-2.5 w-full sm:w-[150px]">
-                <span className="font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)] select-none">
+                <span className="font-data text-[10px] font-semibold tracking-wider text-[var(--ceramic-muted)] select-none">
                   Cohort
                 </span>
                 <div className="flex flex-col gap-1">
@@ -125,7 +125,7 @@ export function PeopleDirectory() {
                       type="button"
                       onClick={() => handleCohortChange(item)}
                       className={[
-                        "w-full text-left rounded border px-2.5 py-1.5 font-data text-[10px] uppercase tracking-[0.1em] transition-all duration-200 cursor-pointer",
+                        "w-full text-left rounded border px-2.5 py-1.5 font-data text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer",
                         cohort === item
                           ? "border-[var(--forge-amber)] bg-[var(--forge-amber)] text-white shadow-[var(--shadow-glow-amber)]"
                           : "border-[var(--edge)] bg-[var(--void)] text-[var(--ceramic-muted)] hover:border-[var(--forge-amber)] hover:text-[var(--ceramic)]",
@@ -141,7 +141,7 @@ export function PeopleDirectory() {
         </div>
 
         <div className="rounded-lg border border-[var(--edge)] bg-[var(--void-deep)]/40 p-4 overflow-hidden select-none">
-          <span className="block font-data text-[9px] uppercase tracking-[0.16em] text-[var(--ceramic-muted)] mb-2.5">
+          <span className="block font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)] mb-2.5">
             Quick Select ({filtered.length} Profiles)
           </span>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -182,7 +182,7 @@ export function PeopleDirectory() {
               <button
                 type="button"
                 onClick={() => setVisibleCount((prev) => Math.min(prev + 8, filtered.length))}
-                className="rounded-md border border-[var(--edge)] bg-[var(--panel)] px-4 py-2 font-data text-xs uppercase tracking-wider text-[var(--ceramic-muted)] hover:border-[var(--arc-blue)] hover:text-[var(--arc-blue)] hover:shadow-[var(--shadow-glow-blue)] transition-all duration-200 cursor-pointer"
+                className="rounded-md border border-[var(--edge)] bg-[var(--panel)] px-4 py-2 font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)] hover:border-[var(--arc-blue)] hover:text-[var(--arc-blue)] hover:shadow-[var(--shadow-glow-blue)] transition-all duration-200 cursor-pointer"
               >
                 Load More Profiles (+{filtered.length - visibleCount})
               </button>

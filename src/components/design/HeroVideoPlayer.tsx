@@ -60,13 +60,13 @@ export function HeroVideoPlayer() {
       <div className="absolute bottom-11 right-2.5 size-3 border-b-2 border-r-2 border-white/60 z-20 pointer-events-none" />
 
       {/* Top Header Overlay */}
-      <div className="absolute top-0 inset-x-0 h-10 px-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent flex items-center justify-between z-20 font-data text-[9.5px] uppercase tracking-wider text-white select-none">
+      <div className="absolute top-0 inset-x-0 h-10 px-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent flex items-center justify-between z-20 font-data text-[9.5px] tracking-wider text-white select-none">
         <div className="flex items-center gap-2">
           <span className="inline-block size-2 rounded-full bg-[#10b981] animate-pulse" />
           <span className="font-bold text-white/95">Additive DED · Wire Arc Process</span>
         </div>
         <div className="flex items-center gap-2 text-white/75 font-mono">
-          <span>720P · 24 FPS</span>
+          <span>720p · 24 fps</span>
           <span className="px-1.5 py-0.5 rounded bg-black/50 border border-white/20 text-[8.5px]">HD</span>
         </div>
       </div>
@@ -110,24 +110,24 @@ export function HeroVideoPlayer() {
       </div>
 
       {/* Bottom Telemetry Bar */}
-      <div className="h-10 px-4 bg-[#14181B] border-t border-white/10 flex items-center justify-between font-data text-[9px] uppercase tracking-widest text-[#9BA3A9] select-none z-20">
+      <div className="h-10 px-4 bg-[#14181B] border-t border-white/10 flex items-center justify-between font-data text-[9.5px] tracking-wide text-[#9BA3A9] select-none z-20">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={togglePlay}
             className="flex items-center gap-1.5 text-white/90 hover:text-[var(--arc-blue)] transition-colors cursor-pointer"
-            aria-label={isPlaying ? "Pause Video" : "Play Video"}
+            aria-label={isPlaying ? "Pause video" : "Play video"}
           >
             {isPlaying ? <Pause size={11} /> : <Play size={11} className="fill-current" />}
-            <span>{isPlaying ? "PAUSE" : "PLAY"}</span>
+            <span>{isPlaying ? "Pause" : "Play"}</span>
           </button>
           <span className="text-white/20">|</span>
-          <span className="hidden xs:inline text-white/70">6-AXIS KINEMATICS</span>
+          <span className="hidden xs:inline text-white/70">6-Axis Kinematics</span>
         </div>
 
         <div className="flex items-center gap-1.5 text-[var(--arc-blue)] font-bold">
           <Sparkles size={11} />
-          <span>IIST AEROSPACE LAB</span>
+          <span>IIST Aerospace Lab</span>
         </div>
       </div>
     </div>

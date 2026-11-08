@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Mail, X, Columns, Rows, FileText } from "lucide-react";
-import { people } from "@/lib/data";
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Mail, X, Columns, Rows, FileText, ExternalLink } from "lucide-react";
+import { people, formatResumeUrl } from "@/lib/data";
 import { IndicTranslate } from "@/components/IndicTranslate";
 import { SiteHeader } from "@/components/site-shell";
 
@@ -187,6 +187,7 @@ export interface BookItem {
   resumeUrl?: string;
   photoUrl?: string;
   officialEmail: string;
+  linkedin?: string;
   placedAt?: string;
   placedRole?: string;
   graduatedNote?: string;
@@ -195,24 +196,11 @@ export interface BookItem {
   symbol: "laser" | "arc" | "spindle" | "blade" | "weave" | "probe" | "tile" | "lattice";
 }
 
-// ─── Mathematical SmoothStep Formulas ───────────────────────────────────────
-function smoothStep(x: number): number {
-  const c = Math.max(0, Math.min(1, x));
-  return c * c * (3 - 2 * c);
-}
-
-function smoothStepB(r: number): number {
-  if (Math.abs(r) < 1) {
-    return (r + Math.sin(Math.PI * r) / Math.PI) / 2;
-  }
-  return r >= 1 ? 0.5 : -0.5;
-}
-
 function clamp(val: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, val));
 }
 
-// ─── Spine Top Vignettes (Circle Emblems matching Screenshot 2) ─────────────
+// ─── Spine Top Vignettes ───────────────────────────────────────────────────
 function SpineVignette({ symbol }: { symbol: BookItem["symbol"]; color: string }) {
   if (symbol === "laser") {
     return (
@@ -313,8 +301,8 @@ function TechnicalScreenprint({
           <line x1="40" y1="230" x2="240" y2="230" strokeWidth="1" />
           <line x1="40" y1="250" x2="240" y2="250" strokeWidth="1" strokeDasharray="5 3" />
           <line x1="40" y1="270" x2="240" y2="270" strokeWidth="1.5" />
-          <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>L-PBF LASER MELTING</text>
-          <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">LAYER-BY-LAYER DEPOSITION</text>
+          <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>L-PBF Laser Melting</text>
+          <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">Layer-by-layer deposition</text>
         </g>
       </svg>
     );
@@ -335,8 +323,8 @@ function TechnicalScreenprint({
           <circle cx="150" cy="150" r="20" strokeWidth="1.5" />
           <circle cx="185" cy="115" r="12" strokeWidth="1.5" />
           <line x1="60" y1="230" x2="210" y2="55" strokeDasharray="3 3" strokeWidth="0.8" opacity="0.5" />
-          <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>AERODYNAMIC AIRFOIL</text>
-          <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">Ti-6Al-4V TURBINE GEOMETRY</text>
+          <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>Aerodynamic Airfoil</text>
+          <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">Ti-6Al-4V turbine geometry</text>
         </g>
       </svg>
     );
@@ -353,8 +341,8 @@ function TechnicalScreenprint({
           <rect x="35" y="170" width="210" height="42" fill={color} fillOpacity="0.15" strokeWidth="1.2" />
           <rect x="35" y="225" width="210" height="42" fill={color} fillOpacity="0.35" strokeWidth="1.2" />
           <path d="M 85 225 L 45 267 M 135 225 L 95 267 M 185 225 L 145 267 M 235 225 L 195 267" strokeWidth="1.5" />
-          <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>LAMINATE COMPOSITE</text>
-          <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">ORTHOTROPIC PLY STACK [0/45/90]s</text>
+          <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>Laminate Composite</text>
+          <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">Orthotropic ply stack [0/45/90]s</text>
         </g>
       </svg>
     );
@@ -370,8 +358,8 @@ function TechnicalScreenprint({
         <rect x="40" y="180" width="200" height="80" strokeWidth="1.5" fill={color} fillOpacity="0.1" />
         <line x1="40" y1="180" x2="130" y2="180" strokeWidth="2.5" />
         <path d="M 150 180 Q 180 160 210 180" strokeWidth="1.8" strokeDasharray="3 3" />
-        <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>5-AXIS CNC MACHINING</text>
-        <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">CUTTER TOOLPATH KINEMATICS</text>
+        <text x="35" y="45" fontFamily="monospace" fontSize="8.5" fontWeight="bold" fill={color}>5-Axis CNC Machining</text>
+        <text x="35" y="300" fontFamily="monospace" fontSize="8" fill={color} opacity="0.75">Cutter toolpath kinematics</text>
       </g>
     </svg>
   );
@@ -389,9 +377,9 @@ interface CohortTabConfig {
 }
 
 const cohortTabs: CohortTabConfig[] = [
-  { id: "2025-2027", label: "2025–2027 (Current)", badge: "Current Batch", statusText: "M.Tech Scholars · Currently Enrolled", count: 8 },
-  { id: "2024-2026", label: "2024–2026 (Graduated)", badge: "Graduated", statusText: "Graduated May 2026 · Convocation July 2026", count: 7 },
-  { id: "2026-2028", label: "2026–2028 (Incoming)", badge: "Incoming Batch", statusText: "Incoming M.Tech Batch · Enrolling 2026", count: 12 },
+  { id: "2025-2027", label: "2025–2027 (Current)", badge: "Current Outgoing", statusText: "M.Tech Scholars · Class of 2025–2027", count: 8 },
+  { id: "2024-2026", label: "2024–2026 (Graduated)", badge: "Graduated", statusText: "Graduated May 2026 · Alumni Archive", count: 7 },
+  { id: "2026-2028", label: "2026–2028 (Incoming)", badge: "Incoming", statusText: "Incoming M.Tech Batch · Enrolling 2026", count: 12 },
   { id: "phd", label: "PhD Scholars", badge: "Doctoral", statusText: "PhD Research Scholars · Advanced Materials & Space Systems", count: 10 },
   { id: "faculty", label: "Faculty & Staff", badge: "Leadership", statusText: "Academic Leadership & Laboratory Engineers", count: 6 },
 ];
@@ -446,6 +434,7 @@ function getCohortBooks(cohortId: CohortId): BookItem[] {
       resumeUrl: p.resumeUrl,
       photoUrl: p.photoUrl,
       officialEmail: p.officialEmail,
+      linkedin: p.linkedin,
       placedAt: p.placedAt,
       placedRole: p.placedRole,
       graduatedNote,
@@ -476,8 +465,6 @@ export function PeopleShelf() {
   // Dragging & Momentum Physics
   const isDraggingRef = useRef(false);
   const dragStartRef = useRef({ pos: 0, target: 0 });
-  const lastWheelTimeRef = useRef(0);
-  const wheelSnapTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [dossierBook, setDossierBook] = useState<BookItem>(cohortBooks[0] || ({} as BookItem));
@@ -487,12 +474,11 @@ export function PeopleShelf() {
   const bookElsRef = useRef<(HTMLDivElement | null)[]>([]);
   const cvElsRef = useRef<(HTMLElement | null)[]>([]);
   const liftsRef = useRef<number[]>([]);
+  const opensRef = useRef<number[]>([]);
   const tabIndicatorRef = useRef<HTMLDivElement>(null);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
-  const detailDialogRef = useRef<HTMLDivElement>(null);
-  const inkBlobsRef = useRef<(SVGCircleElement | null)[]>([]);
 
-  // Cached Layout Dimensions (Zero forced reflow during 60fps animations)
+  // Cached Layout Dimensions
   const dimsRef = useRef({
     W: 1000,
     H_container: 700,
@@ -515,17 +501,17 @@ export function PeopleShelf() {
     const isCompact = M <= 5;
     const isMedium = M <= 8;
     const idealSpineH = isMobile
-      ? (isCompact ? 46 : isMedium ? 36 : 28)
+      ? (isCompact ? 44 : isMedium ? 36 : 28)
       : (isCompact ? 60 : isMedium ? 46 : 37);
     const stackSpineH = Math.round(clamp(idealSpineH, 26, 64));
     const stackGap = isMobile ? 4 : (isCompact ? 6 : isMedium ? 5 : 4);
     const baseWidth = isCompact ? 540 : isMedium ? 480 : 420;
-    const stackWidth = isMobile ? Math.min(baseWidth, W - 24) : Math.min(baseWidth, W * 0.85);
+    const stackWidth = isMobile ? Math.min(baseWidth, W - 32) : Math.min(baseWidth, W * 0.85);
 
     const H = isMobile
-      ? clamp(H_container * 0.50, 240, 310)
+      ? clamp(H_container * 0.48, 230, 290)
       : Math.min(H_container * 0.48, W * 0.32);
-    const ws = isMobile ? Math.max(46, H * (135 / 840)) : H * (135 / 840);
+    const ws = isMobile ? Math.max(44, H * (135 / 840)) : H * (135 / 840);
     const d = isMobile ? Math.max(160, H * (460 / 900)) : H * (460 / 900);
     const gap = isMobile ? 8 : H * 0.038;
 
@@ -539,11 +525,6 @@ export function PeopleShelf() {
       stageRef.current.style.setProperty("--stack-h", `${stackSpineH}px`);
     }
   }, [M]);
-
-  // Masked caption elements
-  const captionTitleRef = useRef<HTMLDivElement>(null);
-  const captionSubRef = useRef<HTMLDivElement>(null);
-  const captionYearRef = useRef<HTMLDivElement>(null);
 
   const currentTab = cohortTabs.find((t) => t.id === selectedCohort) || cohortTabs[0];
 
@@ -564,11 +545,12 @@ export function PeopleShelf() {
   useEffect(() => {
     updateDimensions();
     liftsRef.current = new Array(M).fill(0);
+    opensRef.current = new Array(M).fill(0);
     cvElsRef.current = bookElsRef.current.map((el) => (el ? el.querySelector<HTMLElement>(".cv") : null));
     wakeLoop();
   }, [M, selectedCohort, updateDimensions, wakeLoop]);
 
-  // Window resize observer (passive)
+  // Window resize observer
   useEffect(() => {
     const handleResize = () => {
       updateDimensions();
@@ -585,6 +567,7 @@ export function PeopleShelf() {
     activeIdxRef.current = null;
     sRef.current = center;
     targetRef.current = center;
+    opensRef.current = new Array(M).fill(0);
     updateDimensions();
     wakeLoop();
 
@@ -597,130 +580,14 @@ export function PeopleShelf() {
     }
   }, [selectedCohort, orientation, M, updateDimensions, wakeLoop]);
 
-  // ─── Swap Caption with Mask Slide ─────────────────────────────────────────
-  const swapCaption = useCallback((newBook: BookItem, dir: number) => {
-    const slideMask = (container: HTMLDivElement | null, newText: string) => {
-      if (!container) return;
-      const oldSpan = container.querySelector("span:not([data-leaving])");
-      const newSpan = document.createElement("span");
-      newSpan.textContent = newText;
-      newSpan.className = "inline-block will-change-transform";
-
-      if (oldSpan) {
-        oldSpan.setAttribute("data-leaving", "true");
-        oldSpan.animate(
-          [
-            { transform: "translateY(0)" },
-            { transform: `translateY(${-dir * 105}%)` },
-          ],
-          { duration: 400, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
-        ).onfinish = () => oldSpan.remove();
-      }
-
-      container.appendChild(newSpan);
-      newSpan.animate(
-        [
-          { transform: `translateY(${dir * 105}%)` },
-          { transform: "translateY(0)" },
-        ],
-        { duration: 400, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" }
-      );
-    };
-
-    slideMask(captionTitleRef.current, newBook.name);
-    slideMask(
-      captionSubRef.current,
-      newBook.graduatedNote
-        ? `${newBook.roll} · ${newBook.specialization.toUpperCase()} · ${newBook.graduatedNote.toUpperCase()}`
-        : `${newBook.roll} · ${(newBook.specialization || "").toUpperCase()}`
-    );
-    slideMask(captionYearRef.current, `${newBook.cohort} · IIST AEROSPACE MANUFACTURING`);
-  }, []);
-
-  // ─── Open Detail Sheet with Ink Bleed ─────────────────────────────────────
+  // ─── Open Detail Modal ───────────────────────────────────────────────────
   const openDetail = useCallback((book: BookItem) => {
     setDossierBook(book);
     setDetailOpen(true);
-    const dialog = detailDialogRef.current;
-    if (!dialog) return;
-
-    dialog.style.visibility = "visible";
-
-    dialog.animate(
-      [
-        { clipPath: "inset(20% 20% 20% 20% round 8px)", opacity: "0", transform: "scale(0.96)" },
-        { clipPath: "inset(0% 0% 0% 0% round 0px)", opacity: "1", transform: "scale(1)" },
-      ],
-      { duration: 600, easing: "cubic-bezier(.16,1,.3,1)", fill: "both" }
-    );
-
-    const textLines = dialog.querySelectorAll(".detail-mask-line > *");
-    textLines.forEach((line, idx) => {
-      line.animate(
-        [
-          { transform: "translateY(110%)" },
-          { transform: "translateY(0)" },
-        ],
-        {
-          duration: 650,
-          delay: 200 + idx * 50,
-          easing: "cubic-bezier(.2,.8,.2,1)",
-          fill: "both",
-        }
-      );
-    });
-
-    const blobDelays = [0, 80, 160, 240, 300, 360, 140];
-    const startTime = performance.now() + 180;
-
-    const animateInk = (now: number) => {
-      const elapsed = now - startTime;
-      if (elapsed < 0) {
-        requestAnimationFrame(animateInk);
-        return;
-      }
-
-      let allDone = true;
-      inkBlobsRef.current.forEach((circle, i) => {
-        if (!circle) return;
-        const blobElapsed = elapsed - blobDelays[i];
-        if (blobElapsed <= 0) {
-          circle.setAttribute("r", "0");
-          allDone = false;
-        } else {
-          const p = Math.min(1, blobElapsed / 950);
-          const easeOut = 1 - Math.pow(1 - p, 3);
-          circle.setAttribute("r", String(easeOut * 700));
-          if (p < 1) allDone = false;
-        }
-      });
-
-      if (!allDone && elapsed < 1600) {
-        requestAnimationFrame(animateInk);
-      }
-    };
-    requestAnimationFrame(animateInk);
   }, []);
 
   const closeDetail = useCallback(() => {
-    const dialog = detailDialogRef.current;
-    if (!dialog) {
-      setDetailOpen(false);
-      return;
-    }
-
-    const anim = dialog.animate(
-      [
-        { clipPath: "inset(0% 0% 0% 0% round 0px)", opacity: "1", transform: "scale(1)" },
-        { clipPath: "inset(15% 15% 15% 15% round 6px)", opacity: "0", transform: "scale(0.97)" },
-      ],
-      { duration: 400, easing: "cubic-bezier(.76,0,.18,1)", fill: "both" }
-    );
-
-    anim.onfinish = () => {
-      dialog.style.visibility = "hidden";
-      setDetailOpen(false);
-    };
+    setDetailOpen(false);
   }, []);
 
   // ─── Animation Loop (Dynamic Momentum Physics with Idle Sleep) ─────────────
@@ -729,9 +596,8 @@ export function PeopleShelf() {
       const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
       lastTimeRef.current = now;
 
-      // 1. Spring physics with dynamic damping
-      const k = isDraggingRef.current ? 18.0 : 7.0;
-      const prevS = sRef.current;
+      // Spring physics for shelf translation
+      const k = isDraggingRef.current ? 18.0 : 8.0;
       targetRef.current = clamp(targetRef.current, 0, Math.max(0, M - 1));
       sRef.current += (targetRef.current - sRef.current) * (1 - Math.exp(-k * dt));
 
@@ -742,20 +608,8 @@ export function PeopleShelf() {
         sRef.current = targetRef.current;
       }
 
-      // Automatically sync active index as the shelf rolls past integers ONLY IF a book is already open!
-      if (activeIdxRef.current !== null) {
-        const currentActive = clamp(Math.round(sRef.current), 0, Math.max(0, M - 1));
-        if (currentActive !== activeIdxRef.current && cohortBooks[currentActive]) {
-          const dir = targetRef.current >= prevS ? 1 : -1;
-          activeIdxRef.current = currentActive;
-          setActiveIdx(currentActive);
-          swapCaption(cohortBooks[currentActive], dir);
-        }
-      }
-
-      // 2. Read cached dimensions (Zero layout reflow during animation)
       const { ws, d, gap, stackSpineH, stackGap } = dimsRef.current;
-      const isOpen = activeIdxRef.current !== null;
+      const currentActive = activeIdxRef.current;
 
       for (let v = 0; v < M; v++) {
         const el = bookElsRef.current[v];
@@ -768,25 +622,42 @@ export function PeopleShelf() {
         liftsRef.current[v] = nextLift;
         if (Math.abs(targetLift - nextLift) > 1e-3) isMoving = true;
 
+        // Individual book open rotation
+        const isTarget = currentActive === v;
+        const targetO = isTarget ? 1 : 0;
+        const currentO = opensRef.current[v] || 0;
+        const nextO = currentO + (targetO - currentO) * (1 - Math.exp(-12 * dt));
+        opensRef.current[v] = nextO;
+        if (Math.abs(targetO - nextO) > 1e-3) isMoving = true;
+
         const r = v - sRef.current;
-        const o = isOpen ? smoothStep(Math.max(0, 1 - Math.abs(r))) : 0;
+        const activeO = (currentActive !== null && opensRef.current[currentActive] !== undefined)
+          ? opensRef.current[currentActive]
+          : 0;
 
         if (orientation === "horizontal") {
-          const spread = isOpen ? (d - ws + 1.4 * gap) * smoothStepB(r) : 0;
+          // Symmetrical spread outward from the active book so it never clips neighbors
+          let spread = 0;
+          if (currentActive !== null) {
+            const spreadDistance = d * 0.52 + gap;
+            if (v < currentActive) {
+              spread = -spreadDistance * activeO;
+            } else if (v > currentActive) {
+              spread = spreadDistance * activeO;
+            }
+          }
+
           const x = r * (ws + gap) + spread;
+          const rotY = -90 * nextO;
+          const transZ = nextO * 42 + nextLift * 14;
+          const transY = -nextO * 8 - nextLift * 16;
 
-          const rotY = -90 * o;
-          const rotX = 0;
-          const rotZ = 0;
-          const transZ = o * 48 + nextLift * 15;
-          const transY = -o * 8 - nextLift * 16;
-
-          el.style.transform = `translate3d(${x}px, ${transY}px, ${transZ}px) rotateY(${rotY}deg) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
-          el.style.zIndex = String(Math.round(100 - Math.abs(r) * 5 + (o > 0.5 ? 20 : 0)));
+          el.style.transform = `translate3d(${x}px, ${transY}px, ${transZ}px) rotateY(${rotY}deg)`;
+          el.style.zIndex = String(Math.round(100 - Math.abs(r) * 5 + (nextO > 0.3 ? 30 : 0)));
 
           const cvEl = cvElsRef.current[v] || el.querySelector<HTMLElement>(".cv");
           if (cvEl) {
-            if (o < 0.02) {
+            if (nextO < 0.02) {
               if (cvEl.style.visibility !== "hidden") {
                 cvEl.style.visibility = "hidden";
                 cvEl.style.opacity = "0";
@@ -796,18 +667,18 @@ export function PeopleShelf() {
               if (cvEl.style.visibility !== "visible") {
                 cvEl.style.visibility = "visible";
               }
-              cvEl.style.opacity = String(Math.min(1, o * 1.5));
-              cvEl.style.pointerEvents = o > 0.5 ? "auto" : "none";
+              cvEl.style.opacity = String(Math.min(1, nextO * 1.4));
+              cvEl.style.pointerEvents = nextO > 0.6 ? "auto" : "none";
             }
           }
         } else {
-          const y = r * (stackSpineH + stackGap) + (isOpen ? 14 * smoothStepB(r) : 0);
-          const slideX = isOpen ? -o * 24 + (isHovered ? -14 : 0) : (isHovered ? -14 : 0);
-          const transZ = (isOpen ? o * 42 : 0) + (isHovered ? 20 : 0) - Math.abs(r) * 4;
-          const rotX = isOpen ? -10 * o : 0;
-          const rotZ = isOpen ? -1.5 * o : 0;
+          // Vertical stack mode
+          const y = r * (stackSpineH + stackGap);
+          const slideX = isTarget ? -nextO * 24 : (isHovered ? -12 : 0);
+          const transZ = (isTarget ? nextO * 35 : 0) + (isHovered ? 16 : 0) - Math.abs(r) * 3;
+          const rotX = isTarget ? -8 * nextO : 0;
 
-          el.style.transform = `translate3d(${slideX}px, ${y}px, ${transZ}px) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
+          el.style.transform = `translate3d(${slideX}px, ${y}px, ${transZ}px) rotateX(${rotX}deg)`;
           el.style.zIndex = String(Math.round(80 - Math.abs(r) * 5 + nextLift * 20));
         }
       }
@@ -824,9 +695,9 @@ export function PeopleShelf() {
       if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
       isLoopRunningRef.current = false;
     };
-  }, [M, orientation, swapCaption, cohortBooks, wakeLoop]);
+  }, [M, orientation, wakeLoop]);
 
-  // ─── Input Handlers: Wheel, Drag & Keyboard (Zero forced reflow) ───────────
+  // ─── Input Handlers: Wheel, Drag & Keyboard ───────────────────────────────
   const handleShelfWheel = (e: React.WheelEvent) => {
     if (detailOpen) return;
     const delta = orientation === "horizontal"
@@ -837,16 +708,7 @@ export function PeopleShelf() {
     const step = orientation === "horizontal" ? (isMobile ? 120 : 80) : (isMobile ? 38 : 50);
 
     targetRef.current = clamp(targetRef.current + (delta / step) * 0.5, 0, M - 1);
-    lastWheelTimeRef.current = Date.now();
     wakeLoop();
-
-    if (wheelSnapTimerRef.current) clearTimeout(wheelSnapTimerRef.current);
-    wheelSnapTimerRef.current = setTimeout(() => {
-      if (activeIdxRef.current !== null) {
-        targetRef.current = clamp(Math.round(targetRef.current), 0, M - 1);
-        wakeLoop();
-      }
-    }, 140);
   };
 
   const handleShelfPointerDown = (e: React.PointerEvent) => {
@@ -872,11 +734,6 @@ export function PeopleShelf() {
     };
 
     const handlePointerUpDrag = () => {
-      if (isDraggingRef.current) {
-        if (activeIdxRef.current !== null) {
-          targetRef.current = clamp(Math.round(targetRef.current), 0, M - 1);
-        }
-      }
       setTimeout(() => {
         isDraggingRef.current = false;
       }, 60);
@@ -896,13 +753,16 @@ export function PeopleShelf() {
     const book = cohortBooks[idx];
     if (!book) return;
 
-    // Immediately activate, center, and open the full complete dossier modal!
-    activeIdxRef.current = idx;
-    setActiveIdx(idx);
-    targetRef.current = clamp(idx, 0, M - 1);
-    swapCaption(book, 1);
-    wakeLoop();
-    openDetail(book);
+    if (activeIdxRef.current === idx) {
+      // Already selected and open: clicking opens the full comprehensive dossier!
+      openDetail(book);
+    } else {
+      // Roll open this scholar book and smoothly center it
+      activeIdxRef.current = idx;
+      setActiveIdx(idx);
+      targetRef.current = idx;
+      wakeLoop();
+    }
   };
 
   // Keyboard navigation
@@ -924,44 +784,40 @@ export function PeopleShelf() {
       if (orientation === "horizontal") {
         if (e.key === "ArrowLeft") {
           const nextIdx = activeIdxRef.current === null
-            ? Math.floor((M - 1) / 2)
+            ? Math.max(0, Math.floor((M - 1) / 2) - 1)
             : clamp(activeIdxRef.current - 1, 0, M - 1);
           activeIdxRef.current = nextIdx;
           setActiveIdx(nextIdx);
           targetRef.current = nextIdx;
           wakeLoop();
-          if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], -1);
         } else if (e.key === "ArrowRight") {
           const nextIdx = activeIdxRef.current === null
-            ? Math.ceil((M - 1) / 2)
+            ? Math.min(M - 1, Math.ceil((M - 1) / 2) + 1)
             : clamp(activeIdxRef.current + 1, 0, M - 1);
           activeIdxRef.current = nextIdx;
           setActiveIdx(nextIdx);
           targetRef.current = nextIdx;
           wakeLoop();
-          if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], 1);
         } else if (e.key === "Enter" && activeIdxRef.current !== null && cohortBooks[activeIdxRef.current]) {
           openDetail(cohortBooks[activeIdxRef.current]);
         }
       } else {
         if (e.key === "ArrowUp") {
           const nextIdx = activeIdxRef.current === null
-            ? Math.floor((M - 1) / 2)
+            ? Math.max(0, Math.floor((M - 1) / 2) - 1)
             : clamp(activeIdxRef.current - 1, 0, M - 1);
           activeIdxRef.current = nextIdx;
           setActiveIdx(nextIdx);
           targetRef.current = nextIdx;
           wakeLoop();
-          if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], -1);
         } else if (e.key === "ArrowDown") {
           const nextIdx = activeIdxRef.current === null
-            ? Math.ceil((M - 1) / 2)
+            ? Math.min(M - 1, Math.ceil((M - 1) / 2) + 1)
             : clamp(activeIdxRef.current + 1, 0, M - 1);
           activeIdxRef.current = nextIdx;
           setActiveIdx(nextIdx);
           targetRef.current = nextIdx;
           wakeLoop();
-          if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], 1);
         } else if (e.key === "Enter" && activeIdxRef.current !== null && cohortBooks[activeIdxRef.current]) {
           openDetail(cohortBooks[activeIdxRef.current]);
         }
@@ -970,17 +826,17 @@ export function PeopleShelf() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [detailOpen, orientation, M, cohortBooks, openDetail, closeDetail, swapCaption, wakeLoop]);
+  }, [detailOpen, orientation, M, cohortBooks, openDetail, closeDetail, wakeLoop]);
 
   const activeBook = activeIdx !== null ? cohortBooks[activeIdx] : null;
   const activeTheme = themeStyles[activeBook?.theme || "cobalt"];
 
   return (
     <div className="flex flex-col lg:flex-row h-screen h-[100dvh] w-full overflow-hidden bg-[#EDEBE6] text-[#141414] font-['Inter_Tight',sans-serif]">
-      {/* ─── Left Bar: Maintained on Desktop, Top Bar hidden on Mobile (avoids duplicate line) ─── */}
+      {/* Desktop Slim Sidebar (lg and up) - hidden on mobile so we don't have duplicate top bars */}
       <SiteHeader hideMobile />
 
-      {/* ─── Main Right Canvas for 3D Shelf / Stack ───────────────────────── */}
+      {/* Main Center Canvas for 3D Shelf / Stack */}
       <div className="relative flex-1 min-w-0 min-h-0 w-full h-full overflow-hidden select-none flex flex-col justify-between">
         {/* Paper Grain Overlay - Hidden on mobile phones to prevent GPU rasterization bottleneck */}
         <div
@@ -990,42 +846,42 @@ export function PeopleShelf() {
           }}
         />
 
-        {/* ─── 1. Top Bar (Exact Original Desktop Layout + Clean Mobile Adaptation) ─── */}
-        <header className="relative z-30 h-14 sm:h-[72px] px-4 sm:px-8 grid grid-cols-[auto_1fr_auto] sm:grid-cols-[1fr_auto_1fr] items-center border-b border-[rgba(20,20,20,0.1)] bg-[#EDEBE6]/90 backdrop-blur-xs">
-          {/* Left Title Area */}
-          <div className="flex items-center gap-3">
+        {/* 1. Shelf Header Bar */}
+        <header className="relative z-30 h-14 sm:h-[68px] px-3 sm:px-8 grid grid-cols-[auto_1fr_auto] items-center border-b border-[rgba(20,20,20,0.1)] bg-[#EDEBE6]/90 backdrop-blur-xs">
+          {/* Back Action */}
+          <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 h-[27px] px-2.5 border border-[rgba(20,20,20,0.85)] text-[10px] font-semibold tracking-wider uppercase text-[#141414] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors"
+              className="inline-flex items-center gap-1.5 h-7 sm:h-[29px] px-2.5 rounded-xs border border-[rgba(20,20,20,0.85)] text-xs font-semibold tracking-wide text-[#141414] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors"
             >
-              <ArrowLeft size={12} aria-hidden />
+              <ArrowLeft size={13} aria-hidden />
               <span>Back</span>
             </Link>
           </div>
 
-          {/* Center Logo Band */}
-          <div className="flex flex-col items-center justify-center text-center px-2">
-            <span className="font-['Newsreader',serif] font-bold text-lg sm:text-2xl tracking-tight text-[#143B82] leading-tight">
+          {/* Center Title */}
+          <div className="flex flex-col items-center justify-center text-center px-1">
+            <span className="font-['Newsreader',serif] font-bold text-base sm:text-2xl tracking-tight text-[#143B82] leading-tight">
               IIST Manufacturing Technology
             </span>
-            <span className="text-[7.5px] sm:text-[8.5px] font-semibold tracking-[0.24em] uppercase text-[#6D6A63] hidden xs:block">
+            <span className="text-[8px] sm:text-[9.5px] font-semibold tracking-wider text-[#6D6A63] hidden xs:block">
               Department of Aerospace Engineering · Scholar Archive
             </span>
           </div>
 
-          {/* Right Action: Orientation Switcher + Indic Translate */}
-          <div className="flex items-center justify-end gap-2 sm:gap-3">
-            <div className="inline-flex items-center p-0.5 rounded-sm border border-[rgba(20,20,20,0.85)] bg-white/60 shadow-xs">
+          {/* Right Action: Shelf / Stack Toggle + Translation */}
+          <div className="flex items-center justify-end gap-1.5 sm:gap-3">
+            <div className="inline-flex items-center p-0.5 rounded border border-[rgba(20,20,20,0.85)] bg-white/60 shadow-xs">
               <button
                 type="button"
                 onClick={() => setOrientation("horizontal")}
                 className={[
-                  "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
+                  "inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-medium tracking-wide transition-all duration-200 cursor-pointer",
                   orientation === "horizontal"
-                    ? "bg-[#143B82] text-white rounded-xs shadow-xs"
+                    ? "bg-[#143B82] text-white rounded-xs shadow-xs font-semibold"
                     : "text-[#6D6A63] hover:text-[#141414]",
                 ].join(" ")}
-                title="Horizontal Standing Books Shelf"
+                title="Horizontal Standing Shelf View"
               >
                 <Columns size={12} aria-hidden />
                 <span className="hidden sm:inline">Shelf</span>
@@ -1035,12 +891,12 @@ export function PeopleShelf() {
                 type="button"
                 onClick={() => setOrientation("vertical")}
                 className={[
-                  "inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer",
+                  "inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 text-xs font-medium tracking-wide transition-all duration-200 cursor-pointer",
                   orientation === "vertical"
-                    ? "bg-[#143B82] text-white rounded-xs shadow-xs"
+                    ? "bg-[#143B82] text-white rounded-xs shadow-xs font-semibold"
                     : "text-[#6D6A63] hover:text-[#141414]",
                 ].join(" ")}
-                title="Vertical Flat Books Stack"
+                title="Vertical Stack View"
               >
                 <Rows size={12} aria-hidden />
                 <span className="hidden sm:inline">Stack</span>
@@ -1051,7 +907,7 @@ export function PeopleShelf() {
           </div>
         </header>
 
-        {/* ─── 2. Cohort Segregation Tabs (Horizontally Scrollable on Mobile) ── */}
+        {/* 2. Cohort Tabs */}
         <nav
           aria-label="Cohort Batches"
           className="relative z-30 w-full flex flex-col items-center justify-center pt-2 pb-1 gap-1 px-2"
@@ -1059,7 +915,7 @@ export function PeopleShelf() {
           <div className="w-full max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex justify-start sm:justify-center py-0.5">
             <div
               ref={tabsContainerRef}
-              className="relative inline-flex items-center bg-[#EDEBE6] border border-[rgba(20,20,20,0.85)] rounded-sm overflow-hidden shadow-xs shrink-0 mx-auto"
+              className="relative inline-flex items-center bg-[#EDEBE6] border border-[rgba(20,20,20,0.85)] rounded-xs overflow-hidden shadow-xs shrink-0 mx-auto"
             >
               <div
                 ref={tabIndicatorRef}
@@ -1076,12 +932,12 @@ export function PeopleShelf() {
                     data-cohort={tab.id}
                     onClick={() => setSelectedCohort(tab.id)}
                     className={[
-                      "relative z-10 h-[29px] px-3 border-r last:border-r-0 border-[rgba(20,20,20,0.25)] text-[10.5px] font-semibold tracking-wider uppercase transition-colors duration-250 select-none whitespace-nowrap cursor-pointer",
+                      "relative z-10 h-[29px] px-3 border-r last:border-r-0 border-[rgba(20,20,20,0.25)] text-xs font-medium tracking-wide transition-colors duration-250 select-none whitespace-nowrap cursor-pointer",
                       isActive ? "text-white font-bold" : "text-[#141414] hover:bg-[#141414]/8",
                     ].join(" ")}
                   >
                     <span>{tab.label}</span>
-                    <span className={`ml-1 text-[9px] font-mono opacity-80 ${isActive ? "text-white/80" : "text-[#6D6A63]"}`}>
+                    <span className={`ml-1 text-[10px] font-mono opacity-80 ${isActive ? "text-white/80" : "text-[#6D6A63]"}`}>
                       ({getCohortBooks(tab.id).length})
                     </span>
                   </button>
@@ -1090,15 +946,15 @@ export function PeopleShelf() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-[10px] font-mono text-[#6D6A63]">
+          <div className="flex items-center gap-2 text-xs font-mono text-[#6D6A63]">
             <span className="size-1.5 rounded-full bg-[#143B82]" />
             <span>{currentTab.statusText}</span>
           </div>
         </nav>
 
-        {/* ─── 3. The 3D Stage (Continuous Drag & Wheel Rolling Physics) ────── */}
+        {/* 3. The 3D Stage */}
         <section
-          aria-label="Archival book presentation"
+          aria-label="Archival book shelf presentation"
           onPointerDown={handleShelfPointerDown}
           onWheel={handleShelfWheel}
           className="relative flex-1 min-h-0 w-full z-20 flex items-center justify-center cursor-grab active:cursor-grabbing overflow-visible select-none"
@@ -1109,7 +965,7 @@ export function PeopleShelf() {
             touchAction: "none",
           }}
         >
-          {/* Zero-size Stage Origin in Center */}
+          {/* Centered zero-size Stage Origin */}
           <div
             ref={stageRef}
             className="relative size-0"
@@ -1154,12 +1010,12 @@ export function PeopleShelf() {
                 >
                   {orientation === "horizontal" ? (
                     // ══════════════════════════════════════════════════════════
-                    // MODE A: HORIZONTAL SHELF (Rolling 3D: Spine to Cover!)
+                    // MODE A: HORIZONTAL SHELF (Rolling 3D: Spine to Cover)
                     // ══════════════════════════════════════════════════════════
                     <>
                       {/* Spine Face (.sp) */}
                       <div
-                        className="sp absolute rounded-[2px] overflow-hidden select-none border border-black/70 flex flex-col justify-between p-2 shadow-md transition-opacity"
+                        className="sp absolute rounded-xs overflow-hidden select-none border border-black/70 flex flex-col justify-between p-2 shadow-md transition-opacity"
                         style={{
                           width: "var(--ws)",
                           height: "var(--H)",
@@ -1186,15 +1042,15 @@ export function PeopleShelf() {
                           <div className="size-6 sm:size-7 rounded-full border border-white/30 flex items-center justify-center bg-black/20 shadow-inner">
                             <SpineVignette symbol={book.symbol} color={theme.accent} />
                           </div>
-                          <span className="font-mono text-[7.5px] sm:text-[8.5px] font-bold tracking-wider px-1 py-0.5 rounded-xs bg-black/30 border border-white/25">
+                          <span className="font-mono text-[8px] sm:text-[9px] font-bold px-1 py-0.5 rounded-xs bg-black/30 border border-white/25">
                             {book.roll}
                           </span>
                         </div>
 
-                        {/* Scholar Name (Pranay P. - Shortened, 90° clockwise) */}
+                        {/* Scholar Name (e.g. Pranay P. - Shortened, 90° clockwise) */}
                         <div className="relative z-10 flex-1 flex items-center justify-center my-2 overflow-visible">
                           <span
-                            className="font-['Newsreader',serif] font-bold text-[13px] sm:text-[18px] tracking-[0.06em] uppercase whitespace-nowrap drop-shadow-md select-none text-center"
+                            className="font-['Newsreader',serif] font-bold text-[14px] sm:text-[18px] tracking-[0.03em] whitespace-nowrap drop-shadow-md select-none text-center"
                             style={{
                               transform: "rotate(90deg)",
                               transformOrigin: "center center",
@@ -1207,10 +1063,10 @@ export function PeopleShelf() {
 
                         {/* Bottom Spine IIST Stamp */}
                         <div className="relative z-10 flex flex-col items-center gap-0.5 pt-1.5 border-t border-white/20">
-                          <span className="text-[6.5px] sm:text-[7.5px] font-bold tracking-widest uppercase text-white/90 whitespace-nowrap">
+                          <span className="text-[7.5px] sm:text-[8px] font-bold tracking-wider text-white/90 whitespace-nowrap">
                             AE
                           </span>
-                          <span className="px-1 py-0.5 border border-white/40 rounded-xs text-[6.5px] sm:text-[7px] font-mono font-bold tracking-wider bg-black/25 whitespace-nowrap">
+                          <span className="px-1 py-0.5 border border-white/40 rounded-xs text-[7px] sm:text-[7.5px] font-mono font-bold bg-black/25 whitespace-nowrap">
                             IIST·MT
                           </span>
                         </div>
@@ -1218,7 +1074,7 @@ export function PeopleShelf() {
 
                       {/* Cover Face (.cv) - Straight preview when open */}
                       <div
-                        className="cv absolute rounded-[2px] overflow-hidden select-none border border-black/80 flex flex-col justify-between p-3 sm:p-4.5 cursor-pointer"
+                        className="cv absolute rounded-xs overflow-hidden select-none border border-black/80 flex flex-col justify-between p-3 sm:p-4.5 cursor-pointer shadow-2xl"
                         onClick={(e) => {
                           e.stopPropagation();
                           openDetail(book);
@@ -1232,59 +1088,71 @@ export function PeopleShelf() {
                           backfaceVisibility: "hidden",
                           WebkitBackfaceVisibility: "hidden",
                           background: theme.coverBg,
-                          boxShadow: "0 30px 60px -20px rgba(0,0,0,0.55)",
                           visibility: "hidden",
                           opacity: 0,
                         }}
                       >
-                        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none flex items-center justify-center p-2 sm:p-3">
-                          <TechnicalScreenprint diagram={book.diagram} color={theme.illustrationColor} className="w-full h-auto max-h-[72%]" />
-                        </div>
-
-                        <div className="relative z-10 flex items-center justify-between border-b border-[rgba(20,20,20,0.8)] pb-1">
-                          <span className="text-[7px] sm:text-[7.5px] font-bold tracking-[0.16em] uppercase" style={{ color: theme.bg }}>
-                            AEROSPACE ARCHIVES · IIST
+                        {/* Top Header of Cover */}
+                        <div className="relative z-10 flex items-center justify-between border-b border-[rgba(20,20,20,0.7)] pb-1.5">
+                          <span className="text-[8px] sm:text-[8.5px] font-bold tracking-wider" style={{ color: theme.bg }}>
+                            Aerospace Archives · IIST
                           </span>
-                          <span className="font-mono text-[7px] sm:text-[7.5px] font-bold px-1.5 py-0.5 border border-[rgba(20,20,20,0.8)] bg-white/70">
+                          <span className="font-mono text-[8px] sm:text-[8.5px] font-bold px-1.5 py-0.5 border border-[rgba(20,20,20,0.8)] bg-white/80 rounded-xs">
                             {book.roll}
                           </span>
                         </div>
 
-                        <div className="relative z-10 my-auto text-center px-1">
-                          <span className="text-[7.5px] sm:text-[8.5px] font-bold tracking-[0.12em] uppercase block mb-0.5 sm:mb-1 text-[#6D6A63]">
+                        {/* Middle: Photo or Technical Blueprint */}
+                        <div className="relative z-10 my-auto flex flex-col items-center text-center px-1">
+                          {book.photoUrl ? (
+                            <div className="size-20 sm:size-24 rounded-lg overflow-hidden border border-[rgba(20,20,20,0.8)] shadow-sm bg-white mb-2 shrink-0">
+                              <img
+                                src={book.photoUrl}
+                                alt={book.name}
+                                className="w-full h-full object-cover object-[center_20%] sm:object-top"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-full h-20 sm:h-24 flex items-center justify-center opacity-75 mb-1">
+                              <TechnicalScreenprint diagram={book.diagram} color={theme.illustrationColor} className="max-h-full w-auto" />
+                            </div>
+                          )}
+
+                          <span className="text-[8px] sm:text-[9px] font-semibold tracking-wide text-[#6D6A63] line-clamp-1">
                             {book.specialization}
                           </span>
-                          <h2 className="font-['Newsreader',serif] font-bold text-lg sm:text-2xl lg:text-3xl leading-[1.05] tracking-tight text-[#141414]">
+                          <h2 className="font-['Newsreader',serif] font-bold text-lg sm:text-2xl leading-tight text-[#141414] mt-0.5">
                             {book.shortName}
                           </h2>
-                          <span className="text-[8.5px] sm:text-[9.5px] font-bold font-mono tracking-wider block mt-1" style={{ color: theme.bg }}>
-                            {book.graduatedNote ? `${book.cohort} (${book.graduatedNote})` : book.cohort}
+                          <span className="text-[9px] sm:text-[10px] font-mono font-medium block mt-0.5" style={{ color: theme.bg }}>
+                            {book.cohort}
                           </span>
                         </div>
 
-                        <div className="relative z-10 flex items-center justify-between border-t border-[rgba(20,20,20,0.8)] pt-1.5 sm:pt-2">
+                        {/* Bottom Action Footer */}
+                        <div className="relative z-10 flex items-center justify-between border-t border-[rgba(20,20,20,0.7)] pt-2">
                           <div className="flex flex-col text-left">
-                            <span className="text-[6.5px] sm:text-[7px] font-mono uppercase text-[#6D6A63]">DESTINATION</span>
-                            <span className="text-[7.5px] sm:text-[8.5px] font-bold text-[#141414] truncate max-w-[100px] sm:max-w-none">
+                            <span className="text-[7px] sm:text-[7.5px] font-mono text-[#6D6A63]">Destination</span>
+                            <span className="text-[8px] sm:text-[9px] font-bold text-[#141414] truncate max-w-[95px] sm:max-w-none">
                               {book.placedAt ? book.placedAt : "Research Scholar"}
                             </span>
                           </div>
                           <span
-                            className="font-mono text-[7px] sm:text-[8px] px-1.5 sm:px-2 py-0.5 font-bold text-white rounded-xs shadow-xs"
+                            className="font-mono text-[8px] sm:text-[9px] px-2 py-1 font-bold text-white rounded-xs shadow-xs"
                             style={{ background: theme.bg }}
                           >
-                            OPEN DOSSIER
+                            Open Dossier →
                           </span>
                         </div>
                       </div>
                     </>
                   ) : (
                     // ══════════════════════════════════════════════════════════
-                    // MODE B: VERTICAL STACK (Dynamic Horizontal Sizing, 3D Lift)
+                    // MODE B: VERTICAL STACK (Horizontal spine stack)
                     // ══════════════════════════════════════════════════════════
                     <div
                       className={[
-                        "sp absolute rounded-[2px] overflow-hidden select-none border border-black/70 flex items-center justify-between shadow-md hover:brightness-105 transition-all",
+                        "sp absolute rounded-xs overflow-hidden select-none border border-black/70 flex items-center justify-between shadow-md hover:brightness-105 transition-all",
                         M <= 5 ? "px-5 sm:px-6" : M <= 8 ? "px-4 sm:px-5" : "px-3 sm:px-3.5",
                       ].join(" ")}
                       style={{
@@ -1319,18 +1187,18 @@ export function PeopleShelf() {
                         <span
                           className={[
                             "font-mono font-bold tracking-wider rounded-xs bg-black/30 border border-white/20 whitespace-nowrap",
-                            M <= 5 ? "text-[10px] px-1.5 py-0.5" : M <= 8 ? "text-[9px] px-1 py-0.5" : "text-[8px] px-1 py-0.5",
+                            M <= 5 ? "text-xs px-1.5 py-0.5" : M <= 8 ? "text-[10px] px-1 py-0.5" : "text-[9px] px-1 py-0.5",
                           ].join(" ")}
                         >
                           {book.roll}
                         </span>
                       </div>
 
-                      {/* Shortened Name across the horizontal spine (e.g. PRANAY P.) */}
+                      {/* Shortened Name across the horizontal spine */}
                       <div className="relative z-10 flex-1 px-3 text-center overflow-hidden">
                         <span
                           className={[
-                            "font-['Newsreader',serif] font-bold tracking-[0.05em] uppercase whitespace-nowrap text-white block truncate",
+                            "font-['Newsreader',serif] font-bold tracking-wide whitespace-nowrap text-white block truncate",
                             M <= 5 ? "text-[17px] sm:text-[20px]" : M <= 8 ? "text-[15px] sm:text-[17px]" : "text-[13px] sm:text-[14.5px]",
                           ].join(" ")}
                           style={{ textShadow: "0 1px 2px rgba(0,0,0,0.7)" }}
@@ -1343,16 +1211,16 @@ export function PeopleShelf() {
                       <div className="relative z-10 flex items-center gap-2">
                         <span
                           className={[
-                            "font-mono tracking-wider uppercase text-white/80 hidden sm:inline",
-                            M <= 5 ? "text-[9px]" : M <= 8 ? "text-[8px]" : "text-[7.5px]",
+                            "font-mono text-white/80 hidden sm:inline",
+                            M <= 5 ? "text-[10px]" : M <= 8 ? "text-[9px]" : "text-[8px]",
                           ].join(" ")}
                         >
                           {book.specialization.slice(0, 16)}
                         </span>
                         <span
                           className={[
-                            "border border-white/40 rounded-xs font-mono font-bold tracking-widest bg-black/25",
-                            M <= 5 ? "text-[9px] px-2 py-0.5" : M <= 8 ? "text-[8px] px-1.5 py-0.5" : "text-[7.5px] px-1 py-0.5",
+                            "border border-white/40 rounded-xs font-mono font-bold bg-black/25",
+                            M <= 5 ? "text-[10px] px-2 py-0.5" : M <= 8 ? "text-[9px] px-1.5 py-0.5" : "text-[8px] px-1 py-0.5",
                           ].join(" ")}
                         >
                           IIST
@@ -1366,45 +1234,38 @@ export function PeopleShelf() {
           </div>
         </section>
 
-        {/* ─── 4. Caption Stack ────────────────────────────────────────────── */}
+        {/* 4. Bottom Dynamic Scholar Caption (Pure React, zero lingering DOM nodes) */}
         <div
           aria-live="polite"
           className="relative z-20 flex flex-col items-center text-center gap-0.5 sm:gap-1 pb-1 sm:pb-3 pointer-events-auto px-4"
         >
-          <div
-            ref={captionTitleRef}
-            className="overflow-hidden h-[26px] sm:h-[30px] flex items-center justify-center font-['Newsreader',serif] font-bold text-[19px] sm:text-[26px] leading-[1.1] text-[#141414]"
-          >
+          <div className="h-7 sm:h-8 flex items-center justify-center font-['Newsreader',serif] font-bold text-lg sm:text-2xl leading-tight text-[#141414]">
             <span>{activeBook ? activeBook.name : "IIST Manufacturing Technology"}</span>
           </div>
 
           <div
-            ref={captionSubRef}
-            className="overflow-hidden h-[15px] sm:h-[16px] flex items-center justify-center text-[9px] sm:text-[10px] font-bold tracking-[0.08em] sm:tracking-[0.1em] uppercase"
+            className="h-4 sm:h-5 flex items-center justify-center text-xs font-semibold tracking-wide"
             style={{ color: activeTheme.bg }}
           >
             <span>
               {activeBook
                 ? (activeBook.graduatedNote
-                    ? `${activeBook.roll} · ${activeBook.specialization.toUpperCase()} · ${activeBook.graduatedNote.toUpperCase()}`
-                    : `${activeBook.roll} · ${(activeBook.specialization || "").toUpperCase()}`)
-                : `${currentTab.label} · AEROSPACE MANUFACTURING SCHOLARS`}
+                    ? `${activeBook.roll} · ${activeBook.specialization} · ${activeBook.graduatedNote}`
+                    : `${activeBook.roll} · ${activeBook.specialization}`)
+                : `${currentTab.label} · Aerospace Manufacturing Scholars`}
             </span>
           </div>
 
-          <div
-            ref={captionYearRef}
-            className="overflow-hidden h-[14px] sm:h-[15px] flex items-center justify-center text-[9px] sm:text-[10.5px] font-medium tracking-wider text-[#6D6A63]"
-          >
+          <div className="h-4 sm:h-5 flex items-center justify-center text-xs font-mono text-[#6D6A63]">
             <span>
               {activeIdx !== null && activeBook
-                ? `${activeBook.cohort} · IIST AEROSPACE MANUFACTURING · PROFILE ${activeIdx + 1} OF ${M}`
-                : `SELECT ANY SCHOLAR BOOK TO OPEN DOSSIER · ${M} PROFILES ARCHIVED`}
+                ? `${activeBook.cohort} · Profile ${activeIdx + 1} of ${M} · Click to view full dossier`
+                : `Select any book to open dossier · ${M} profiles archived`}
             </span>
           </div>
         </div>
 
-        {/* ─── 5. Navigation Arrows (Shelf: Left/Right; Stack: Up/Down) ───── */}
+        {/* 5. Navigation Arrows */}
         {orientation === "horizontal" ? (
           <>
             <button
@@ -1413,15 +1274,15 @@ export function PeopleShelf() {
               disabled={activeIdx === 0}
               onClick={() => {
                 const nextIdx = activeIdx === null
-                  ? Math.max(0, Math.floor((M - 1) / 2))
+                  ? Math.max(0, Math.floor((M - 1) / 2) - 1)
                   : clamp(activeIdx - 1, 0, M - 1);
                 activeIdxRef.current = nextIdx;
                 setActiveIdx(nextIdx);
                 targetRef.current = nextIdx;
-                if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], -1);
+                wakeLoop();
               }}
-              className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 size-[34px] sm:size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
-              title="Previous Book (Arrow Left / Scroll Left)"
+              className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-30 size-9 sm:size-10 flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm rounded-xs"
+              title="Previous Book (Arrow Left)"
             >
               <ArrowLeft size={15} />
             </button>
@@ -1432,15 +1293,15 @@ export function PeopleShelf() {
               disabled={activeIdx === M - 1}
               onClick={() => {
                 const nextIdx = activeIdx === null
-                  ? Math.min(M - 1, Math.ceil((M - 1) / 2))
+                  ? Math.min(M - 1, Math.ceil((M - 1) / 2) + 1)
                   : clamp(activeIdx + 1, 0, M - 1);
                 activeIdxRef.current = nextIdx;
                 setActiveIdx(nextIdx);
                 targetRef.current = nextIdx;
-                if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], 1);
+                wakeLoop();
               }}
-              className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 size-[34px] sm:size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
-              title="Next Book (Arrow Right / Scroll Right)"
+              className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-30 size-9 sm:size-10 flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm rounded-xs"
+              title="Next Book (Arrow Right)"
             >
               <ArrowRight size={15} />
             </button>
@@ -1453,15 +1314,15 @@ export function PeopleShelf() {
               disabled={activeIdx === 0}
               onClick={() => {
                 const nextIdx = activeIdx === null
-                  ? Math.max(0, Math.floor((M - 1) / 2))
+                  ? Math.max(0, Math.floor((M - 1) / 2) - 1)
                   : clamp(activeIdx - 1, 0, M - 1);
                 activeIdxRef.current = nextIdx;
                 setActiveIdx(nextIdx);
                 targetRef.current = nextIdx;
-                if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], -1);
+                wakeLoop();
               }}
-              className="absolute right-2 sm:right-6 top-[40%] -translate-y-1/2 z-30 size-[34px] sm:size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
-              title="Previous Book in Stack (Arrow Up / Scroll Up)"
+              className="absolute right-2 sm:right-6 top-[38%] -translate-y-1/2 z-30 size-9 sm:size-10 flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm rounded-xs"
+              title="Previous Book (Arrow Up)"
             >
               <ArrowUp size={15} />
             </button>
@@ -1472,24 +1333,24 @@ export function PeopleShelf() {
               disabled={activeIdx === M - 1}
               onClick={() => {
                 const nextIdx = activeIdx === null
-                  ? Math.min(M - 1, Math.ceil((M - 1) / 2))
+                  ? Math.min(M - 1, Math.ceil((M - 1) / 2) + 1)
                   : clamp(activeIdx + 1, 0, M - 1);
                 activeIdxRef.current = nextIdx;
                 setActiveIdx(nextIdx);
                 targetRef.current = nextIdx;
-                if (cohortBooks[nextIdx]) swapCaption(cohortBooks[nextIdx], 1);
+                wakeLoop();
               }}
-              className="absolute right-2 sm:right-6 top-[60%] -translate-y-1/2 z-30 size-[34px] sm:size-[40px] flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
-              title="Next Book in Stack (Arrow Down / Scroll Down)"
+              className="absolute right-2 sm:right-6 top-[62%] -translate-y-1/2 z-30 size-9 sm:size-10 flex items-center justify-center border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm rounded-xs"
+              title="Next Book (Arrow Down)"
             >
               <ArrowDown size={15} />
             </button>
           </>
         )}
 
-        {/* ─── 6. Bottom Bar ──────────────────────────────────────────────── */}
-        <footer className="relative z-30 h-10 sm:h-[46px] px-3 sm:px-8 flex items-center justify-between border-t border-[rgba(20,20,20,0.1)] text-[8.5px] sm:text-[9.5px] font-semibold tracking-wider uppercase text-[#6D6A63]">
-          <span className="hidden xs:inline truncate">© IIST Aerospace Engineering</span>
+        {/* 6. Bottom Bar */}
+        <footer className="relative z-30 h-10 sm:h-[46px] px-3 sm:px-8 flex items-center justify-between border-t border-[rgba(20,20,20,0.1)] text-xs font-medium text-[#6D6A63]">
+          <span className="hidden xs:inline">© IIST Aerospace Engineering</span>
           <span className="xs:hidden">© IIST MT</span>
 
           <div className="flex items-center gap-3">
@@ -1501,8 +1362,9 @@ export function PeopleShelf() {
                     activeIdxRef.current = null;
                     setActiveIdx(null);
                     targetRef.current = Math.max(0, (M - 1) / 2);
+                    wakeLoop();
                   }}
-                  className="text-[#6D6A63] hover:text-[#141414] hover:underline underline-offset-4 font-semibold cursor-pointer"
+                  className="text-[#6D6A63] hover:text-[#141414] hover:underline underline-offset-4 cursor-pointer"
                 >
                   Close Preview
                 </button>
@@ -1516,282 +1378,233 @@ export function PeopleShelf() {
                 </button>
               </>
             ) : (
-              <span className="text-[#6D6A63]">Click any scholar book to inspect dossier</span>
+              <span>Click any book to inspect scholar dossier</span>
             )}
           </div>
         </footer>
       </div>
 
-      {/* ─── 7. Full Dossier Modal Sheet (Straight, Comprehensive) ─────────── */}
-      <div
-        ref={detailDialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={`${dossierBook.name} Dossier`}
-        className="fixed inset-0 z-[110] bg-[#F4F2ED] text-[#141414] overflow-y-auto invisible pt-16 pb-12 px-4 sm:px-8"
-      >
-        {/* Sticky Modal Top Bar: Mobile & Desktop friendly */}
-        <div className="fixed top-0 inset-x-0 h-14 bg-[#F4F2ED]/95 backdrop-blur-md border-b border-[rgba(20,20,20,0.12)] px-4 sm:px-8 flex items-center justify-between z-30">
-          <button
-            type="button"
-            onClick={closeDetail}
-            className="inline-flex items-center gap-1.5 h-[30px] px-3 border border-[rgba(20,20,20,0.85)] text-[10px] font-semibold tracking-wider uppercase bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors cursor-pointer shadow-sm"
-          >
-            <X size={13} aria-hidden />
-            <span>Close</span>
-          </button>
+      {/* 7. Comprehensive Scholar Dossier Modal (Pure React, 100% Safari/iOS/Android compatible) */}
+      {detailOpen && dossierBook && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${dossierBook.name} Dossier`}
+          className="fixed inset-0 z-[120] bg-[#F4F2ED] text-[#141414] overflow-y-auto animate-[fadeIn_0.2s_ease-out]"
+        >
+          {/* Modal Top Bar */}
+          <header className="sticky top-0 inset-x-0 h-14 bg-[#F4F2ED]/95 backdrop-blur-md border-b border-[rgba(20,20,20,0.12)] px-4 sm:px-8 flex items-center justify-between z-30 shadow-xs">
+            <button
+              type="button"
+              onClick={closeDetail}
+              className="inline-flex items-center gap-1.5 h-8 px-3 border border-[rgba(20,20,20,0.85)] text-xs font-semibold tracking-wide bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors cursor-pointer rounded-xs"
+            >
+              <X size={14} aria-hidden />
+              <span>Close Dossier</span>
+            </button>
 
-          <div className="flex flex-col items-center text-center">
-            <span className="font-['Newsreader',serif] font-bold text-sm sm:text-base text-[#143B82] leading-tight">
-              IIST Manufacturing Technology
-            </span>
-            <span className="text-[7.5px] sm:text-[8px] font-mono uppercase tracking-[0.18em] text-[#6D6A63]">
-              Scholar Dossier Record
-            </span>
-          </div>
-
-          <div className="w-[60px] sm:w-[70px]" />
-        </div>
-
-        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-[4vw] items-center min-h-[calc(100vh-150px)]">
-          <div className="flex flex-col justify-center max-w-[540px] gap-3.5">
-            <div className="detail-mask-line overflow-hidden">
-              <span
-                className="inline-block text-[11px] font-bold tracking-[0.14em] uppercase"
-                style={{ color: themeStyles[dossierBook.theme || "cobalt"].bg }}
-              >
-                {dossierBook.roll} · {dossierBook.cohort}
+            <div className="flex flex-col items-center text-center">
+              <span className="font-['Newsreader',serif] font-bold text-sm sm:text-base text-[#143B82] leading-tight">
+                IIST Manufacturing Technology
+              </span>
+              <span className="text-[10px] font-mono tracking-wide text-[#6D6A63]">
+                Scholar Archive Record
               </span>
             </div>
 
-            {/* FULL NAME & Portrait proudly displayed inside dossier */}
-            <div className="flex items-center gap-4 sm:gap-5">
-              {dossierBook.photoUrl ? (
-                <div className="w-20 sm:w-24 md:w-28 aspect-[3/4] rounded-xl overflow-hidden border border-[rgba(20,20,20,0.85)] shadow-md shrink-0 bg-white">
-                  <img
-                    src={dossierBook.photoUrl}
-                    alt={dossierBook.name}
-                    className="w-full h-full object-cover object-[center_20%] sm:object-top"
-                  />
+            <Link
+              href={`/people/${dossierBook.slug}`}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#143B82] hover:underline underline-offset-4"
+            >
+              <span className="hidden sm:inline">Full Profile Page</span>
+              <ExternalLink size={13} />
+            </Link>
+          </header>
+
+          {/* Modal Main Content */}
+          <div className="mx-auto max-w-6xl px-4 sm:px-8 py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 lg:gap-12 items-start">
+            {/* Left Column: Bio, Credentials & Actions */}
+            <div className="flex flex-col gap-5">
+              {/* Profile Header */}
+              <div className="flex items-start gap-4 sm:gap-5">
+                {dossierBook.photoUrl ? (
+                  <div className="w-24 sm:w-32 aspect-[3/4] rounded-xl overflow-hidden border border-[rgba(20,20,20,0.85)] shadow-md shrink-0 bg-white">
+                    <img
+                      src={dossierBook.photoUrl}
+                      alt={dossierBook.name}
+                      className="w-full h-full object-cover object-[center_20%] sm:object-top"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="w-24 sm:w-32 aspect-[3/4] rounded-xl border border-[rgba(20,20,20,0.85)] shadow-md shrink-0 flex items-center justify-center font-bold text-white text-2xl select-none"
+                    style={{ background: themeStyles[dossierBook.theme || "cobalt"].bg }}
+                  >
+                    {dossierBook.shortName.slice(0, 2)}
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-1 min-w-0">
+                  <span
+                    className="inline-block text-xs font-semibold font-mono tracking-wider"
+                    style={{ color: themeStyles[dossierBook.theme || "cobalt"].bg }}
+                  >
+                    {dossierBook.roll} · {dossierBook.cohort}
+                  </span>
+                  <h1 className="font-['Newsreader',serif] font-bold text-2xl sm:text-4xl text-[#141414] leading-tight">
+                    {dossierBook.name}
+                  </h1>
+                  <span className="text-xs sm:text-sm font-medium text-[#6D6A63]">
+                    {dossierBook.role} · {dossierBook.specialization}
+                  </span>
+
+                  {dossierBook.placedAt && (
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-semibold w-fit">
+                      <span>🚀 Career Destination:</span>
+                      <span className="font-bold">{dossierBook.placedAt}</span>
+                      {dossierBook.placedRole && <span className="opacity-80 font-normal">({dossierBook.placedRole})</span>}
+                    </div>
+                  )}
+
+                  {dossierBook.graduatedNote && (
+                    <div className="mt-1 text-xs text-[#143B82] font-mono font-semibold">
+                      🎓 {dossierBook.graduatedNote}
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div
-                  className="w-20 sm:w-24 md:w-28 aspect-[3/4] rounded-xl border border-[rgba(20,20,20,0.85)] shadow-md shrink-0 flex items-center justify-center font-bold text-white text-xl sm:text-2xl select-none"
-                  style={{ background: themeStyles[dossierBook.theme || "cobalt"].bg }}
-                >
-                  {dossierBook.shortName.slice(0, 2).toUpperCase()}
+              </div>
+
+              {/* Scholar Bio Synopsis */}
+              <div className="border-t border-[rgba(20,20,20,0.1)] pt-4">
+                <h3 className="text-xs font-semibold text-[#6D6A63] font-mono tracking-wider mb-2">
+                  Scholar Synopsis & Research Focus
+                </h3>
+                <p className="font-['Newsreader',serif] text-base leading-relaxed text-[#202020] text-justify">
+                  {dossierBook.synopsis}
+                </p>
+              </div>
+
+              {/* Research Specializations */}
+              {dossierBook.researchInterests && dossierBook.researchInterests.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-semibold text-[#6D6A63] font-mono tracking-wider mb-2">
+                    Research Specializations
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {dossierBook.researchInterests.map((ri) => (
+                      <span
+                        key={ri}
+                        className="px-2.5 py-1 rounded-xs bg-[#143B82]/10 border border-[#143B82]/30 text-[#143B82] font-medium text-xs"
+                      >
+                        {ri}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
-              <div className="detail-mask-line overflow-hidden min-w-0">
-                <h1 className="font-['Newsreader',serif] font-bold text-2xl sm:text-4xl lg:text-5xl leading-[1.05] tracking-tight text-[#141414]">
-                  {dossierBook.name}
-                </h1>
-                <span className="block text-[11px] sm:text-[12px] font-semibold tracking-wider uppercase text-[#6D6A63] mt-1">
-                  {dossierBook.role} · {dossierBook.specialization}
-                </span>
-              </div>
-            </div>
 
-            {dossierBook.graduatedNote && (
-              <div className="detail-mask-line overflow-hidden">
-                <div className="inline-block px-3 py-1.5 rounded-sm border border-[rgba(20,20,20,0.6)] bg-white/70 font-mono text-[11px] text-[#143B82] font-bold">
-                  🎓 {dossierBook.graduatedNote}
-                </div>
-              </div>
-            )}
-
-            {dossierBook.placedAt && (
-              <div className="detail-mask-line overflow-hidden">
-                <div className="inline-block px-3 py-1 rounded-sm border border-[rgba(20,20,20,0.4)] bg-emerald-50 text-emerald-900 font-mono text-[10.5px] font-semibold">
-                  🚀 Placement / Destination: <span className="font-bold">{dossierBook.placedAt}</span> {dossierBook.placedRole ? `(${dossierBook.placedRole})` : ""}
-                </div>
-              </div>
-            )}
-
-            <div className="detail-mask-line overflow-hidden">
-              <p className="font-['Newsreader',serif] text-sm sm:text-base leading-[1.65] text-[#141414] max-w-[50ch] text-justify">
-                {dossierBook.synopsis}
-              </p>
-            </div>
-
-            {/* Research Focus & Interests */}
-            {dossierBook.researchInterests && dossierBook.researchInterests.length > 0 && (
-              <div className="detail-mask-line overflow-hidden pt-1">
-                <span className="text-[9.5px] font-mono uppercase tracking-wider text-[#6D6A63] block mb-1 font-bold">
-                  Research Specialization
-                </span>
+              {/* Skills */}
+              <div>
+                <h3 className="text-xs font-semibold text-[#6D6A63] font-mono tracking-wider mb-2">
+                  Core Competencies & Tools
+                </h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {dossierBook.researchInterests.slice(0, 4).map((ri) => (
+                  {dossierBook.skills?.map((skill) => (
                     <span
-                      key={ri}
-                      className="px-2 py-0.5 rounded-xs bg-[#143B82]/10 border border-[#143B82]/30 text-[#143B82] font-semibold text-[10px]"
+                      key={skill}
+                      className="border border-[rgba(20,20,20,0.4)] px-2.5 py-1 text-xs font-medium bg-white/70 rounded-xs"
                     >
-                      {ri}
+                      {skill}
                     </span>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Core Competencies & Skills */}
-            <div className="detail-mask-line overflow-hidden">
-              <div className="inline-flex flex-wrap gap-1.5 pt-1">
-                {dossierBook.skills?.slice(0, 6).map((skill) => (
-                  <span
-                    key={skill}
-                    className="border border-[rgba(20,20,20,0.65)] px-2 py-0.5 text-[9.5px] font-semibold tracking-wider uppercase bg-white/60"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Key Projects & Publications */}
-            {dossierBook.projectDetails && dossierBook.projectDetails.length > 0 && (
-              <div className="detail-mask-line overflow-hidden pt-1">
-                <span className="text-[9.5px] font-mono uppercase tracking-wider text-[#6D6A63] block mb-1 font-bold">
-                  Key Projects & Research
-                </span>
-                <div className="flex flex-col gap-1.5 max-w-[520px]">
-                  {dossierBook.projectDetails.slice(0, 2).map((proj) => (
-                    <div key={proj.title} className="p-2 rounded-xs border border-[rgba(20,20,20,0.2)] bg-white/60">
-                      <span className="font-['Newsreader',serif] font-bold text-[12px] text-[#141414] block leading-tight">
-                        {proj.title}
-                      </span>
-                      <span className="text-[10.5px] text-[#6D6A63] line-clamp-2 block mt-0.5">
-                        {proj.summary}
-                      </span>
-                    </div>
-                  ))}
+              {/* Applied Engineering Projects */}
+              {dossierBook.projectDetails && dossierBook.projectDetails.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-semibold text-[#6D6A63] font-mono tracking-wider mb-2">
+                    Key Thesis & Lab Projects
+                  </h3>
+                  <div className="flex flex-col gap-2">
+                    {dossierBook.projectDetails.map((proj) => (
+                      <div key={proj.title} className="p-3 rounded border border-[rgba(20,20,20,0.15)] bg-white/60">
+                        <span className="font-['Newsreader',serif] font-bold text-sm text-[#141414] block">
+                          {proj.title}
+                        </span>
+                        <p className="text-xs text-[#505050] mt-1 leading-relaxed">
+                          {proj.summary}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Profile Sections: Honors, Fellowships, Credentials */}
-            {dossierBook.profileSections && dossierBook.profileSections.length > 0 && (
-              <div className="detail-mask-line overflow-hidden pt-1">
-                <div className="flex flex-col gap-1.5 max-w-[520px]">
-                  {dossierBook.profileSections.slice(0, 2).map((sec) => (
-                    <div key={sec.title} className="p-2 rounded-xs border border-[rgba(20,20,20,0.2)] bg-white/50">
-                      <span className="text-[9px] font-mono uppercase tracking-wider text-[#143B82] font-bold block">
-                        {sec.title}
-                      </span>
-                      <p className="text-[10.5px] text-[#141414] leading-relaxed line-clamp-3 mt-0.5">
-                        {sec.body}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="detail-mask-line overflow-hidden pt-3">
-              <div className="inline-flex flex-wrap items-center gap-3">
+              {/* Action Buttons */}
+              <div className="border-t border-[rgba(20,20,20,0.1)] pt-5 flex flex-wrap gap-3">
                 <Link
                   href={`/people/${dossierBook.slug}`}
-                  className="inline-flex items-center gap-2 h-[40px] px-5 text-white text-[10px] font-bold tracking-[0.12em] uppercase hover:brightness-110 transition-all cursor-pointer shadow-md"
+                  className="inline-flex items-center gap-2 h-10 px-5 text-white text-xs font-bold tracking-wide rounded-xs shadow-sm hover:brightness-110 transition-all cursor-pointer"
                   style={{ background: themeStyles[dossierBook.theme || "cobalt"].bg }}
                 >
                   <span>Full Profile Page</span>
-                  <ArrowRight size={14} aria-hidden />
+                  <ArrowRight size={14} />
                 </Link>
 
                 <a
                   href={`mailto:${dossierBook.officialEmail}`}
-                  className="inline-flex items-center gap-2 h-[40px] px-4 border border-[rgba(20,20,20,0.85)] bg-transparent text-[#141414] text-[10px] font-semibold tracking-[0.1em] uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 h-10 px-4 border border-[rgba(20,20,20,0.85)] bg-white text-[#141414] text-xs font-medium hover:bg-[#141414] hover:text-[#EDEBE6] transition-all rounded-xs cursor-pointer"
                 >
-                  <Mail size={14} aria-hidden />
-                  <span>Contact Scholar / Faculty</span>
+                  <Mail size={14} />
+                  <span>Contact Email</span>
                 </a>
 
                 {dossierBook.resumeUrl && (
                   <a
-                    href={dossierBook.resumeUrl}
+                    href={formatResumeUrl(dossierBook.resumeUrl)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 h-[40px] px-4 border border-[rgba(20,20,20,0.85)] bg-white text-[#143B82] text-[10px] font-bold tracking-[0.1em] uppercase hover:bg-[#141414] hover:text-[#EDEBE6] transition-all cursor-pointer shadow-xs"
+                    className="inline-flex items-center gap-2 h-10 px-4 border border-[rgba(20,20,20,0.85)] bg-white text-[#143B82] text-xs font-semibold hover:bg-[#141414] hover:text-[#EDEBE6] transition-all rounded-xs cursor-pointer shadow-xs"
                   >
-                    <FileText size={14} aria-hidden />
+                    <FileText size={14} />
                     <span>Resume (PDF)</span>
                   </a>
                 )}
               </div>
             </div>
-          </div>
 
-          {/* Right Vector Illustration Cover Sheet with SVG Ink Bleed */}
-          <div className="flex items-center justify-center w-full">
-            <div className="relative w-full max-w-[420px] aspect-[474/900] max-h-[76vh] border border-[rgba(20,20,20,0.8)] shadow-2xl bg-[#EDEBE6] overflow-hidden rounded-[2px]">
-              <svg viewBox="0 0 474 900" className="w-full h-full" aria-hidden="true">
-                <defs>
-                  <filter id="ink-bleed-filter" x="-20%" y="-20%" width="140%" height="140%">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="3" seed="7" result="noise" />
-                    <feDisplacementMap in="SourceGraphic" in2="noise" scale="120" xChannelSelector="R" yChannelSelector="G" />
-                  </filter>
+            {/* Right Column: Archival Technical Blueprint Schematic Card */}
+            <div className="flex flex-col items-center justify-center p-6 border border-[rgba(20,20,20,0.2)] bg-[#EDEBE6] rounded-xl shadow-inner">
+              <div className="w-full max-w-[340px] aspect-[280/340] border border-[rgba(20,20,20,0.3)] bg-white p-4 shadow-md rounded-xs flex flex-col justify-between">
+                <div className="flex items-center justify-between border-b border-[rgba(20,20,20,0.15)] pb-1.5 font-mono text-[9px] text-[#6D6A63]">
+                  <span>IIST ARCHIVES · MT</span>
+                  <span>{dossierBook.roll}</span>
+                </div>
 
-                  <mask id="ink-mask" maskUnits="userSpaceOnUse" x="-200" y="-200" width="874" height="1300">
-                    <rect x="-200" y="-200" width="874" height="1300" fill="black" />
-                    <g filter="url(#ink-bleed-filter)">
-                      <circle ref={(el) => { inkBlobsRef.current[0] = el; }} cx="150" cy="330" r="0" fill="white" />
-                      <circle ref={(el) => { inkBlobsRef.current[1] = el; }} cx="340" cy="600" r="0" fill="white" />
-                      <circle ref={(el) => { inkBlobsRef.current[2] = el; }} cx="250" cy="120" r="0" fill="white" />
-                      <circle ref={(el) => { inkBlobsRef.current[3] = el; }} cx="90" cy="760" r="0" fill="white" />
-                      <circle ref={(el) => { inkBlobsRef.current[4] = el; }} cx="400" cy="250" r="0" fill="white" />
-                      <circle ref={(el) => { inkBlobsRef.current[5] = el; }} cx="260" cy="860" r="0" fill="white" />
-                      <circle ref={(el) => { inkBlobsRef.current[6] = el; }} cx="230" cy="470" r="0" fill="white" />
-                    </g>
-                  </mask>
-                </defs>
+                <div className="my-auto flex items-center justify-center py-2">
+                  <TechnicalScreenprint
+                    diagram={dossierBook.diagram}
+                    color={themeStyles[dossierBook.theme || "cobalt"].illustrationColor}
+                    className="w-full h-auto max-h-[220px]"
+                  />
+                </div>
 
-                <g mask="url(#ink-mask)">
-                  <rect width="474" height="900" fill={themeStyles[dossierBook.theme || "cobalt"].coverBg} />
+                <div className="border-t border-[rgba(20,20,20,0.15)] pt-1.5 flex items-center justify-between font-mono text-[9px] text-[#6D6A63]">
+                  <span>{dossierBook.specialization.slice(0, 22)}</span>
+                  <span className="font-bold" style={{ color: themeStyles[dossierBook.theme || "cobalt"].bg }}>
+                    ARCHIVE RECORD
+                  </span>
+                </div>
+              </div>
 
-                  <g stroke={themeStyles[dossierBook.theme || "cobalt"].illustrationColor} strokeWidth="0.4" opacity="0.25">
-                    {Array.from({ length: 18 }).map((_, i) => (
-                      <line key={`h-${i}`} x1="0" y1={i * 50} x2="474" y2={i * 50} />
-                    ))}
-                    {Array.from({ length: 10 }).map((_, i) => (
-                      <line key={`v-${i}`} x1={i * 50} y1="0" x2={i * 50} y2="900" />
-                    ))}
-                  </g>
-
-                  <text x="35" y="60" fontFamily="'Inter Tight', sans-serif" fontSize="10.5" fontWeight="700" letterSpacing="2.5" fill={themeStyles[dossierBook.theme || "cobalt"].bg}>
-                    AEROSPACE ARCHIVES · IIST VALIAMALA
-                  </text>
-                  <text x="35" y="85" fontFamily="'Newsreader', serif" fontSize="30" fontWeight="700" fill="#141414">
-                    {dossierBook.name}
-                  </text>
-                  <text x="35" y="106" fontFamily="monospace" fontSize="10.5" fill="#6D6A63">
-                    {dossierBook.roll} · {dossierBook.cohort}
-                  </text>
-
-                  <g transform="translate(47, 180) scale(1.35)">
-                    <TechnicalScreenprint diagram={dossierBook.diagram} color={themeStyles[dossierBook.theme || "cobalt"].illustrationColor} />
-                  </g>
-
-                  <g transform="translate(35, 680)">
-                    <rect width="404" height="150" fill={themeStyles[dossierBook.theme || "cobalt"].bg} fillOpacity="0.08" stroke={themeStyles[dossierBook.theme || "cobalt"].bg} strokeWidth="1" />
-                    <text x="18" y="30" fontFamily="'Inter Tight', sans-serif" fontSize="9.5" fontWeight="700" letterSpacing="1.5" fill={themeStyles[dossierBook.theme || "cobalt"].bg}>
-                      SPECIALIZATION & CORE COMPETENCIES
-                    </text>
-                    <text x="18" y="55" fontFamily="'Newsreader', serif" fontSize="16" fontWeight="600" fill="#141414">
-                      {dossierBook.specialization}
-                    </text>
-                    <line x1="18" y1="75" x2="386" y2="75" stroke="#141414" strokeWidth="0.5" strokeDasharray="3 3" opacity="0.4" />
-                    <text x="18" y="100" fontFamily="monospace" fontSize="9.5" fill="#6D6A63">
-                      STATUS :: {dossierBook.placedAt ? `Destination: ${dossierBook.placedAt}` : "Active Research Scholar"}
-                    </text>
-                    <text x="18" y="122" fontFamily="monospace" fontSize="9.5" fontWeight="bold" fill={themeStyles[dossierBook.theme || "cobalt"].bg}>
-                      {dossierBook.graduatedNote || "VERIFIED ACADEMIC DOSSIER RECORD"}
-                    </text>
-                  </g>
-                </g>
-              </svg>
+              <span className="mt-3 text-[11px] font-mono text-[#6D6A63] text-center">
+                Aerospace Engineering Archival Dossier · Indian Institute of Space Science and Technology
+              </span>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

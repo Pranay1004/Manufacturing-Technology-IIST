@@ -1,19 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Briefcase, GraduationCap, Mail, MapPin, Star, Users } from "lucide-react";
+import { ArrowRight, Briefcase, Download, ExternalLink, GraduationCap, Mail, MapPin, Share2, Star, Users } from "lucide-react";
 import { PageFrame } from "@/components/site-shell";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { MetalButton } from "@/components/ui/MetalButton";
-import { people } from "@/lib/data";
+import { people, formatResumeUrl } from "@/lib/data";
 
 // Domain groups for roles/skills
 const domainSkills = [
   {
     domain: "Additive Manufacturing",
     color: "arc-blue",
-    roles: ["Metal AM Engineer", "Process Engineer", "AM Design Engineer", "DMLS Operator"],
+    roles: ["Metal AM Engineer", "Process Engineer", "AM Design Engineer", "DMLS Specialist"],
   },
   {
     domain: "Composites & Materials",
@@ -61,14 +61,14 @@ const colorMap: Record<string, { badge: string; label: string; tag: string }> = 
 };
 
 export default function PlacementsPage() {
-  const outgoingBatch = people.filter((p) => p.cohort === "2024-2026");
-  const currentBatch = people.filter((p) => p.cohort === "2025-2027");
+  const outgoingBatch2025 = people.filter((p) => p.cohort === "2025-2027");
+  const graduatedBatch2024 = people.filter((p) => p.cohort === "2024-2026");
 
   const stats = [
-    { value: "85.7%", label: "Placement Rate (2024-26)", icon: Star },
-    { value: String(outgoingBatch.length), label: "Outgoing Scholars", icon: GraduationCap },
-    { value: String(currentBatch.length), label: "Intern-ready Scholars", icon: Users },
-    { value: "20+", label: "Roles Matched", icon: Briefcase },
+    { value: String(outgoingBatch2025.length), label: "Outgoing Scholars (2025–2027)", icon: Users },
+    { value: "85.7%", label: "Placement Rate (2024–2026 Class)", icon: Star },
+    { value: String(graduatedBatch2024.length), label: "Graduated Alumni", icon: GraduationCap },
+    { value: "20+", label: "Target Roles Matched", icon: Briefcase },
   ];
 
   return (
@@ -80,13 +80,17 @@ export default function PlacementsPage() {
           <div className="absolute inset-0 surface-grid pointer-events-none opacity-50" />
           <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
             <ScrollReveal>
+              <SectionLabel color="blue" className="mb-3">
+                Campus Recruitment & Placements
+              </SectionLabel>
               <h1 className="mt-2 max-w-4xl font-display text-4xl font-bold leading-tight text-[var(--ceramic)] sm:text-5xl lg:text-6xl">
                 Hire manufacturing engineers{" "}
-                <span className="gradient-shimmer">FORGED in all domains.</span>
+                <span className="gradient-shimmer">forged across all domains.</span>
               </h1>
               <p className="mt-6 max-w-3xl text-base leading-7 text-[var(--ceramic-muted)] sm:text-lg text-justify">
-                Our M.Tech students are engineered for precision and forged across aerospace, automobile,
+                Our outgoing M.Tech scholars are engineered for precision and forged across aerospace, automobile,
                 machinery, industrial systems, operations, biomedical engineering, CAD/CAM, and advanced manufacturing.
+                Currently completing advanced thesis work and actively seeking full-time engineering and R&D roles.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <MetalButton href="mailto:sooraj@iist.ac.in" variant="primary">
@@ -94,7 +98,7 @@ export default function PlacementsPage() {
                   <ArrowRight size={16} />
                 </MetalButton>
                 <MetalButton href="/people" variant="secondary">
-                  Browse All Profiles
+                  Browse Scholar Archive
                 </MetalButton>
               </div>
             </ScrollReveal>
@@ -108,20 +112,165 @@ export default function PlacementsPage() {
               <div key={label} className="flex flex-col items-center py-8 text-center gap-2">
                 <Icon size={20} className="text-[var(--arc-blue)]" aria-hidden />
                 <p className="font-display text-4xl font-bold text-[var(--ceramic)]">{value}</p>
-                <p className="font-data text-[10px] uppercase tracking-[0.18em] text-[var(--ceramic-muted)]">{label}</p>
+                <p className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">{label}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ─── PLACEMENT POSTER SHOWCASE (2024–2026) ─── */}
+        {/* ─── PRIMARY SHOWCASE: OUTGOING CLASS (2025–2027) ─── */}
+        <section className="border-b border-[var(--edge)] bg-[var(--void)]">
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
+            <ScrollReveal>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-10">
+                <div>
+                  <SectionLabel color="blue" className="mb-2">Class of 2025–2027 · Outgoing Scholars</SectionLabel>
+                  <h2 className="font-display text-3xl font-bold text-[var(--ceramic)]">
+                    Available for full-time engineering roles
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--ceramic-muted)]">
+                    Outgoing M.Tech scholars specializing in wire-arc additive manufacturing, titanium forming, orthotropic composites, quality assurance, 5-axis machining, and process optimization.
+                  </p>
+                </div>
+                <MetalButton href="/people" variant="ghost">
+                  View in 3D shelf <ArrowRight size={14} />
+                </MetalButton>
+              </div>
+            </ScrollReveal>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {outgoingBatch2025.map((person) => {
+                const formattedResume = formatResumeUrl(person.resumeUrl);
+                return (
+                  <ScrollReveal key={person.slug} variant="up">
+                    <div className="group flex flex-col justify-between rounded-xl border border-[var(--edge)] bg-[var(--void-deep)] p-5 transition-all duration-200 hover:border-[var(--arc-blue)] hover:shadow-[var(--shadow-glow-blue)] hover:-translate-y-0.5 h-full">
+                      <div>
+                        {/* Portrait Photo / Avatar Header */}
+                        <div className="flex items-center gap-3.5 mb-4">
+                          {person.photoUrl ? (
+                            <div className="size-14 rounded-xl overflow-hidden border border-[var(--edge)] bg-white shrink-0 shadow-xs">
+                              <img
+                                src={person.photoUrl}
+                                alt={person.name}
+                                className="w-full h-full object-cover object-[center_20%] sm:object-top"
+                              />
+                            </div>
+                          ) : (
+                            <div className="grid size-14 place-items-center rounded-xl bg-[var(--arc-blue-dim)] border border-[var(--arc-blue)]/20 font-display text-lg font-bold text-[var(--arc-blue)] shrink-0">
+                              {person.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
+                            </div>
+                          )}
+
+                          <div className="min-w-0">
+                            <Link
+                              href={`/people/${person.slug}`}
+                              className="font-display text-base font-semibold text-[var(--ceramic)] group-hover:text-[var(--arc-blue)] transition-colors block truncate"
+                            >
+                              {person.name}
+                            </Link>
+                            <span className="font-data text-xs text-[var(--arc-blue)] block truncate mt-0.5">
+                              {person.role}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Specialization & Research Focus */}
+                        <div className="mb-3">
+                          <span className="font-data text-[11px] font-semibold tracking-wide text-[var(--forge-amber)] block">
+                            {person.specialization}
+                          </span>
+                          <p className="mt-1 text-xs text-[var(--ceramic-muted)] line-clamp-2 leading-relaxed">
+                            {person.synopsis}
+                          </p>
+                        </div>
+
+                        {/* Seeking Roles */}
+                        {person.seekingRoles && person.seekingRoles.length > 0 && (
+                          <div className="mb-3">
+                            <span className="font-data text-[10px] font-semibold text-[var(--ceramic-muted)] block mb-1">
+                              Seeking Roles:
+                            </span>
+                            <div className="flex flex-wrap gap-1">
+                              {person.seekingRoles.slice(0, 2).map((role) => (
+                                <span
+                                  key={role}
+                                  className="rounded bg-[var(--arc-blue-dim)] border border-[var(--arc-blue)]/20 px-2 py-0.5 text-[10.5px] font-medium text-[var(--arc-blue)]"
+                                >
+                                  {role}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Core Skills Tags */}
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                          {person.skills.slice(0, 3).map((skill) => (
+                            <span
+                              key={skill}
+                              className="rounded-md border border-[var(--edge)] bg-[var(--panel)] px-2 py-0.5 text-[10.5px] text-[var(--ceramic-muted)]"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Card Footer: Status & Links */}
+                      <div className="pt-3 border-t border-[var(--edge)] flex items-center justify-between gap-2">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400">
+                          <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Open to roles
+                        </span>
+
+                        <div className="flex items-center gap-1.5">
+                          {person.linkedin && (
+                            <a
+                              href={person.linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="size-7 rounded-md border border-[var(--edge)] bg-[var(--panel)] flex items-center justify-center text-[var(--ceramic-muted)] hover:text-[var(--arc-blue)] hover:border-[var(--arc-blue)] transition-colors"
+                              title="LinkedIn Profile"
+                            >
+                              <Share2 size={12} />
+                            </a>
+                          )}
+                          {formattedResume && (
+                            <a
+                              href={formattedResume}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="size-7 rounded-md border border-[var(--edge)] bg-[var(--panel)] flex items-center justify-center text-[var(--ceramic-muted)] hover:text-[var(--forge-amber)] hover:border-[var(--forge-amber)] transition-colors"
+                              title="Download Resume (PDF)"
+                            >
+                              <Download size={12} />
+                            </a>
+                          )}
+                          <Link
+                            href={`/people/${person.slug}`}
+                            className="size-7 rounded-md border border-[var(--arc-blue)]/30 bg-[var(--arc-blue-dim)] flex items-center justify-center text-[var(--arc-blue)] hover:bg-[var(--arc-blue)] hover:text-white transition-colors"
+                            title="Full Profile Dossier"
+                          >
+                            <ExternalLink size={12} />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ─── GRADUATED ALUMNI BATCH (2024–2026) ─── */}
         <section className="border-b border-[var(--edge)] bg-[var(--void-deep)]">
           <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
             <ScrollReveal>
               <div className="flex flex-col gap-2 mb-8">
-                <SectionLabel color="amber" className="mb-2">Official Placement Announcement</SectionLabel>
+                <SectionLabel color="amber" className="mb-2">Graduated Alumni · Class of 2024–2026</SectionLabel>
                 <h2 className="font-display text-3xl font-bold text-[var(--ceramic)]">
-                  M.Tech Manufacturing Technology — Class of 2024–2026
+                  Placement track record & career destinations
                 </h2>
                 <p className="max-w-2xl text-sm leading-6 text-[var(--ceramic-muted)]">
                   85.7% placement achievement across leading aerospace, defense, precision engineering firms, and prestigious doctoral research offers.
@@ -129,64 +278,42 @@ export default function PlacementsPage() {
               </div>
             </ScrollReveal>
 
+            {/* Placement Poster */}
             <ScrollReveal variant="up">
-              <div className="overflow-hidden rounded-2xl border border-[var(--edge)] bg-black/40 shadow-2xl transition-all hover:border-[var(--forge-amber)]/40">
+              <div className="overflow-hidden rounded-2xl border border-[var(--edge)] bg-black/40 shadow-2xl transition-all hover:border-[var(--forge-amber)]/40 mb-10">
                 <Image
                   src="/media/photos/placed-2024-2026.jpeg"
                   alt="M.Tech Manufacturing Technology 2024-2026 Placements Announcement Poster"
                   width={1200}
                   height={850}
                   className="w-full h-auto object-contain max-h-[850px] mx-auto"
-                  priority
                 />
               </div>
             </ScrollReveal>
-          </div>
-        </section>
 
-        {/* ─── OUTGOING BATCH ─── */}
-        <section className="border-b border-[var(--edge)]">
-          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
-            <ScrollReveal>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-10">
-                <div>
-                  <SectionLabel color="amber" className="mb-2">Class of 2024–2026</SectionLabel>
-                  <h2 className="font-display text-3xl font-bold text-[var(--ceramic)]">
-                    Outgoing batch — Career Destinations
-                  </h2>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--ceramic-muted)]">
-                    Scholars completing their M.Tech thesis work with placement offers and higher studies destinations.
-                  </p>
-                </div>
-                <MetalButton href="/people" variant="ghost">
-                  View full profiles <ArrowRight size={14} />
-                </MetalButton>
-              </div>
-            </ScrollReveal>
-
+            {/* Graduated Alumni Cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {outgoingBatch.map((person) => (
+              {graduatedBatch2024.map((person) => (
                 <ScrollReveal key={person.slug} variant="up">
                   <Link
                     href={`/people/${person.slug}`}
-                    className="group block rounded-xl border border-[var(--edge)] bg-[var(--void-deep)] p-5 transition-all duration-200 hover:border-[var(--forge-amber)] hover:shadow-[var(--shadow-glow-amber)] hover:-translate-y-0.5"
+                    className="group block rounded-xl border border-[var(--edge)] bg-[var(--panel)] p-5 transition-all duration-200 hover:border-[var(--forge-amber)] hover:shadow-[var(--shadow-glow-amber)] hover:-translate-y-0.5"
                   >
-                    {/* Avatar placeholder */}
-                    <div className="mb-4 grid size-12 place-items-center rounded-xl bg-[var(--forge-amber-dim)] border border-[var(--forge-amber)]/15 font-display text-lg font-bold text-[var(--forge-amber)]">
+                    <div className="mb-3 grid size-10 place-items-center rounded-lg bg-[var(--forge-amber-dim)] border border-[var(--forge-amber)]/15 font-display text-base font-bold text-[var(--forge-amber)]">
                       {person.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
                     </div>
 
                     <p className="font-display text-base font-semibold text-[var(--ceramic)] group-hover:text-[var(--forge-amber)] transition-colors">
                       {person.name}
                     </p>
-                    <p className="mt-0.5 font-data text-[10px] uppercase tracking-wider text-[var(--forge-amber)]">
+                    <p className="mt-0.5 font-data text-xs text-[var(--forge-amber)]">
                       {person.specialization}
                     </p>
 
                     {person.placedAt && (
                       <div className="mt-3 rounded-lg border border-[var(--forge-amber)]/25 bg-[var(--forge-amber-dim)]/40 p-2.5">
-                        <p className="font-data text-[9px] uppercase tracking-widest text-[var(--forge-amber)] font-bold">
-                          Destination
+                        <p className="font-data text-[10px] text-[var(--forge-amber)] font-bold">
+                          Career Destination
                         </p>
                         <p className="text-xs font-semibold text-[var(--ceramic)] mt-0.5">
                           {person.placedAt}
@@ -199,76 +326,10 @@ export default function PlacementsPage() {
                       </div>
                     )}
 
-                    {person.internship && (
-                      <div className="mt-2.5">
-                        <p className="font-data text-[9px] uppercase tracking-widest text-[var(--ceramic-muted)]">
-                          Thesis / Project
-                        </p>
-                        <p className="text-[11px] leading-relaxed text-[var(--ceramic-muted)] line-clamp-2 mt-0.5">
-                          {person.internship}
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      <span className="rounded-full border border-[var(--forge-amber)]/20 bg-[var(--forge-amber-dim)] px-2 py-0.5 text-[10px] font-medium text-[var(--forge-amber)]">
-                        {person.placedAt ? "Placed" : "Open to roles"}
-                      </span>
-                      {person.linkedin && (
-                        <span className="rounded-full border border-[var(--edge)] px-2 py-0.5 text-[10px] text-[var(--ceramic-muted)]">
-                          LinkedIn ↗
-                        </span>
-                      )}
-                    </div>
-                  </Link>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ─── CURRENT BATCH (INTERNS) ─── */}
-        <section className="border-b border-[var(--edge)] bg-[var(--void-deep)] surface-grid">
-          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
-            <ScrollReveal>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-10">
-                <div>
-                  <SectionLabel color="blue" className="mb-2">Class of 2025–2027</SectionLabel>
-                  <h2 className="font-display text-3xl font-bold text-[var(--ceramic)]">
-                    Current batch — open for internships
-                  </h2>
-                  <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--ceramic-muted)]">
-                    These scholars are in their second semester, available for industry internships,
-                    summer projects, and thesis collaborations starting mid-2026.
-                  </p>
-                </div>
-                <MetalButton href="/people" variant="ghost">
-                  View full profiles <ArrowRight size={14} />
-                </MetalButton>
-              </div>
-            </ScrollReveal>
-
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {currentBatch.map((person) => (
-                <ScrollReveal key={person.slug} variant="up">
-                  <Link
-                    href={`/people/${person.slug}`}
-                    className="group block rounded-xl border border-[var(--edge)] bg-white p-5 transition-all duration-200 hover:border-[var(--arc-blue)] hover:shadow-[var(--shadow-glow-blue)] hover:-translate-y-0.5"
-                  >
-                    <div className="mb-4 grid size-12 place-items-center rounded-xl bg-[var(--arc-blue-dim)] border border-[var(--arc-blue)]/15 font-display text-lg font-bold text-[var(--arc-blue)]">
-                      {person.name.split(" ").map(n => n[0]).slice(0, 2).join("")}
-                    </div>
-
-                    <p className="font-display text-base font-semibold text-[var(--ceramic)] group-hover:text-[var(--arc-blue)] transition-colors">
-                      {person.name}
-                    </p>
-                    <p className="mt-0.5 font-data text-[10px] uppercase tracking-wider text-[var(--arc-blue)]">
-                      {person.specialization}
-                    </p>
-
-                    <div className="mt-3">
-                      <span className="rounded-full border border-[var(--arc-blue)]/20 bg-[var(--arc-blue-dim)] px-2 py-0.5 text-[10px] font-medium text-[var(--arc-blue)]">
-                        Open to internships
+                    <div className="mt-3 flex items-center justify-between text-xs text-[var(--ceramic-muted)]">
+                      <span>Graduated May 2026</span>
+                      <span className="text-[var(--forge-amber)] group-hover:translate-x-0.5 transition-transform">
+                        Dossier →
                       </span>
                     </div>
                   </Link>
@@ -297,7 +358,7 @@ export default function PlacementsPage() {
                 return (
                   <ScrollReveal key={domain.domain} variant="up">
                     <GlassCard className="h-full">
-                      <div className={`mb-4 inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-semibold uppercase tracking-wider ${colors.badge}`}>
+                      <div className={`mb-4 inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-semibold ${colors.badge}`}>
                         {domain.domain}
                       </div>
                       <div className="flex flex-wrap gap-2 mt-3">
@@ -331,7 +392,7 @@ export default function PlacementsPage() {
                   <p>
                     The M.Tech Manufacturing Technology program at the Indian Institute of Space
                     Science & Technology (IIST) is a 2-year postgraduate program embedded in the
-                    Aerospace Engineering department, focusing on multi-disciplinary engineering excellence.
+                    Department of Aerospace Engineering, focusing on multidisciplinary engineering excellence.
                   </p>
                   <p>
                     While our roots lie in handling demanding aerospace-grade challenges with exposure to ISRO facilities (VSSC, LPSC, CMSE, IISU), the training builds a core foundation of versatility. Our students are prepared to tackle precision engineering in automobile, biomedical devices, heavy machinery, and industrial operations.
@@ -374,11 +435,11 @@ export default function PlacementsPage() {
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 text-center">
             <ScrollReveal>
               <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
-                Ready to hire from IIST?
+                Ready to recruit from IIST?
               </h2>
               <p className="mt-4 max-w-xl mx-auto text-base text-white/80 leading-7">
-                Reach out to the program coordinator to discuss campus recruitment, project
-                sponsorships, and internship programs.
+                Reach out to the program coordinator to discuss campus recruitment, full-time offers,
+                project sponsorships, and engineering collaborations.
               </p>
               <div className="mt-8 flex flex-wrap gap-4 justify-center">
                 <a
@@ -399,7 +460,7 @@ export default function PlacementsPage() {
                 </a>
               </div>
 
-              <p className="mt-8 font-data text-[10px] uppercase tracking-[0.2em] text-white/50">
+              <p className="mt-8 font-data text-xs tracking-wider text-white/70">
                 Indian Institute of Space Science and Technology · Valiamala, Thiruvananthapuram
               </p>
             </ScrollReveal>

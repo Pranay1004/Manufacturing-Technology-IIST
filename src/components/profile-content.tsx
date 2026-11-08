@@ -62,24 +62,24 @@ export function ProfileContent({ initialPerson }: { initialPerson: Person }) {
                 <h2 className="font-display text-2xl font-bold text-[var(--ceramic)]">Contact</h2>
                 <dl className="mt-4 space-y-3 text-sm">
                   <div>
-                    <dt className="font-data text-[10px] uppercase tracking-[0.14em] text-[var(--ceramic-muted)]">Official</dt>
+                    <dt className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">Official</dt>
                     <dd className="mt-1 text-[var(--arc-blue)]">{person.officialEmail}</dd>
                   </div>
                   {person.personalEmail && (
                     <div>
-                      <dt className="font-data text-[10px] uppercase tracking-[0.14em] text-[var(--ceramic-muted)]">Personal</dt>
+                      <dt className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">Personal</dt>
                       <dd className="mt-1 text-[var(--ceramic)]">{person.personalEmail}</dd>
                     </div>
                   )}
                   {person.supervisor && (
                     <div>
-                      <dt className="font-data text-[10px] uppercase tracking-[0.14em] text-[var(--ceramic-muted)]">Supervisor</dt>
+                      <dt className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">Supervisor</dt>
                       <dd className="mt-1 text-[var(--ceramic)]">{person.supervisor}</dd>
                     </div>
                   )}
                   {person.admissionYear && (
                     <div>
-                      <dt className="font-data text-[10px] uppercase tracking-[0.14em] text-[var(--ceramic-muted)]">Admission</dt>
+                      <dt className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">Admission</dt>
                       <dd className="mt-1 text-[var(--ceramic)]">
                         {person.admissionYear}
                         {person.mode ? `, ${person.mode}` : ""}
@@ -159,7 +159,7 @@ export function ProfileContent({ initialPerson }: { initialPerson: Person }) {
                           {project.title}
                         </p>
                         <p className="mt-2 leading-7 text-[var(--ceramic-muted)]">{project.summary}</p>
-                        <span className="mt-2 inline-block font-data text-[10px] uppercase tracking-[0.14em] text-[var(--forge-amber)]">
+                        <span className="mt-2 inline-block font-data text-xs font-semibold tracking-wide text-[var(--forge-amber)]">
                           {project.status}
                         </span>
                       </GlassCard>

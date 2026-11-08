@@ -81,7 +81,7 @@ export default function MediaPage() {
                   <span className="absolute right-16 top-20 size-16 rounded-lg border border-[var(--edge)] bg-[var(--panel)]/70 shadow-[var(--shadow-sm)] [transform:perspective(700px)_rotateX(58deg)_rotateZ(-22deg)]" />
                 </div>
 
-                <p className="mt-5 font-data text-[10px] uppercase tracking-[0.16em] text-[var(--ceramic-muted)]">
+                <p className="mt-5 font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">
                   {section.label}
                 </p>
                 <h2 className="mt-2 font-display text-3xl font-bold text-[var(--ceramic)]">

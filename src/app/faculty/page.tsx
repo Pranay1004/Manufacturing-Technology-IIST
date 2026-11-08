@@ -19,7 +19,7 @@ export default function FacultyPage() {
               <div className="flex items-start gap-4">
                 <Portrait name={person.name} photoUrl={person.photoUrl} />
                 <div className="min-w-0">
-                  <p className="font-data text-[10px] uppercase tracking-[0.16em] text-[var(--forge-amber)]">
+                  <p className="font-data text-xs font-semibold tracking-wide text-[var(--forge-amber)]">
                     {person.role}
                   </p>
                   <h2 className="mt-2 font-display text-2xl font-bold leading-tight text-[var(--ceramic)]">

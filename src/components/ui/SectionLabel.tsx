@@ -20,7 +20,7 @@ export function SectionLabel({
 
   return (
     <p
-      className={`font-data text-[11px] uppercase tracking-[0.22em] ${colorClass[color]} ${className}`.trim()}
+      className={`font-data text-xs font-semibold tracking-wider ${colorClass[color]} ${className}`.trim()}
     >
       {children}
     </p>

@@ -66,7 +66,7 @@ export default function ResearchPage() {
               {academicEvents.map((event, i) => (
                 <ScrollReveal key={event.title} delay={i * 60}>
                   <GlassCard variant="compact">
-                    <span className="font-data text-[10px] uppercase tracking-[0.14em] text-[var(--ceramic-muted)]">{event.date}</span>
+                    <span className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">{event.date}</span>
                     <h3 className="mt-2 font-display text-xl font-bold text-[var(--ceramic)]">{event.title}</h3>
                     <p className="mt-1 text-sm text-[var(--arc-blue)]">{event.scope}</p>
                   </GlassCard>

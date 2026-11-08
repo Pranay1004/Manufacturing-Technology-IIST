@@ -17,7 +17,7 @@ export function PeopleViewContainer() {
           type="button"
           onClick={() => setViewMode("shelf")}
           className={[
-            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer select-none",
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer select-none",
             viewMode === "shelf"
               ? "bg-[#143B82] text-white shadow-sm"
               : "text-[#B8C4D0] hover:text-white",
@@ -31,7 +31,7 @@ export function PeopleViewContainer() {
           type="button"
           onClick={() => setViewMode("grid")}
           className={[
-            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-all duration-200 cursor-pointer select-none",
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer select-none",
             viewMode === "grid"
               ? "bg-[#143B82] text-white shadow-sm"
               : "text-[#B8C4D0] hover:text-white",

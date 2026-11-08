@@ -66,7 +66,7 @@ export function SiteHeader({ hideMobile = false }: { hideMobile?: boolean } = {}
                 ].join(" ")}
               >
                 <span 
-                  className="font-display text-[9px] uppercase tracking-[0.14em] text-center whitespace-nowrap transition-colors duration-200"
+                  className="font-display text-[10px] font-semibold tracking-wide text-center whitespace-nowrap transition-colors duration-200"
                   style={{ 
                     writingMode: "vertical-rl", 
                     transform: "rotate(180deg)" 
@@ -96,7 +96,7 @@ export function SiteHeader({ hideMobile = false }: { hideMobile?: boolean } = {}
           aria-label={isLoggedIn ? "Dashboard Portal" : "Login Portal"}
         >
           <LogIn size={16} className="mb-0.5 transition-colors duration-200" aria-hidden />
-          <span className="font-data text-[8px] uppercase tracking-wider select-none font-bold">
+          <span className="font-data text-[9px] font-semibold tracking-wide select-none">
             {isLoggedIn ? "Dashboard" : "Login"}
           </span>
         </Link>
@@ -136,7 +136,7 @@ export function SiteHeader({ hideMobile = false }: { hideMobile?: boolean } = {}
       {/* Mobile Overlay Menu */}
       {mobileOpen && (
         <nav className="lg:hidden fixed inset-x-0 top-[53px] bottom-0 z-50 bg-[var(--void)]/95 backdrop-blur-xl px-6 py-8 flex flex-col gap-6 animate-[fadeIn_0.2s_ease-out]">
-          <span className="font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)]/60 select-none">
+          <span className="font-data text-[10px] font-semibold tracking-wider text-[var(--ceramic-muted)]/60 select-none">
             Navigation Console
           </span>
           <div className="flex flex-col gap-2">
@@ -148,7 +148,7 @@ export function SiteHeader({ hideMobile = false }: { hideMobile?: boolean } = {}
                   href={href}
                   onClick={() => setMobileOpen(false)}
                   className={[
-                    "w-full rounded-md border px-4 py-3 text-sm font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer flex items-center justify-between",
+                    "w-full rounded-md border px-4 py-3 text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer flex items-center justify-between",
                     isActive
                       ? "text-[var(--arc-blue)] bg-[var(--arc-blue-dim)] border-[var(--edge-active)]/30"
                       : "border-[var(--edge)] bg-[var(--panel)] text-[var(--ceramic-muted)] hover:text-[var(--ceramic)]",
@@ -191,7 +191,7 @@ export function SiteFooter() {
         <div className="text-sm leading-7 text-[var(--ceramic-muted)]">
           <p className="font-medium text-[var(--ceramic)]">IIST, Valiamala</p>
           <p>Thiruvananthapuram, Kerala 695547</p>
-          <p className="mt-3 font-data text-[10px] uppercase tracking-[0.18em] text-[var(--arc-blue)]">
+          <p className="mt-3 font-data text-xs font-semibold tracking-wider text-[var(--arc-blue)]">
             Machined at IIST
           </p>
         </div>

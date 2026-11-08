@@ -1,19 +1,10 @@
 "use client";
-import type { Person } from "@/lib/data";
+import { type Person, formatResumeUrl } from "@/lib/data";
 import { GlassCard } from "@/components/ui/GlassCard";
 import Link from "next/link";
 import { Download, ExternalLink, Share2, Mail } from "lucide-react";
 
-export function formatResumeUrl(url: string | undefined): string | undefined {
-  if (!url) return url;
-  const githubRawRegex = /^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)$/;
-  const match = url.match(githubRawRegex);
-  if (match) {
-    const [, owner, repo, branch, path] = match;
-    return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${path}`;
-  }
-  return url;
-}
+export { formatResumeUrl };
 
 export function Portrait({ name, photoUrl, large = false }: { name: string; photoUrl?: string; large?: boolean }) {
   if (photoUrl) {
@@ -75,7 +66,7 @@ export function Portrait({ name, photoUrl, large = false }: { name: string; phot
           {initials}
         </span>
       </div>
-      <span className="absolute bottom-1.5 left-1.5 font-data text-[7.5px] tracking-wider text-white/60 select-none uppercase">
+      <span className="absolute bottom-1.5 left-1.5 font-data text-[8px] font-mono tracking-wider text-white/60 select-none">
         ID-{initials || "NA"}
       </span>
     </div>
@@ -108,7 +99,7 @@ export function PersonCard({
               <span className="font-display text-xl font-semibold text-[var(--ceramic)] group-hover:text-[var(--arc-blue)] transition-colors duration-200">
                 {person.name}
               </span>
-              <span className="rounded-md bg-[var(--forge-amber-dim)] px-2 py-0.5 font-data text-[10px] uppercase tracking-[0.14em] text-[var(--forge-amber)]">
+              <span className="rounded-md bg-[var(--forge-amber-dim)] px-2 py-0.5 font-data text-xs font-semibold tracking-wide text-[var(--forge-amber)]">
                 {person.batch ?? person.type}
               </span>
             </div>

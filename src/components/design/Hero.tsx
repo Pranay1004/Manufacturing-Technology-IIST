@@ -54,7 +54,7 @@ export default function Hero() {
 
       {/* Scroll indicator */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 scroll-indicator">
-        <span className="font-data text-[9px] uppercase tracking-[0.2em] text-[var(--ceramic-muted)]">Scroll</span>
+        <span className="font-data text-xs font-semibold tracking-wider text-[var(--ceramic-muted)]">Scroll</span>
         <ChevronDown size={16} className="text-[var(--ceramic-muted)]" />
       </div>
     </section>

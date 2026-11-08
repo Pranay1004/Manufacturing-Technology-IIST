@@ -76,7 +76,7 @@ export function ResearchDirectory() {
         {/* Top Header Row with Title/Paragraph on Left and Category/Cohort Selectors on Right */}
         <div className="flex flex-col lg:flex-row gap-6 justify-between items-start border-b border-[var(--edge)] pb-6">
           <div className="max-w-2xl">
-            <span className="font-data text-[10px] uppercase tracking-wider text-[var(--arc-blue)] select-none">
+            <span className="font-data text-xs font-semibold tracking-wider text-[var(--arc-blue)] select-none">
               Projects & Research
             </span>
             <h1 className="mt-2 font-display text-3xl font-bold leading-tight text-[var(--ceramic)] sm:text-4xl">
@@ -91,7 +91,7 @@ export function ResearchDirectory() {
           <div className="flex flex-wrap sm:flex-nowrap gap-4 w-full lg:w-auto shrink-0">
             {/* Category Selector */}
             <div className="flex flex-col gap-1.5 rounded-lg border border-[var(--edge)] bg-[var(--panel)] p-2.5 w-full sm:w-[220px]">
-              <span className="font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)] select-none">
+              <span className="font-data text-[10px] font-semibold tracking-wider text-[var(--ceramic-muted)] select-none">
                 Category
               </span>
               <div className="flex flex-col gap-1">
@@ -122,7 +122,7 @@ export function ResearchDirectory() {
             {/* Cohort Year Selector */}
             {availableCohorts.length > 0 && (
               <div className="flex flex-col gap-1.5 rounded-lg border border-[var(--edge)] bg-[var(--panel)] p-2.5 w-full sm:w-[150px]">
-                <span className="font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)] select-none">
+                <span className="font-data text-[10px] font-semibold tracking-wider text-[var(--ceramic-muted)] select-none">
                   Cohort
                 </span>
                 <div className="flex flex-col gap-1">
@@ -132,7 +132,7 @@ export function ResearchDirectory() {
                       type="button"
                       onClick={() => handleCohortChange(item)}
                       className={[
-                        "w-full text-left rounded border px-2.5 py-1.5 font-data text-[10px] uppercase tracking-[0.1em] transition-all duration-200 cursor-pointer",
+                        "w-full text-left rounded border px-2.5 py-1.5 font-data text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer",
                         cohort === item
                           ? "border-[var(--forge-amber)] bg-[var(--forge-amber)] text-white shadow-[var(--shadow-glow-amber)]"
                           : "border-[var(--edge)] bg-[var(--void)] text-[var(--ceramic-muted)] hover:border-[var(--forge-amber)] hover:text-[var(--ceramic)]",
@@ -149,7 +149,7 @@ export function ResearchDirectory() {
 
         {/* Name Navigation Ribbon - Shows all names in a single horizontal scrolling row */}
         <div className="rounded-lg border border-[var(--edge)] bg-[var(--void-deep)]/40 p-4 overflow-hidden select-none">
-          <span className="block font-data text-[9px] uppercase tracking-[0.16em] text-[var(--ceramic-muted)] mb-2.5">
+          <span className="block font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)] mb-2.5">
             Quick Select ({filtered.length} Projects)
           </span>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -193,7 +193,7 @@ export function ResearchDirectory() {
                 >
                   <div>
                     <div className="flex justify-between items-start gap-2">
-                      <span className="font-data text-[10px] uppercase tracking-[0.14em] text-[var(--ceramic-muted)]">
+                      <span className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">
                         {type === "student" 
                           ? `${person.batch} · ${person.specialization}`
                           : `${person.admissionYear}${person.mode ? ` · ${person.mode}` : ""}`
@@ -201,7 +201,7 @@ export function ResearchDirectory() {
                       </span>
                       {project.status && (
                         <span className={[
-                          "font-data text-[9px] uppercase tracking-[0.12em] px-1.5 py-0.5 rounded border",
+                          "font-data text-[10px] font-semibold tracking-wide px-1.5 py-0.5 rounded border",
                           project.status === "Completed"
                             ? "border-[var(--laser-green)] text-[var(--laser-green)] bg-[var(--laser-green)]/10"
                             : project.status === "Ongoing"
@@ -231,7 +231,7 @@ export function ResearchDirectory() {
                     <Link
                       href={`/people/${person.slug}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="font-data text-[10px] uppercase tracking-[0.14em] text-[var(--forge-amber)] flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-200"
+                      className="font-data text-xs font-semibold tracking-wide text-[var(--forge-amber)] flex items-center gap-1 group-hover:translate-x-1 transition-transform duration-200"
                     >
                       Full Profile <ArrowRight size={12} />
                     </Link>
@@ -247,7 +247,7 @@ export function ResearchDirectory() {
               <button
                 type="button"
                 onClick={() => setVisibleCount((prev) => Math.min(prev + 6, filtered.length))}
-                className="rounded-md border border-[var(--edge)] bg-[var(--panel)] px-4 py-2 font-data text-xs uppercase tracking-wider text-[var(--ceramic-muted)] hover:border-[var(--arc-blue)] hover:text-[var(--arc-blue)] hover:shadow-[var(--shadow-glow-blue)] transition-all duration-200 cursor-pointer"
+                className="rounded-md border border-[var(--edge)] bg-[var(--panel)] px-4 py-2 font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)] hover:border-[var(--arc-blue)] hover:text-[var(--arc-blue)] hover:shadow-[var(--shadow-glow-blue)] transition-all duration-200 cursor-pointer"
               >
                 Load More Projects (+{filtered.length - visibleCount})
               </button>
@@ -272,7 +272,7 @@ export function ResearchDirectory() {
             </div>
             <div className="p-6 md:p-8">
               <div className="border-b border-[var(--edge)] pb-6 mb-6">
-                <span className="font-data text-xs uppercase tracking-[0.18em] text-[var(--forge-amber)]">
+                <span className="font-data text-xs font-semibold tracking-wide text-[var(--forge-amber)]">
                   {preview.type === "student" ? "M.Tech Project Dossier" : "PhD Research Dossier"}
                 </span>
                 <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold leading-tight text-[var(--ceramic)]">
@@ -297,7 +297,7 @@ export function ResearchDirectory() {
               </div>
 
               <div>
-                <h3 className="font-data text-[10px] uppercase tracking-[0.16em] text-[var(--ceramic-muted)] mb-3">Project Summary</h3>
+                <h3 className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)] mb-3">Project Summary</h3>
                 <p className="leading-7 text-[var(--ceramic-muted)] text-base whitespace-pre-line">
                   {preview.projects[0].summary}
                 </p>

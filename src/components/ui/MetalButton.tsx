@@ -41,7 +41,7 @@ export function MetalButton({
 } & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "className">) {
   const base = [
     "inline-flex h-11 items-center justify-center gap-2",
-    "rounded-md px-5 font-data text-sm font-medium uppercase tracking-[0.08em]",
+    "rounded-md px-5 font-data text-sm font-medium tracking-[0.02em]",
     "transition-all duration-200",
     variantStyles[variant],
     className,

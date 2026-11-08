@@ -43,7 +43,7 @@ export default function Home() {
                 <p className="font-display text-3xl font-bold text-[var(--ceramic)] sm:text-5xl">
                   {value}
                 </p>
-                <p className="mt-2 font-data text-[10px] uppercase tracking-[0.18em] text-[var(--ceramic-muted)]">
+                <p className="mt-2 font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">
                   {label}
                 </p>
               </ScrollReveal>

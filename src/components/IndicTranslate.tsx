@@ -165,15 +165,15 @@ export function IndicTranslate({ compact = false }: { compact?: boolean }) {
           title={`Language: ${current.nativeName}`}
         >
           <Globe size={16} className={selectedLang !== "en" ? "text-[var(--forge-amber)]" : "text-white/80"} />
-          <span className="text-[7.5px] font-mono uppercase tracking-wider mt-0.5 font-bold">
-            {current.code.toUpperCase()}
+          <span className="text-[9px] font-mono tracking-wider mt-0.5 font-semibold">
+            {current.code}
           </span>
         </button>
       ) : (
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex items-center gap-1.5 h-[27px] px-2.5 rounded-sm border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] text-[#141414] text-[10px] font-semibold tracking-wider uppercase transition-colors duration-200 cursor-pointer shadow-xs select-none"
+          className="inline-flex items-center gap-1.5 h-[27px] px-2.5 rounded-xs border border-[rgba(20,20,20,0.85)] bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] text-[#141414] text-xs font-medium tracking-wide transition-colors duration-200 cursor-pointer shadow-xs select-none"
           aria-expanded={isOpen}
           aria-haspopup="true"
           title="Translate to Indic Languages"
@@ -192,7 +192,7 @@ export function IndicTranslate({ compact = false }: { compact?: boolean }) {
             compact ? "left-full bottom-0 mb-1 ml-2" : "right-0 top-full",
           ].join(" ")}
         >
-          <div className="px-3 py-1.5 border-b border-[rgba(20,20,20,0.1)] text-[9px] font-semibold font-mono uppercase tracking-wider text-[#6D6A63]">
+          <div className="px-3 py-1.5 border-b border-[rgba(20,20,20,0.1)] text-[10px] font-medium font-mono tracking-wide text-[#6D6A63]">
             Indic Languages / भाषा चयन
           </div>
 
@@ -213,7 +213,7 @@ export function IndicTranslate({ compact = false }: { compact?: boolean }) {
                 >
                   <div className="flex flex-col">
                     <span className="text-[12px]">{lang.nativeName}</span>
-                    <span className={`text-[8.5px] uppercase font-mono ${isSelected ? "text-white/80" : "text-[#6D6A63]"}`}>
+                    <span className={`text-[10px] font-mono ${isSelected ? "text-white/80" : "text-[#6D6A63]"}`}>
                       {lang.name}
                     </span>
                   </div>

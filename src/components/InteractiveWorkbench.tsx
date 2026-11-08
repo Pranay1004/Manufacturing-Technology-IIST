@@ -606,7 +606,7 @@ export function InteractiveWorkbench() {
               </div>
               <div>
                 <span
-                  className="rounded-md px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider border"
+                  className="rounded-md px-2 py-0.5 font-mono text-xs font-semibold tracking-wide border"
                   style={{ background: c.dim, color: c.accent, borderColor: `${c.accent}25` }}
                 >
                   {activeTopic.code}
@@ -618,7 +618,7 @@ export function InteractiveWorkbench() {
             </div>
             <div className="flex items-center gap-2">
               <BookOpen size={14} className="text-[var(--ceramic-muted)]" />
-              <span className="font-data text-[10px] uppercase tracking-wider text-[var(--ceramic-muted)]">
+              <span className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">
                 IDDTS Reference Panel
               </span>
             </div>
@@ -646,11 +646,11 @@ export function InteractiveWorkbench() {
             style={{ borderColor: `${c.accent}20` }}
           >
             <div
-              className="flex items-center justify-between px-4 py-2.5 border-b text-[10px] font-mono uppercase tracking-wider"
+              className="flex items-center justify-between px-4 py-2.5 border-b text-xs font-mono font-medium tracking-wide"
               style={{ borderColor: `${c.accent}15`, background: c.dim, color: c.accent }}
             >
               <span>Process Schematic — {activeTopic.name}</span>
-              <span className="opacity-60">IIST-MT-{activeTopic.id.toUpperCase()}</span>
+              <span className="opacity-60">IIST-MT-{activeTopic.id}</span>
             </div>
             <div className="p-4 min-h-[240px] flex items-center justify-center bg-[var(--void-deep)]">
               <ProcessDiagram type={activeTopic.diagramType} color={activeTopic.color} />
@@ -660,16 +660,16 @@ export function InteractiveWorkbench() {
           {/* Process Parameters Table */}
           <div className="rounded-xl border border-[var(--edge)] bg-[var(--void-deep)] overflow-hidden">
             <div className="px-4 py-2.5 border-b border-[var(--edge)] bg-[var(--panel)]/50">
-              <p className="font-data text-[10px] uppercase tracking-wider text-[var(--ceramic-muted)]">
+              <p className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)]">
                 Process Parameters
               </p>
             </div>
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-[var(--edge)]">
-                  <th className="text-left px-3 py-2 font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)]">Parameter</th>
-                  <th className="text-right px-3 py-2 font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)]">Typical</th>
-                  <th className="text-right px-3 py-2 font-data text-[9px] uppercase tracking-wider text-[var(--ceramic-muted)]">Unit</th>
+                  <th className="text-left px-3 py-2 font-data text-[10px] font-semibold tracking-wide text-[var(--ceramic-muted)]">Parameter</th>
+                  <th className="text-right px-3 py-2 font-data text-[10px] font-semibold tracking-wide text-[var(--ceramic-muted)]">Typical</th>
+                  <th className="text-right px-3 py-2 font-data text-[10px] font-semibold tracking-wide text-[var(--ceramic-muted)]">Unit</th>
                 </tr>
               </thead>
               <tbody>
@@ -687,7 +687,7 @@ export function InteractiveWorkbench() {
 
         {/* Formula block */}
         <div className="rounded-xl border border-[var(--edge)] bg-[var(--void-deep)] p-5">
-          <p className="font-data text-[10px] uppercase tracking-wider text-[var(--ceramic-muted)] mb-3">
+          <p className="font-data text-xs font-semibold tracking-wide text-[var(--ceramic-muted)] mb-3">
             Key Equation — {activeTopic.formulaLabel}
           </p>
           <div

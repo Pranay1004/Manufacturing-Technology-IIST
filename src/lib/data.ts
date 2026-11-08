@@ -269,6 +269,17 @@ const defaultPhdSections: ProfileSection[] = [
   },
 ];
 
+export function formatResumeUrl(url: string | undefined): string | undefined {
+  if (!url) return url;
+  const githubRawRegex = /^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)$/;
+  const match = url.match(githubRawRegex);
+  if (match) {
+    const [, owner, repo, branch, path] = match;
+    return `https://cdn.jsdelivr.net/gh/${owner}/${repo}@${branch}/${path}`;
+  }
+  return url;
+}
+
 export const people: Person[] = [
   {
     slug: "sooraj-v-s",
@@ -1039,9 +1050,9 @@ people.push(
     linkedin: s.linkedin ?? `https://www.linkedin.com/in/${s.slug}`,
     photoUrl: s.photoUrl,
     resumeUrl: s.resumeUrl,
-    availability: "Open to internships",
+    availability: "Open to roles",
     supervisor: s.supervisor,
-    synopsis: s.synopsis ?? `M.Tech Manufacturing Technology scholar building aerospace-oriented manufacturing depth through coursework, lab work, process planning, and applied project documentation. Specializing in ${s.specialization} with active research focus on ${s.broadIdea || s.specialization}.`,
+    synopsis: s.synopsis ?? `Outgoing M.Tech Manufacturing Technology scholar building aerospace-oriented manufacturing depth through coursework, lab work, process planning, and applied thesis research. Specializing in ${s.specialization} with active research focus on ${s.broadIdea || s.specialization}. Available for full-time engineering and R&D roles.`,
     skills: s.skills ?? [s.specialization, "Process planning", "Technical documentation", "Aerospace manufacturing"],
     skillGroups: s.skillGroups ?? {
       Core: [s.specialization, "Materials and processes", "Design for manufacturing"],
@@ -1055,7 +1066,16 @@ people.push(
         status: "Ongoing",
       }
     ],
-    seekingRoles: ["COMPOSITE ENGINEER", "WELDING ENGINEER", "Additive Manufacturing Engineer", "Production Engineer", "Quality Engineer", "Operations", "PGET", "Smart Manufacturing Engineer"],
+    seekingRoles: [
+      "Additive Manufacturing Engineer",
+      "Composite Engineer",
+      "Welding Engineer",
+      "Production Engineer",
+      "Quality Engineer",
+      "Operations Engineer",
+      "Graduate Engineer Trainee",
+      "Smart Manufacturing Engineer",
+    ],
     profileSections: [
       {
         title: "Summer Internship",
