@@ -760,7 +760,11 @@ export function PeopleShelf() {
           if (rawIdx !== null) {
             const idx = parseInt(rawIdx, 10);
             if (!isNaN(idx) && cohortBooks[idx]) {
-              handleBookClick(idx);
+              if (target?.closest(".cv")) {
+                openDetail(cohortBooks[idx]);
+              } else {
+                handleBookClick(idx);
+              }
             }
           }
         }
@@ -782,14 +786,13 @@ export function PeopleShelf() {
     const book = cohortBooks[idx];
     if (!book) return;
 
-    // Immediately select, roll open, center, and open the complete scholar dossier profile!
+    // Roll open this scholar book preview on the 3D shelf (revealing the cover card & Open Dossier button)
     activeIdxRef.current = idx;
     setActiveIdx(idx);
     targetRef.current = idx;
     wakeLoop();
 
     setDossierBook(book);
-    setDetailOpen(true);
   }, [cohortBooks, wakeLoop]);
 
   // Keyboard navigation
@@ -877,13 +880,31 @@ export function PeopleShelf() {
         <header className="relative z-30 h-14 sm:h-[68px] px-3 sm:px-8 grid grid-cols-[auto_1fr_auto] items-center border-b border-[rgba(20,20,20,0.1)] bg-[#EDEBE6]/90 backdrop-blur-xs">
           {/* Back Action */}
           <div className="flex items-center gap-2">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 h-7 sm:h-[29px] px-2.5 rounded-xs border border-[rgba(20,20,20,0.85)] text-xs font-semibold tracking-wide text-[#141414] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors"
-            >
-              <ArrowLeft size={13} aria-hidden />
-              <span>Back</span>
-            </Link>
+            {activeIdx !== null ? (
+              <button
+                type="button"
+                onClick={() => {
+                  activeIdxRef.current = null;
+                  setActiveIdx(null);
+                  targetRef.current = Math.max(0, (M - 1) / 2);
+                  wakeLoop();
+                }}
+                className="inline-flex items-center gap-1.5 h-7 sm:h-[29px] px-2.5 rounded-xs border border-[rgba(20,20,20,0.85)] text-xs font-semibold tracking-wide text-[#141414] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors cursor-pointer"
+                title="Back to Scholars Overview"
+              >
+                <ArrowLeft size={13} aria-hidden />
+                <span>Back</span>
+              </button>
+            ) : (
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 h-7 sm:h-[29px] px-2.5 rounded-xs border border-[rgba(20,20,20,0.85)] text-xs font-semibold tracking-wide text-[#141414] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors"
+                title="Back to Home"
+              >
+                <ArrowLeft size={13} aria-hidden />
+                <span>Back</span>
+              </Link>
+            )}
           </div>
 
           {/* Center Title */}
@@ -1128,11 +1149,11 @@ export function PeopleShelf() {
                         }}
                         onPointerUp={(e) => {
                           e.stopPropagation();
-                          handleBookClick(v);
+                          openDetail(book);
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleBookClick(v);
+                          openDetail(book);
                         }}
                         style={{
                           width: "var(--d)",
@@ -1196,9 +1217,13 @@ export function PeopleShelf() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleBookClick(v);
+                              openDetail(book);
                             }}
-                            className="font-mono text-[8px] sm:text-[9px] px-2 py-1 font-bold text-white rounded-xs shadow-xs cursor-pointer hover:brightness-110 transition-all"
+                            onPointerUp={(e) => {
+                              e.stopPropagation();
+                              openDetail(book);
+                            }}
+                            className="font-mono text-[8px] sm:text-[9px] px-2 py-1 font-bold text-white rounded-xs shadow-xs cursor-pointer hover:brightness-110 active:scale-95 transition-all"
                             style={{ background: theme.bg }}
                           >
                             Open Dossier →
@@ -1427,45 +1452,19 @@ export function PeopleShelf() {
 
           <div className="flex items-center gap-3">
             {activeIdx !== null && activeBook ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    activeIdxRef.current = null;
-                    setActiveIdx(null);
-                    targetRef.current = Math.max(0, (M - 1) / 2);
-                    wakeLoop();
-                  }}
-                  className="text-[#6D6A63] hover:text-[#141414] hover:underline underline-offset-4 cursor-pointer"
-                >
-                  Close Preview
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDossierBook(activeBook);
-                    setDetailOpen(true);
-                  }}
-                  className="px-3 py-1 rounded bg-[#143B82] text-white text-xs font-semibold hover:bg-[#0E2A60] transition-colors cursor-pointer shadow-xs shrink-0"
-                >
-                  <span className="hidden sm:inline">Open Full Dossier ({activeBook.name}) →</span>
-                  <span className="sm:hidden">Open Dossier →</span>
-                </button>
-              </>
-            ) : (
               <button
                 type="button"
                 onClick={() => {
-                  const defaultBook = cohortBooks[Math.floor((M - 1) / 2)] || cohortBooks[0];
-                  if (defaultBook) {
-                    setDossierBook(defaultBook);
-                    setDetailOpen(true);
-                  }
+                  setDossierBook(activeBook);
+                  setDetailOpen(true);
                 }}
-                className="hover:text-[#141414] hover:underline cursor-pointer"
+                className="px-3.5 py-1.5 rounded bg-[#143B82] text-white text-xs font-semibold hover:bg-[#0E2A60] transition-colors cursor-pointer shadow-xs shrink-0"
               >
-                Click any book to inspect scholar dossier
+                <span className="hidden sm:inline">Open Full Dossier ({activeBook.name}) →</span>
+                <span className="sm:hidden">Open Dossier →</span>
               </button>
+            ) : (
+              <span className="text-xs text-[#6D6A63]">Select any scholar book to inspect</span>
             )}
           </div>
         </footer>
@@ -1487,8 +1486,8 @@ export function PeopleShelf() {
               onClick={closeDetail}
               className="inline-flex items-center gap-1.5 h-8 px-3 border border-[rgba(20,20,20,0.85)] text-xs font-semibold tracking-wide bg-[#EDEBE6] hover:bg-[#141414] hover:text-[#EDEBE6] transition-colors cursor-pointer rounded-xs"
             >
-              <X size={14} aria-hidden />
-              <span>Close Dossier</span>
+              <ArrowLeft size={13} aria-hidden />
+              <span>Back</span>
             </button>
 
             <div className="flex flex-col items-center text-center">
