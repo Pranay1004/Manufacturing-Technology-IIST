@@ -668,7 +668,7 @@ export function PeopleShelf() {
                 cvEl.style.visibility = "visible";
               }
               cvEl.style.opacity = String(Math.min(1, nextO * 1.4));
-              cvEl.style.pointerEvents = nextO > 0.6 ? "auto" : "none";
+              cvEl.style.pointerEvents = nextO > 0.15 ? "auto" : "none";
             }
           }
         } else {
@@ -711,21 +711,28 @@ export function PeopleShelf() {
     wakeLoop();
   };
 
+  const pointerDownCoordRef = useRef({ x: 0, y: 0, time: 0 });
+  const hasMovedFarRef = useRef(false);
+
   const handleShelfPointerDown = (e: React.PointerEvent) => {
     if (detailOpen) return;
-    isDraggingRef.current = false;
     const startCoord = orientation === "horizontal" ? e.clientX : e.clientY;
+    pointerDownCoordRef.current = { x: e.clientX, y: e.clientY, time: Date.now() };
+    hasMovedFarRef.current = false;
     dragStartRef.current = { pos: startCoord, target: targetRef.current };
+    isDraggingRef.current = false;
     wakeLoop();
 
-    const targetEl = e.currentTarget as HTMLElement;
-    targetEl.setPointerCapture?.(e.pointerId);
-
     const handlePointerMoveDrag = (ev: PointerEvent) => {
-      const currentCoord = orientation === "horizontal" ? ev.clientX : ev.clientY;
-      const delta = currentCoord - dragStartRef.current.pos;
-      if (Math.abs(delta) > 4) {
+      const dx = ev.clientX - pointerDownCoordRef.current.x;
+      const dy = ev.clientY - pointerDownCoordRef.current.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > 8) {
+        hasMovedFarRef.current = true;
         isDraggingRef.current = true;
+        const currentCoord = orientation === "horizontal" ? ev.clientX : ev.clientY;
+        const delta = currentCoord - dragStartRef.current.pos;
         const isMobile = dimsRef.current.isMobile;
         const step = orientation === "horizontal" ? (isMobile ? 120 : 80) : (isMobile ? 38 : 50);
         targetRef.current = clamp(dragStartRef.current.target - delta / step, 0, M - 1);
@@ -733,14 +740,37 @@ export function PeopleShelf() {
       }
     };
 
-    const handlePointerUpDrag = () => {
-      setTimeout(() => {
-        isDraggingRef.current = false;
-      }, 60);
-      wakeLoop();
+    const handlePointerUpDrag = (ev: PointerEvent) => {
       window.removeEventListener("pointermove", handlePointerMoveDrag);
       window.removeEventListener("pointerup", handlePointerUpDrag);
       window.removeEventListener("pointercancel", handlePointerUpDrag);
+
+      const dt = Date.now() - pointerDownCoordRef.current.time;
+      const dist = Math.hypot(
+        ev.clientX - pointerDownCoordRef.current.x,
+        ev.clientY - pointerDownCoordRef.current.y
+      );
+
+      // Reliable click/tap detection on book elements
+      if (!hasMovedFarRef.current && dist < 10 && dt < 600) {
+        const target = ev.target as HTMLElement | null;
+        const bookEl = target?.closest("[data-book-idx]") as HTMLElement | null;
+        if (bookEl) {
+          const rawIdx = bookEl.getAttribute("data-book-idx");
+          if (rawIdx !== null) {
+            const idx = parseInt(rawIdx, 10);
+            if (!isNaN(idx) && cohortBooks[idx]) {
+              handleBookClick(idx);
+            }
+          }
+        }
+      }
+
+      setTimeout(() => {
+        isDraggingRef.current = false;
+        hasMovedFarRef.current = false;
+      }, 50);
+      wakeLoop();
     };
 
     window.addEventListener("pointermove", handlePointerMoveDrag, { passive: true });
@@ -748,8 +778,7 @@ export function PeopleShelf() {
     window.addEventListener("pointercancel", handlePointerUpDrag);
   };
 
-  const handleBookClick = (idx: number) => {
-    if (isDraggingRef.current) return;
+  const handleBookClick = useCallback((idx: number) => {
     const book = cohortBooks[idx];
     if (!book) return;
 
@@ -758,8 +787,10 @@ export function PeopleShelf() {
     setActiveIdx(idx);
     targetRef.current = idx;
     wakeLoop();
-    openDetail(book);
-  };
+
+    setDossierBook(book);
+    setDetailOpen(true);
+  }, [cohortBooks, wakeLoop]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -984,6 +1015,14 @@ export function PeopleShelf() {
                   ref={(el) => {
                     bookElsRef.current[v] = el;
                   }}
+                  data-book-idx={v}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                  }}
+                  onPointerUp={(e) => {
+                    e.stopPropagation();
+                    handleBookClick(v);
+                  }}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleBookClick(v);
@@ -1011,7 +1050,19 @@ export function PeopleShelf() {
                     <>
                       {/* Spine Face (.sp) */}
                       <div
-                        className="sp absolute rounded-xs overflow-hidden select-none border border-black/70 flex flex-col justify-between p-2 shadow-md transition-opacity"
+                        data-book-idx={v}
+                        className="sp absolute rounded-xs overflow-hidden select-none border border-black/70 flex flex-col justify-between p-2 shadow-md transition-opacity cursor-pointer"
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                        }}
+                        onPointerUp={(e) => {
+                          e.stopPropagation();
+                          handleBookClick(v);
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBookClick(v);
+                        }}
                         style={{
                           width: "var(--ws)",
                           height: "var(--H)",
@@ -1070,10 +1121,18 @@ export function PeopleShelf() {
 
                       {/* Cover Face (.cv) - Straight preview when open */}
                       <div
+                        data-book-idx={v}
                         className="cv absolute rounded-xs overflow-hidden select-none border border-black/80 flex flex-col justify-between p-3 sm:p-4.5 cursor-pointer shadow-2xl"
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                        }}
+                        onPointerUp={(e) => {
+                          e.stopPropagation();
+                          handleBookClick(v);
+                        }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          openDetail(book);
+                          handleBookClick(v);
                         }}
                         style={{
                           width: "var(--d)",
@@ -1133,12 +1192,17 @@ export function PeopleShelf() {
                               {book.placedAt ? book.placedAt : "Research Scholar"}
                             </span>
                           </div>
-                          <span
-                            className="font-mono text-[8px] sm:text-[9px] px-2 py-1 font-bold text-white rounded-xs shadow-xs"
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleBookClick(v);
+                            }}
+                            className="font-mono text-[8px] sm:text-[9px] px-2 py-1 font-bold text-white rounded-xs shadow-xs cursor-pointer hover:brightness-110 transition-all"
                             style={{ background: theme.bg }}
                           >
                             Open Dossier →
-                          </span>
+                          </button>
                         </div>
                       </div>
                     </>
@@ -1147,8 +1211,20 @@ export function PeopleShelf() {
                     // MODE B: VERTICAL STACK (Horizontal spine stack)
                     // ══════════════════════════════════════════════════════════
                     <div
+                      data-book-idx={v}
+                      onPointerDown={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onPointerUp={(e) => {
+                        e.stopPropagation();
+                        handleBookClick(v);
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBookClick(v);
+                      }}
                       className={[
-                        "sp absolute rounded-xs overflow-hidden select-none border border-black/70 flex items-center justify-between shadow-md hover:brightness-105 transition-all",
+                        "sp absolute rounded-xs overflow-hidden select-none border border-black/70 flex items-center justify-between shadow-md hover:brightness-105 transition-all cursor-pointer",
                         M <= 5 ? "px-5 sm:px-6" : M <= 8 ? "px-4 sm:px-5" : "px-3 sm:px-3.5",
                       ].join(" ")}
                       style={{
@@ -1366,15 +1442,30 @@ export function PeopleShelf() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => openDetail(activeBook)}
-                  className="text-[#143B82] hover:underline underline-offset-4 font-bold cursor-pointer shrink-0"
+                  onClick={() => {
+                    setDossierBook(activeBook);
+                    setDetailOpen(true);
+                  }}
+                  className="px-3 py-1 rounded bg-[#143B82] text-white text-xs font-semibold hover:bg-[#0E2A60] transition-colors cursor-pointer shadow-xs shrink-0"
                 >
                   <span className="hidden sm:inline">Open Full Dossier ({activeBook.name}) →</span>
                   <span className="sm:hidden">Open Dossier →</span>
                 </button>
               </>
             ) : (
-              <span>Click any book to inspect scholar dossier</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const defaultBook = cohortBooks[Math.floor((M - 1) / 2)] || cohortBooks[0];
+                  if (defaultBook) {
+                    setDossierBook(defaultBook);
+                    setDetailOpen(true);
+                  }
+                }}
+                className="hover:text-[#141414] hover:underline cursor-pointer"
+              >
+                Click any book to inspect scholar dossier
+              </button>
             )}
           </div>
         </footer>
@@ -1386,7 +1477,8 @@ export function PeopleShelf() {
           role="dialog"
           aria-modal="true"
           aria-label={`${dossierBook.name} Dossier`}
-          className="fixed inset-0 z-[120] bg-[#F4F2ED] text-[#141414] overflow-y-auto animate-[fadeIn_0.2s_ease-out]"
+          className="fixed inset-0 z-[99999] bg-[#F4F2ED] text-[#141414] overflow-y-auto animate-[fadeIn_0.2s_ease-out]"
+          style={{ WebkitOverflowScrolling: "touch" }}
         >
           {/* Modal Top Bar */}
           <header className="sticky top-0 inset-x-0 h-14 bg-[#F4F2ED]/95 backdrop-blur-md border-b border-[rgba(20,20,20,0.12)] px-4 sm:px-8 flex items-center justify-between z-30 shadow-xs">
