@@ -191,40 +191,71 @@ export function PeopleDirectory() {
         </section>
       </div>
 
+      {/* Preview modal */}
       {preview && (
-        <div className="fixed inset-0 z-50 grid place-items-end bg-[var(--void)]/80 backdrop-blur-sm p-0 sm:place-items-center sm:p-4" role="dialog" aria-modal="true">
-          <div className="max-h-[92svh] w-full max-w-4xl overflow-auto rounded-t-lg bg-[var(--void-deep)] border border-[var(--edge)] shadow-2xl sm:max-h-[90vh] sm:rounded-lg">
-            <div className="sticky top-0 z-10 flex justify-end border-b border-[var(--edge)] bg-[var(--void-deep)]/95 backdrop-blur-sm p-3">
-              <button
-                type="button"
-                onClick={() => setPreview(null)}
-                className="grid size-9 place-items-center rounded-md border border-[var(--edge)] bg-[var(--panel)] text-[var(--ceramic-muted)] hover:border-[var(--stress-red)] hover:text-[var(--stress-red)] transition-colors duration-200 cursor-pointer"
-                aria-label="Close profile preview"
-              >
-                <X size={18} aria-hidden />
-              </button>
-            </div>
-            <div className="grid gap-5 p-5 sm:grid-cols-[160px_minmax(0,1fr)] sm:p-6 md:grid-cols-[176px_minmax(0,1fr)]">
-              <div className="flex justify-center sm:justify-start sm:block">
-                <Portrait name={preview.name} large />
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="relative w-full max-w-2xl bg-white rounded-2xl border border-[var(--edge)] shadow-2xl overflow-hidden p-6 sm:p-8 animate-[fadeIn_0.2s_ease-out]">
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setPreview(null)}
+              className="absolute top-4 right-4 grid size-8 place-items-center rounded-full bg-[var(--panel)] text-[var(--ceramic-muted)] hover:text-[#141414] hover:bg-black/10 transition-colors cursor-pointer"
+              aria-label="Close profile preview"
+            >
+              <X size={16} aria-hidden />
+            </button>
+
+            {/* Profile layout: Side-by-side on sm+, stacked on mobile, NEVER overlapping */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              {/* Photo */}
+              <div className="shrink-0 w-32 sm:w-36 aspect-[3/4] rounded-xl overflow-hidden border border-[var(--edge)] shadow-md bg-[var(--panel)]">
+                {preview.photoUrl ? (
+                  <img
+                    src={preview.photoUrl}
+                    alt={preview.name}
+                    className="w-full h-full object-cover object-[center_20%] sm:object-top"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center font-display text-2xl font-bold text-white bg-gradient-to-br from-[var(--arc-blue)] to-[var(--cool-zone)]">
+                    {preview.name.slice(0, 2)}
+                  </div>
+                )}
               </div>
-              <div className="min-w-0">
-                <p className="font-data text-[11px] uppercase tracking-[0.18em] text-[var(--forge-amber)]">
+
+              {/* Details */}
+              <div className="flex-1 min-w-0 text-center sm:text-left">
+                <span className="font-data text-xs font-semibold tracking-wide text-[var(--forge-amber)] block">
                   {preview.batch ?? preview.type}
-                </p>
-                <h2 className="mt-2 overflow-wrap-anywhere font-display text-3xl font-bold leading-tight text-[var(--ceramic)] sm:text-4xl">
+                </span>
+                <h2 className="mt-1 font-display text-2xl sm:text-3xl font-bold leading-tight text-[var(--ceramic)]">
                   {preview.name}
                 </h2>
-                <p className="mt-1 font-medium text-[var(--arc-blue)]">{preview.role}</p>
-                <p className="mt-4 leading-7 text-[var(--ceramic-muted)]">{preview.synopsis}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
+                <p className="mt-0.5 text-sm font-medium text-[var(--arc-blue)]">
+                  {preview.role} · {preview.specialization}
+                </p>
+
+                <p className="mt-3 text-sm leading-relaxed text-[var(--ceramic-muted)]">
+                  {preview.synopsis}
+                </p>
+
+                {/* Skills tags */}
+                <div className="mt-4 flex flex-wrap gap-1.5 justify-center sm:justify-start">
                   {preview.skills.map((skill, idx) => (
-                    <span key={`${skill}-${idx}`} className="rounded-md border border-[var(--edge)] bg-[var(--panel)] px-2 py-0.5 text-xs text-[var(--ceramic-muted)]">
+                    <span
+                      key={`${skill}-${idx}`}
+                      className="rounded-md border border-[var(--edge)] bg-[var(--panel)] px-2 py-0.5 text-xs text-[var(--ceramic-muted)] font-medium"
+                    >
                       {skill}
                     </span>
                   ))}
                 </div>
-                <div className="mt-6">
+
+                {/* Action buttons */}
+                <div className="mt-6 flex flex-wrap gap-2 justify-center sm:justify-start">
                   <ProfileActions person={preview} />
                 </div>
               </div>

@@ -12,7 +12,7 @@ export function Portrait({ name, photoUrl, large = false }: { name: string; phot
       <div
         className={[
           "relative shrink-0 overflow-hidden rounded-xl border border-[var(--edge)] aspect-[3/4] select-none bg-[var(--panel-alt)] shadow-sm",
-          large ? "w-36 sm:w-48 md:w-56" : "w-28 sm:w-32 md:w-36",
+          large ? "w-32 sm:w-36 md:w-40" : "w-28 sm:w-32 md:w-36",
         ].join(" ")}
       >
         <img
@@ -48,7 +48,7 @@ export function Portrait({ name, photoUrl, large = false }: { name: string; phot
     <div
       className={[
         "relative shrink-0 overflow-hidden rounded-xl border border-[var(--edge)] aspect-[3/4] select-none shadow-sm",
-        large ? "w-36 sm:w-48 md:w-56" : "w-28 sm:w-32 md:w-36",
+        large ? "w-32 sm:w-36 md:w-40" : "w-28 sm:w-32 md:w-36",
       ].join(" ")}
       style={{ background: gradient }}
       aria-label={`${name} portrait placeholder`}

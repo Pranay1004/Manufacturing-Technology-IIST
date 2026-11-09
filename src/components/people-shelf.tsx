@@ -753,16 +753,12 @@ export function PeopleShelf() {
     const book = cohortBooks[idx];
     if (!book) return;
 
-    if (activeIdxRef.current === idx) {
-      // Already selected and open: clicking opens the full comprehensive dossier!
-      openDetail(book);
-    } else {
-      // Roll open this scholar book and smoothly center it
-      activeIdxRef.current = idx;
-      setActiveIdx(idx);
-      targetRef.current = idx;
-      wakeLoop();
-    }
+    // Immediately select, roll open, center, and open the complete scholar dossier profile!
+    activeIdxRef.current = idx;
+    setActiveIdx(idx);
+    targetRef.current = idx;
+    wakeLoop();
+    openDetail(book);
   };
 
   // Keyboard navigation
