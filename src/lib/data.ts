@@ -726,6 +726,7 @@ interface StudentData {
   skills?: string[];
   skillGroups?: Record<string, string[]>;
   projects?: Project[];
+  profileSections?: ProfileSection[];
 }
 
 const currentStudents: StudentData[] = [
@@ -747,21 +748,97 @@ const currentStudents: StudentData[] = [
     slug: "anushyanth-a",
     name: "Anushyanth A",
     roll: "SC25M142",
-    specialization: "Composite Manufacturing",
-    broadIdea: "AMTDC IIT Madras - AM",
-    supervisor: "Dr. Sooraj V. S",
-    internship: "AMTDC - IIT Madras",
-    projectTitle: "Repair welding of FSW joints (VSSC)",
+    specialization: "CAD-CAM and CNC",
+    broadIdea: "Repair Study on Friction Stir Welding of AA2219-T87 — VSSC",
+    supervisor: "Dr. Chakravarthy P.",
+    internship: "Research Intern at AMTDC, IIT Madras (Vision-based tool wear & dimensional measurement, Jun–Jul 2026)",
+    projectTitle: "Repair Study on Friction Stir Welding of AA2219-T87 (VSSC)",
+    photoUrl: "/media/photos/anushyanth.webp",
+    resumeUrl: "/resumes/anushyanth.pdf",
+    personalEmail: "anushyanth2003@gmail.com",
+    linkedin: "https://www.linkedin.com/in/anushyanth-a-8a4481217",
+    synopsis:
+      "M.Tech scholar in Manufacturing Technology at IIST (B.E. Mechanical Engineering, Sri Venkateswara College of Engineering, Chennai) with hands-on industrial experience as an Application Engineer at Kriatec Services Pvt. Ltd. (Mar 2024 – Jul 2025) and Research Intern at AMTDC, IIT Madras (Jun–Jul 2026). Experienced in mechanical design, CAD/CAM modeling, GD&T, Hexagon Edgecam CNC simulation and post-processor modeling, and FEA (ANSYS Workbench, Abaqus). Currently investigating repair of AA2219-T87 friction stir welds using Re-FSW, TIG, and Plug FSW techniques for aerospace applications at VSSC under Dr. Chakravarthy P.",
+    skills: [
+      "SolidWorks",
+      "Creo Parametric",
+      "Fusion 360",
+      "Hexagon Edgecam",
+      "CNC/CAM",
+      "GD&T",
+      "Ansys Workbench",
+      "Abaqus",
+      "MATLAB",
+    ],
+    skillGroups: {
+      "CAD & CAM": [
+        "SolidWorks",
+        "Creo Parametric",
+        "Fusion 360",
+        "Hexagon Edgecam",
+        "CNC/CAM Machining",
+        "Post-Processor Modeling",
+        "GD&T",
+      ],
+      "CAE & Simulation": ["Ansys Workbench", "Abaqus", "MATLAB & Simulink", "Finite-Element Stress Analysis"],
+      "Welding & Metrology": [
+        "Friction Stir Welding (Re-FSW / Plug FSW)",
+        "TIG Repair Welding",
+        "Vision-Based Tool Wear Detection",
+        "Fixture Design",
+      ],
+    },
+    projects: [
+      {
+        title: "Repair Study on Friction Stir Welding of AA2219-T87 — VSSC",
+        summary:
+          "Evaluating mechanical and microstructural properties of defective AA2219-T87 friction stir welds repaired using Re-FSW, TIG, and Plug FSW for aerospace applications, studying room and cryogenic tensile properties, microhardness, microstructure, and fractographic features (Guided by Dr. Chakravarthy P.).",
+        status: "Ongoing",
+      },
+      {
+        title: "Vision-Based Tool Wear & Dimensional Measurement System (AMTDC, IIT Madras)",
+        summary:
+          "Designed and developed a vision-based measurement system for tool wear detection and dimensional measurement applications during Research Internship at AMTDC, IIT Madras (Jun–Jul 2026).",
+        status: "Completed",
+      },
+      {
+        title: "Design and Fabrication of an Electric Bike with Performance Optimization",
+        summary:
+          "Designed and fabricated a lightweight, structurally stable, aerodynamic chassis using FEA stress, deformation, and virtual crash testing in ANSYS alongside MATLAB Simulink trip-cycle battery optimization (2024).",
+        status: "Completed",
+      },
+      {
+        title: "Design and Fabrication of Quadcopter Drone",
+        summary:
+          "Designed and fabricated a quadcopter drone focused on stability, lightweight structure, aerodynamics, electronics integration, and durability (2023).",
+        status: "Completed",
+      },
+    ],
+    profileSections: [
+      {
+        title: "Experience & Summer Internship",
+        body: "Application Engineer — Kriatec Services Pvt. Ltd. (Mar 2024 – Jul 2025): Developed CAD models and detailed GD&T technical drawings for CAM applications; simulated turning and milling operations using Hexagon Edgecam and developed CNC post-processor models; delivered customer technical support for CAM/CNC and authored e-learning technical courses.\n\nResearch Intern — Advanced Manufacturing Technology Development Centre (AMTDC), IIT Madras (Jun 2026 – Jul 2026): Designed and developed a vision-based measurement system for tool wear detection and dimensional measurement applications.",
+      },
+      {
+        title: "Education",
+        body: "M.Tech in Manufacturing Technology — Indian Institute of Space Science and Technology (IIST), Thiruvananthapuram (2025 – 2027)\nB.E. in Mechanical Engineering — Sri Venkateswara College of Engineering, Chennai (2020 – 2024)",
+      },
+      {
+        title: "Certifications & Leadership",
+        body: "Certifications: Geometric Dimensioning & Tolerancing (Learnew, AICTE evaluated) · Fixture Design (Learnew, AICTE evaluated) · Automation in Manufacturing (NPTEL).\nAchievements: Design Lead — National E Bike Challenge 2024 (Second Runner-up & Best Aesthetics Award) · Design Lead — SIEP E Bike Challenge 2023 (Best Future Award) · First Prize — Render Royal Inter-College Design Competition · Member of Bureau of Indian Standards.",
+      },
+    ],
   },
   {
     slug: "juveriya-sayyed",
     name: "Juveriya Sayyed",
     roll: "SC25M143",
-    specialization: "CAD-CAM and CNC",
+    specialization: "Composite Manufacturing",
     broadIdea: "VSSC - DfAM- Auxetic Structures",
     supervisor: "Dr. Sooraj V. S",
     internship: "VSSC - DfAM",
     projectTitle: "CMSE - Composites",
+    skills: ["Composite Manufacturing", "DfAM & Auxetic Structures", "Aerospace Composites", "Process planning", "Technical documentation"],
   },
   {
     slug: "lakshmi-k",
@@ -1076,7 +1153,7 @@ people.push(
       "Graduate Engineer Trainee",
       "Smart Manufacturing Engineer",
     ],
-    profileSections: [
+    profileSections: s.profileSections ?? [
       {
         title: "Summer Internship",
         body: `Summer Internship Project: ${s.internship}.`
