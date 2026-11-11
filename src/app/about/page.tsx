@@ -3,7 +3,6 @@ import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { curriculum, programHighlights } from "@/lib/data";
-import { InteractiveWorkbench } from "@/components/InteractiveWorkbench";
 
 export default function AboutPage() {
   return (
@@ -94,16 +93,6 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
-
-          <ScrollReveal className="mt-12 border-t border-[var(--edge)] pt-8">
-            <h2 className="font-display text-3xl font-bold text-[var(--ceramic)]">
-              Interactive Manufacturing Workbench & Process Simulator
-            </h2>
-            <p className="mt-3 text-base text-[var(--ceramic-muted)] leading-relaxed">
-              Explore custom-forged animations for each primary manufacturing course. If you have CAD (.glb) models or video loops (.mp4) from your labs, place them in the corresponding <code>public/media/cad/</code> or <code>public/media/videos/</code> folders with the course id (e.g. <code>welding.mp4</code> or <code>cad.glb</code>) to load them directly into this workspace!
-            </p>
-            <InteractiveWorkbench />
-          </ScrollReveal>
 
           <ScrollReveal className="mt-12 border-t border-[var(--edge)] pt-6">
             <h2 className="font-display text-2xl font-bold text-[var(--ceramic)]">Elective spread</h2>

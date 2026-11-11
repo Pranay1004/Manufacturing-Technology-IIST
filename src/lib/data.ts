@@ -333,27 +333,43 @@ export const people: Person[] = [
     ],
     projects: [
       {
-        title: "ARIS Payload Development on PSLV-C45 Orbital Platform",
+        title: "Patent No. 502722 (Granted Jan 2024) — Reconfigurable Additive Grinding Wheel with Self-Adaptable Cooling",
         summary:
-          "Design, fabrication, structural-thermal qualification, and successful mission operations of the Advanced Retarding Potential Analyzer for Ionospheric Studies (ARIS) payload launched on the PSLV PS4 orbital stage.",
+          "Granted Indian Patent (No. 502722, co-inventor Shri SarathBabu T. S.) covering a 3D-printed reconfigurable grinding wheel with in-situ self-generated cold air and adaptive lubrication for sustainable machining of Ti6Al4V and CFRPs (ISAMPE 2024 National Award).",
         status: "Completed",
       },
       {
-        title: "Smart Additive Grinding Wheels & Eccentric Sleeve Grinding (ESG)",
+        title: "Patent No. 346350 (Granted Sep 2020) — Resilient Elasto-Magnetic-Abrasive Spheres for Fine Finishing",
         summary:
-          "Development of 3D printed re-configurable grinding tools with in-situ self-generated cold air and adaptive lubrication for sustainable machining of Ti6Al4V and CFRPs (ISAMPE 2024 Award).",
+          "Granted Indian Patent (No. 346350, with Dr. V. Radhakrishnan & Dr. Nirmala Rachel James) for flexible magnetic-elastomeric abrasive media enabling ultra-fine internal and complex aerospace surface finishing.",
+        status: "Completed",
+      },
+      {
+        title: "ASRG Funded Project (2023) — Additive Manufacturing for Space & Gaganyaan Technologies",
+        summary:
+          "Aero Space Research and Development Grant (ASRG) sponsored investigation advancing space-qualified additive manufacturing processes and structural demonstrators for human spaceflight and Gaganyaan mission systems.",
         status: "Ongoing",
       },
       {
-        title: "Metallic Lattice Interstage Structures for Launch Vehicles",
+        title: "ASRG Funded Project (2024) — Space Robotics & Design for Additive Manufacturing (DfAM)",
         summary:
-          "Topology optimization, generative design, and LPBF additive manufacturing of lightweight metallic lattice structures for nano and small satellite launch vehicle interstages.",
+          "Funded ASRG program focused on Design for Additive Manufacturing (DfAM), topology optimization of metallic lattice structures, and robotic smart manufacturing workflows for orbital hardware.",
         status: "Ongoing",
+      },
+      {
+        title: "ARIS Payload on PSLV-C45 PS4 Orbital Platform & 4 Completed IIST–ISRO Projects",
+        summary:
+          "Led mechanical design, fabrication, and qualification of the ARIS payload flown on PSLV-C45 (ISRO Team Excellence Award), alongside four completed IIST–ISRO sponsored research projects and Eccentric Sleeve Grinding (ESG) development.",
+        status: "Completed",
       },
     ],
     photoUrl: "/media/photos/sooraj-vs.webp",
     sourceUrl: "https://www.iist.ac.in/people-faculty-profile/sooraj-v-s",
     profileSections: [
+      {
+        title: "Granted Patents & Sponsored Projects",
+        body: "Granted Indian Patent No. 502722 (Jan 24, 2024): Reconfigurable Grinding Wheel with In-built Cooling and Self-adaptable Lubrication System via Additive Manufacturing.\nGranted Indian Patent No. 346350 (Sep 8, 2020): Multipurpose Resilient Elasto-Magnetic-Abrasive Spheres for Fine Finishing of Surfaces.\n\nSponsored Research: Two active ASRG funded projects (2023 Additive Manufacturing for Gaganyaan; 2024 Space Robotics & DfAM), plus four completed IIST–ISRO collaborative projects.",
+      },
       {
         title: "Education & Academic Honors",
         body: "Ph.D. in Aerospace Manufacturing, IIST (Guide: Prof. V. Radhakrishnan) · M.Tech in Manufacturing (Topper / Gold Medalist, NIT Calicut, 2008, ISTE National Award for Best M.Tech Thesis) · B.Tech (First Rank, University of Kerala, 2003).",
@@ -419,27 +435,31 @@ export const people: Person[] = [
     ],
     projects: [
       {
-        title: "Flux Bounded TIG (FBTIG) Welding of Inconel 600 Superalloys",
+        title: "Flux Bounded TIG (FBTIG) Welding of Inconel 600 & Aluminum Alloys",
         summary:
-          "Experimental investigation and thermo-mechanical finite element simulations on flux-assisted keyhole TIG welding, increasing penetration depth and minimizing HAZ micro-fissuring.",
+          "Experimental and thermo-mechanical finite element studies on flux-assisted keyhole TIG welding, deepening weld penetration and minimizing HAZ micro-fissuring (Prof. Brahm Prakash Best Thesis Award guide; authored CRC Press book 'Flux Bounded TIG Welding Process').",
         status: "Completed",
       },
       {
-        title: "Cryogenic Deformation & TRIP Behavior in Cryogenic Engine Alloys",
+        title: "Cryogenic Deformation & TRIP Behavior in Propulsion Engine Alloys",
         summary:
-          "Constitutive modelling of cryogenic deformation behaviour of ICSS 1218-321 and AISI 202 braze joints utilized in liquid propulsion rocket cryogenic engines (ICAMPS 2026).",
+          "Constitutive flow modelling and processing map development for cryogenic deformation of ICSS 1218-321, AISI 202 braze joints, AA2219, and copper-beryllium alloys utilized in liquid propulsion stages (ICAMPS 2026).",
         status: "Ongoing",
       },
       {
-        title: "Processing and Mechanical Quality of Autoclave-Grade Carbon/Epoxy Prepregs",
+        title: "IIST–ISRO Ablative Composites, Shape Memory Nanocomposites & Prepreg Processing",
         summary:
-          "Influence of out-life, laminate thickness, and vacuum bagging strategies on laminate consolidation and void content for aerospace structural components (ICAMPS 2026 Best Poster Award).",
+          "Sponsored IIST–ISRO materials processing studies covering electro-active shape memory polyurethane nanocomposites for deployable space structures and autoclave curing quality of carbon/epoxy prepregs (ICAMPS 2026 Best Poster Award).",
         status: "Ongoing",
       },
     ],
     photoUrl: "/media/photos/chakravarthy-p.webp",
     sourceUrl: "https://www.iist.ac.in/people-faculty-profile/chakravarthy-p",
     profileSections: [
+      {
+        title: "Publications, Book & Laboratory Leadership",
+        body: "Authored Book: 'Flux Bounded Tungsten Inert Gas Welding Process: An Introduction' (CRC Press / Taylor & Francis, 2019, with M. Agilan & N. Neethu).\nLab In-Charge: Manufacturing Processes Lab and Material Characterization / Physical Metallurgy Lab supporting IIST–ISRO prototype development and metallurgical analysis.",
+      },
       {
         title: "Education & Academic Background",
         body: "Ph.D. in Metallurgical and Materials Engineering, IIT Madras · M.Tech in Materials Science · B.E. in Production Engineering · Sundram Fasteners Ltd R&D Assistant Manager (2008-2010).",
@@ -593,8 +613,15 @@ export const people: Person[] = [
     ],
     projects: [
       {
-        title: "Alloy Design & Microstructure Informatics for Aerospace Systems",
-        summary: "Integrated computational materials engineering (ICME) and experimental thermo-mechanical processing for aerospace structural alloys.",
+        title: "Alloy Design & Microstructure Informatics for Multiphase & High-Entropy Aerospace Alloys",
+        summary:
+          "Integrated computational materials engineering (ICME), CALPHAD, and machine learning frameworks paired with experimental thermo-mechanical processing to predict microstructure evolution and mechanical response (IGSTC Fellow, Univ. of Duisburg-Essen).",
+        status: "Ongoing",
+      },
+      {
+        title: "Solidification Metallurgy & Welding Phase Transformation Studies",
+        summary:
+          "Investigating non-equilibrium solidification pathways, grain refinement, and weld-zone microstructural stability in high-temperature structural alloys.",
         status: "Ongoing",
       },
     ],
@@ -624,6 +651,12 @@ export const people: Person[] = [
       Operations: ["Laboratory management", "Safety engineering", "Experimental fixture setup", "Student guidance"],
     },
     projects: [
+      {
+        title: "Flux-Bounded TIG (FBTIG) & Advanced Welding Research on Aerospace Aluminum",
+        summary:
+          "Co-investigator on experimental FBTIG welding of aluminium alloys studying flux gap and particle size effects on weld penetration (Transactions of the Indian Institute of Metals), alongside instrumentation support for IIST–ISRO trials.",
+        status: "Completed",
+      },
       {
         title: "Aerospace Manufacturing Lab Operations & Process Setups",
         summary: "Supervising experimental rigs for welding, forming, and metallographic evaluation of refractory and high-strength aerospace alloys.",
@@ -1031,10 +1064,10 @@ const currentStudents: StudentData[] = [
     roll: "SC25M147",
     specialization: "Additive Manufacturing",
     broadIdea: "Ultrasonic Vibration-Assisted MIG-WAAM & Phase-Field Solidification",
-    supervisor: "Dr. Chakravarthy P.",
-    externalGuide: "Mr. C Venkateswaran",
-    internship: "VSSC ISRO (TPS Glass Coatings), FOSSEE IIT Bombay (OpenFOAM CFD) & IIT Kharagpur (Variable Cycle Engine)",
-    projectTitle: "Experimental and Numerical Investigations on Arc DED (Ultrasonic MIG-WAAM & Phase-Field Modelling)",
+    supervisor: "Dr. Sooraj V. S & Dr. Chakravarthy P.",
+    externalGuide: "Dr. Venkateswaran C (VSSC, ISRO)",
+    internship: "VSSC ISRO (TPS Glass Coatings, Ext: Dr. Venkateswaran C / Int: Dr. Chakravarthy P.), FOSSEE IIT Bombay & IIT Kharagpur",
+    projectTitle: "Experimental and Numerical Investigations on Arc DED (Co-Guides: Dr. Sooraj V. S & Dr. Chakravarthy P.)",
     photoUrl: "/media/photos/pranay.webp",
     resumeUrl: "/resumes/pranay.pdf",
     personalEmail: "pranaypandey82@gmail.com",
@@ -1042,7 +1075,7 @@ const currentStudents: StudentData[] = [
     github: "https://github.com/Pranay1004",
     portfolio: "https://pandeyjii.vercel.app",
     synopsis:
-      "M.Tech scholar in Manufacturing Technology at IIST (B.Tech Aerospace Engineering, GATE Aerospace AIR 651) conducting thesis research on Arc Directed Energy Deposition (Ultrasonic Vibration-Assisted MIG-WAAM) of austenitic stainless steel under Dr. Chakravarthy P. and Mr. C Venkateswaran. His thesis couples macro-scale FEM/CFD thermal models with micro-scale Phase-Field Solidification Modelling (PFM), validated via Optical Microscopy, SEM, EBSD, and EDS.\n\nHis multi-institutional research span includes an internship at Vikram Sarabhai Space Centre (VSSC, ISRO) developing high-emissivity borosilicate glass TPS coatings and an in-house formulation toolbox (aero-toolbox); two stints at FOSSEE, IIT Bombay as Research Assistant and Summer Fellow in OpenFOAM CFD (National FOSSEE Emerging Talent Award 2025 & 1st Prize CFD Hackathon); and an Aeroengine Development Internship at IIT Kharagpur optimizing Variable Cycle Engine propulsion in GasTurb 14.",
+      "M.Tech scholar in Manufacturing Technology at IIST (B.Tech Aerospace Engineering, GATE Aerospace AIR 651) conducting thesis research on Arc Directed Energy Deposition (Ultrasonic Vibration-Assisted MIG-WAAM) of austenitic stainless steel under internal co-guides Dr. Sooraj V. S and Dr. Chakravarthy P. His thesis couples macro-scale FEM/CFD thermal models with micro-scale Phase-Field Solidification Modelling (PFM), validated via Optical Microscopy, SEM, EBSD, and EDS.\n\nHis multi-institutional research span includes an internship at Vikram Sarabhai Space Centre (VSSC, ISRO) under external guide Dr. Venkateswaran C and internal guide Dr. Chakravarthy P. developing high-emissivity borosilicate glass TPS coatings and an in-house formulation toolbox (aero-toolbox); two stints at FOSSEE, IIT Bombay as Research Assistant and Summer Fellow in OpenFOAM CFD (National FOSSEE Emerging Talent Award 2025 & 1st Prize CFD Hackathon); and an Aeroengine Development Internship at IIT Kharagpur optimizing Variable Cycle Engine propulsion in GasTurb 14.",
     skills: ["Wire Arc Additive (WAAM)", "Phase-Field Modeling (PFM)", "Solidification Kinetics", "Ansys FEA & CFD", "OpenFOAM", "SolidWorks", "Thermal Protection Systems", "Python", "Simufact Additive"],
     skillGroups: {
       "Additive Manufacturing": ["MIG-WAAM", "Arc DED", "Ultrasonic-Assisted WAAM", "Solidification Control", "Simufact Additive"],
@@ -1053,13 +1086,13 @@ const currentStudents: StudentData[] = [
       {
         title: "M.Tech Thesis — Ultrasonic Vibration-Assisted MIG-WAAM & Phase-Field Modelling (IIST)",
         summary:
-          "Parametric Arc DED investigation coupling ultrasonic vibration to refine columnar dendrites into equiaxed grains, uniting macro FEM/CFD models with micro-scale Phase-Field Solidification Modelling and SEM/EBSD/EDS validation.",
+          "Internal Co-Guides: Dr. Sooraj V. S & Dr. Chakravarthy P. Parametric Arc DED investigation coupling ultrasonic vibration to refine columnar dendrites into equiaxed grains, uniting macro FEM/CFD models with micro-scale Phase-Field Solidification Modelling and SEM/EBSD/EDS validation.",
         status: "Ongoing",
       },
       {
         title: "Internship — Borosilicate Glass TPS Coatings & Formulation Toolbox (VSSC, ISRO)",
         summary:
-          "Synthesized and thermally characterized high-emissivity borosilicate glass coatings on reusable silica TPS tiles in the Advanced Materials Group, and built an in-house computational glass formulation web toolbox (aero-toolbox.vercel.app).",
+          "External Guide: Dr. Venkateswaran C (VSSC, ISRO) · Internal Guide: Dr. Chakravarthy P. (IIST). Synthesized and thermally characterized high-emissivity borosilicate glass coatings on reusable silica TPS tiles in the Advanced Materials Group, and built an in-house computational glass formulation toolbox (aero-toolbox.vercel.app).",
         status: "Completed",
       },
       {

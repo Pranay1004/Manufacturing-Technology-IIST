@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Cpu, FileText, Layers, Rocket, Users, Zap } from "lucide-react";
 import { PageFrame } from "@/components/site-shell";
-import { Portrait } from "@/components/person-card";
 import { ScrollReveal } from "@/components/motion/ScrollReveal";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { MetalButton } from "@/components/ui/MetalButton";
@@ -74,46 +73,6 @@ export default function Home() {
                   </div>
                 </ScrollReveal>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════
-            FACULTY — Academic leadership
-            ═══════════════════════════════════════════ */}
-        <section className="border-t border-[var(--edge)]">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-            <div className="grid gap-10 lg:grid-cols-[0.72fr_1.28fr]">
-              <ScrollReveal variant="left">
-                <SectionLabel className="mb-3">Faculty</SectionLabel>
-                <h2 className="font-display text-3xl font-bold text-[var(--ceramic)] sm:text-4xl">
-                  Academic leadership
-                </h2>
-                <p className="mt-4 leading-7 text-[var(--ceramic-muted)]">
-                  The program is anchored by additive manufacturing, metallurgy, quality engineering,
-                  manufacturing systems, and aerospace process expertise.
-                </p>
-              </ScrollReveal>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                {faculty.map((person, i) => (
-                  <ScrollReveal key={person.slug} variant="up" className={`delay-${i}`}>
-                    <Link
-                      href="/faculty"
-                      className="group block"
-                    >
-                      <GlassCard>
-                        <Portrait name={person.name} />
-                        <h3 className="mt-4 font-display text-xl font-semibold text-[var(--ceramic)] group-hover:text-[var(--arc-blue)] transition-colors duration-200">
-                          {person.name}
-                        </h3>
-                        <p className="mt-1 text-sm font-medium text-[var(--arc-blue)]">{person.role}</p>
-                        <p className="mt-3 text-sm leading-6 text-[var(--ceramic-muted)]">{person.specialization}</p>
-                      </GlassCard>
-                    </Link>
-                  </ScrollReveal>
-                ))}
-              </div>
             </div>
           </div>
         </section>

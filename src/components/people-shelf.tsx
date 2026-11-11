@@ -187,6 +187,7 @@ export function getFirstName(fullName: string): string {
 export interface BookItem {
   id: string;
   slug: string;
+  personType: "faculty" | "student" | "phd" | "staff";
   name: string;
   firstName: string;
   shortName: string;
@@ -437,6 +438,7 @@ function getCohortBooks(cohortId: CohortId): BookItem[] {
     return {
       id: p.slug,
       slug: p.slug,
+      personType: p.type,
       name: p.name,
       firstName: getFirstName(p.name),
       shortName: getShortName(p.name),
@@ -1621,11 +1623,13 @@ export function PeopleShelf() {
                 </div>
               </div>
 
-              {/* Applied Engineering, Thesis & Internship Projects */}
+              {/* Applied Engineering, Thesis & Internship Projects (or Sponsored Research & Patents for Faculty/Staff) */}
               {dossierBook.projectDetails && dossierBook.projectDetails.length > 0 && (
                 <div>
                   <h3 className="text-xs font-semibold text-[#6D6A63] font-mono tracking-wider mb-2">
-                    Key Thesis, Internships & Lab Projects
+                    {dossierBook.personType === "faculty" || dossierBook.personType === "staff"
+                      ? "Sponsored Projects, Research & Patents"
+                      : "Key Thesis, Internships & Lab Projects"}
                   </h3>
                   <div className="flex flex-col gap-2">
                     {dossierBook.projectDetails.map((proj) => (
@@ -1639,6 +1643,22 @@ export function PeopleShelf() {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Patents, Credentials, Honors & Experience Sections */}
+              {dossierBook.profileSections && dossierBook.profileSections.length > 0 && (
+                <div className="space-y-3">
+                  {dossierBook.profileSections.map((sec) => (
+                    <div key={sec.title} className="border-t border-[rgba(20,20,20,0.1)] pt-3">
+                      <h3 className="text-xs font-semibold text-[#6D6A63] font-mono tracking-wider mb-1.5">
+                        {sec.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-[#2A2A2A] leading-relaxed whitespace-pre-line">
+                        {sec.body}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               )}
 
