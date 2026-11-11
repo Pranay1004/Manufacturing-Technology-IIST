@@ -238,9 +238,11 @@ export function PeopleDirectory() {
                   {preview.role} · {preview.specialization}
                 </p>
 
-                <p className="mt-3 text-sm leading-relaxed text-[var(--ceramic-muted)]">
-                  {preview.synopsis}
-                </p>
+                <div className="mt-3 space-y-2.5 text-sm leading-relaxed text-[var(--ceramic-muted)] text-justify sm:text-left">
+                  {preview.synopsis.split("\n\n").map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+                </div>
 
                 {/* Skills tags */}
                 <div className="mt-4 flex flex-wrap gap-1.5 justify-center sm:justify-start">

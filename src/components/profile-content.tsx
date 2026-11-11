@@ -149,7 +149,7 @@ export function ProfileContent({ initialPerson }: { initialPerson: Person }) {
 
               <section>
                 <Divider className="mb-5" />
-                <h2 className="font-display text-3xl font-bold text-[var(--ceramic)]">Demonstrated projects</h2>
+                <h2 className="font-display text-3xl font-bold text-[var(--ceramic)]">Key Thesis, Internships & Lab Projects</h2>
                 <div className="mt-5 space-y-4">
                   {person.projects && person.projects.length ? (
                     person.projects.map((project) => (

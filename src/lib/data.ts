@@ -25,6 +25,7 @@ export type Person = {
   personalEmail?: string;
   portfolio?: string;
   linkedin?: string;
+  github?: string;
   supervisor?: string;
   location?: string;
   availability: Availability;
@@ -721,6 +722,7 @@ interface StudentData {
   resumeUrl?: string;
   personalEmail?: string;
   linkedin?: string;
+  github?: string;
   portfolio?: string;
   synopsis?: string;
   skills?: string[];
@@ -734,15 +736,29 @@ const currentStudents: StudentData[] = [
     slug: "aniket-balaji-parnale",
     name: "Aniket Balaji Parnale",
     roll: "SC25M141",
-    specialization: "Quality Engineering & Production Scheduling",
+    specialization: "Quality Engineering",
     broadIdea: "Quality Engineering & Production Scheduling",
     supervisor: "Dr. B. S. Girish",
-    internship: "Friction Stir Welding",
+    internship: "Friction Stir Welding Process Parameter & Joint Integrity Study",
     projectTitle: "Scheduling of Autoclave (CMSE)",
     photoUrl: "/media/photos/aniket.webp",
     synopsis:
-      "M.Tech scholar in Manufacturing Technology at IIST specializing in quality engineering, statistical process control, and production scheduling. Conducting master's research on autoclave scheduling optimization with CMSE and friction stir welding parameter evaluation.",
+      "M.Tech scholar in Manufacturing Technology at IIST specializing in quality engineering, statistical process control, and production scheduling. His academic focus spans tolerance charting, aerospace quality assurance systems, and constraint-driven resource optimization for composite and metallic manufacturing lines.\n\nFor his M.Tech thesis under Dr. B. S. Girish, he is investigating scheduling optimization of aerospace autoclaves at the Composites Entity (CMSE), complemented by summer internship research evaluating process parameters and mechanical performance in friction stir welding.",
     skills: ["Quality Engineering", "Production Scheduling", "Autoclave Scheduling", "Statistical Process Control", "Friction Stir Welding", "CAD-CAM", "Optimization"],
+    projects: [
+      {
+        title: "Scheduling of Autoclave (CMSE)",
+        summary:
+          "M.Tech thesis research under Dr. B. S. Girish developing scheduling algorithms and utilization models to optimize composite curing cycles and bottleneck throughput at CMSE.",
+        status: "Ongoing",
+      },
+      {
+        title: "Summer Internship — Friction Stir Welding Study",
+        summary:
+          "Applied summer internship investigating process parameter envelopes, weld seam quality, and defect mitigation in aerospace friction stir welding.",
+        status: "Completed",
+      },
+    ],
   },
   {
     slug: "anushyanth-a",
@@ -758,7 +774,7 @@ const currentStudents: StudentData[] = [
     personalEmail: "anushyanth2003@gmail.com",
     linkedin: "https://www.linkedin.com/in/anushyanth-a-8a4481217",
     synopsis:
-      "M.Tech scholar in Manufacturing Technology at IIST (B.E. Mechanical Engineering, Sri Venkateswara College of Engineering, Chennai) with hands-on industrial experience as an Application Engineer at Kriatec Services Pvt. Ltd. (Mar 2024 – Jul 2025) and Research Intern at AMTDC, IIT Madras (Jun–Jul 2026). Experienced in mechanical design, CAD/CAM modeling, GD&T, Hexagon Edgecam CNC simulation and post-processor modeling, and FEA (ANSYS Workbench, Abaqus). Currently investigating repair of AA2219-T87 friction stir welds using Re-FSW, TIG, and Plug FSW techniques for aerospace applications at VSSC under Dr. Chakravarthy P.",
+      "M.Tech scholar in Manufacturing Technology at IIST (B.E. Mechanical Engineering, Sri Venkateswara College of Engineering, Chennai) with prior industry experience as an Application Engineer at Kriatec Services Pvt. Ltd. (Mar 2024 – Jul 2025). At Kriatec, he developed GD&T-compliant CAD models and drawings, built CNC turning/milling simulations and post-processors in Hexagon Edgecam, and supported industrial CAM workflows.\n\nHis research portfolio bridges precision metrology and solid-state aerospace joining: he completed a summer research internship at AMTDC, IIT Madras (Jun–Jul 2026) building a vision-based tool wear and dimensional measurement system, and is conducting his M.Tech thesis at VSSC under Dr. Chakravarthy P. on repairing AA2219-T87 friction stir welds using Re-FSW, TIG, and Plug FSW.",
     skills: [
       "SolidWorks",
       "Creo Parametric",
@@ -792,25 +808,25 @@ const currentStudents: StudentData[] = [
       {
         title: "Repair Study on Friction Stir Welding of AA2219-T87 — VSSC",
         summary:
-          "Evaluating mechanical and microstructural properties of defective AA2219-T87 friction stir welds repaired using Re-FSW, TIG, and Plug FSW for aerospace applications, studying room and cryogenic tensile properties, microhardness, microstructure, and fractographic features (Guided by Dr. Chakravarthy P.).",
+          "M.Tech thesis guided by Dr. Chakravarthy P. evaluating room- and cryogenic-temperature tensile properties, microhardness, microstructure, and fractography of defective AA2219-T87 FSW joints repaired via Re-FSW, TIG, and Plug FSW.",
         status: "Ongoing",
       },
       {
-        title: "Vision-Based Tool Wear & Dimensional Measurement System (AMTDC, IIT Madras)",
+        title: "Internship — Vision-Based Tool Wear & Dimensional Measurement (AMTDC, IIT Madras)",
         summary:
-          "Designed and developed a vision-based measurement system for tool wear detection and dimensional measurement applications during Research Internship at AMTDC, IIT Madras (Jun–Jul 2026).",
+          "Research internship at AMTDC, IIT Madras (Jun–Jul 2026) designing and developing a vision-based optical inspection and measurement system for real-time tool wear detection and part metrology.",
         status: "Completed",
       },
       {
         title: "Design and Fabrication of an Electric Bike with Performance Optimization",
         summary:
-          "Designed and fabricated a lightweight, structurally stable, aerodynamic chassis using FEA stress, deformation, and virtual crash testing in ANSYS alongside MATLAB Simulink trip-cycle battery optimization (2024).",
+          "Designed and fabricated a lightweight aerodynamic chassis validated through FEA stress, deformation, and virtual crash simulations in ANSYS alongside MATLAB Simulink trip-cycle battery optimization (2024).",
         status: "Completed",
       },
       {
         title: "Design and Fabrication of Quadcopter Drone",
         summary:
-          "Designed and fabricated a quadcopter drone focused on stability, lightweight structure, aerodynamics, electronics integration, and durability (2023).",
+          "Designed and fabricated a multirotor quadcopter platform focusing on structural rigidity, low airframe weight, and propulsion integration (2023).",
         status: "Completed",
       },
     ],
@@ -834,42 +850,71 @@ const currentStudents: StudentData[] = [
     name: "Juveriya Sayyed",
     roll: "SC25M143",
     specialization: "Composite Manufacturing",
-    broadIdea: "VSSC - DfAM- Auxetic Structures",
+    broadIdea: "VSSC - DfAM - Auxetic Structures & CMSE Composites",
     supervisor: "Dr. Sooraj V. S",
-    internship: "VSSC - DfAM",
-    projectTitle: "CMSE - Composites",
+    internship: "VSSC — Design for Additive Manufacturing (DfAM) of Auxetic Structures",
+    projectTitle: "Composite Manufacturing & Structural Evaluation (CMSE)",
     skills: ["Composite Manufacturing", "DfAM & Auxetic Structures", "Aerospace Composites", "Process planning", "Technical documentation"],
+    synopsis:
+      "M.Tech scholar in Manufacturing Technology at IIST specializing in aerospace composite manufacturing and metamaterial structures under Dr. Sooraj V. S. Her academic focus bridges fiber-reinforced polymer processing with design for additive manufacturing (DfAM) methodologies for lightweight space structures.\n\nThrough her research and summer internship at Vikram Sarabhai Space Centre (VSSC) on DfAM of auxetic cellular architectures alongside her M.Tech thesis work with the Composites Entity (CMSE), she investigates process-structure relationships for high-stiffness aerospace hardware.",
+    projects: [
+      {
+        title: "Composite Manufacturing & Structural Evaluation (CMSE)",
+        summary:
+          "M.Tech thesis research with CMSE guided by Dr. Sooraj V. S focusing on composite layup, curing workflows, and structural process integrity for space applications.",
+        status: "Ongoing",
+      },
+      {
+        title: "Summer Internship — DfAM of Auxetic Structures (VSSC)",
+        summary:
+          "Summer internship at Vikram Sarabhai Space Centre exploring design for additive manufacturing (DfAM) principles and mechanical behavior of negative-Poisson-ratio auxetic lattice geometries.",
+        status: "Completed",
+      },
+    ],
   },
   {
     slug: "lakshmi-k",
     name: "Lakshmi K",
     roll: "SC25M144",
-    specialization: "Incremental Forming & Molecular Dynamics",
+    specialization: "Incremental Forming",
     broadIdea: "Incremental Forming & Shock Tube High Strain Rate Deformation",
     supervisor: "Dr. Chakravarthy P.",
-    internship: "Incremental Forming & High Strain Rate Deformation (IIST/VSSC)",
-    projectTitle: "High strain rate forming using shock tubes",
+    internship: "M.Tech Research Internship in Molecular Dynamics Simulation (IIST) & Mechanical Engineering Intern at Nava Design",
+    projectTitle: "High Strain Rate Forming Using Shock Tubes",
     photoUrl: "/media/photos/laxmi.webp",
     resumeUrl: "/resumes/laxmi.pdf",
     personalEmail: "lakshmikdev08@gmail.com",
     linkedin: "https://www.linkedin.com/in/lakshmi-k-756931229",
     synopsis:
-      "M.Tech scholar in Manufacturing Technology at IIST with a B.Tech in Production Engineering from GEC Thrissur. Specializes in advanced metal forming, single point incremental sheet forming, molecular dynamics simulations (LAMMPS, OVITO), CAD/CAM modeling (SolidWorks, AutoCAD, Creo), and CNC programming for aerospace components.",
+      "M.Tech scholar in Manufacturing Technology at IIST with a B.Tech in Production Engineering from Government Engineering College, Thrissur. Her work combines continuum metal forming with atomistic physics, spanning single-point incremental sheet forming, CAD/CAM modeling (SolidWorks, AutoCAD, Creo), and CNC programming, backed by prior engineering internships at Nava Design & Innovation Pvt. Ltd. and HMT Machine Tools Limited.\n\nGuided by Dr. Chakravarthy P., her M.Tech research investigates high strain rate forming using shock tubes alongside her M.Tech research internship on Molecular Dynamics simulation—where she reconstructed an all-atom gas detonation forming model in LAMMPS and analyzed high-speed aluminium deformation, crystal defects, and fracture in OVITO.",
     skills: ["Incremental Forming", "LAMMPS", "OVITO", "Atomsk", "SolidWorks", "AutoCAD", "Creo", "Fusion 360", "CNC Programming", "Metrology", "MATLAB"],
     skillGroups: {
       "Simulation & Physics": ["LAMMPS", "OVITO", "Atomsk", "MATLAB"],
       "CAD & CAM": ["SolidWorks", "AutoCAD", "Creo", "Autodesk Fusion 360", "CNC G-Code"],
-      "Manufacturing Processes": ["Incremental Forming", "Metal Forming", "Metrology", "Production Planning"],
+      "Manufacturing Processes": ["Incremental Forming", "Shock Tube Forming", "Metal Forming", "Metrology", "Production Planning"],
     },
     projects: [
       {
-        title: "Incremental Sheet Forming of Aerospace Alloys",
-        summary: "Toolpath generation, deformation limits, and thinning behavior in single point incremental forming of lightweight sheets.",
+        title: "High Strain Rate Forming Using Shock Tubes & Incremental Sheet Forming",
+        summary:
+          "M.Tech thesis research guided by Dr. Chakravarthy P. studying deformation limits, thinning behavior, and strain-rate effects during shock-tube and incremental sheet forming of lightweight aerospace alloys.",
         status: "Ongoing",
       },
       {
+        title: "Research Internship — All-Atom Molecular Dynamics Gas Detonation Forming (IIST)",
+        summary:
+          "Reconstructed and validated an all-atom gas detonation forming model in LAMMPS and analyzed aluminium deformation, dislocation defects, and fragmentation across high punch velocities in OVITO.",
+        status: "Completed",
+      },
+      {
+        title: "Industrial Internships — Nava Design & Innovation (2025) & HMT Machine Tools (2023)",
+        summary:
+          "Developed SolidWorks prototyping assemblies and vendor production workflows at Nava Design & Innovation Pvt. Ltd. (Mar–Jul 2025), following machining and QC training on CNC turning centers at HMT Machine Tools.",
+        status: "Completed",
+      },
+      {
         title: "Formula Bharat 2023 Suspension Fabrication",
-        summary: "Design, FEA stress analysis, and precision fabrication of suspension wishbones and uprights for formula-style racecar.",
+        summary: "Design, FEA stress analysis, and precision fabrication of suspension wishbones and uprights for a formula-style racecar.",
         status: "Completed",
       },
     ],
@@ -878,19 +923,18 @@ const currentStudents: StudentData[] = [
     slug: "shivam-ajay-saraswat",
     name: "Shivam Ajay Saraswat",
     roll: "SC25M145",
-    specialization: "Mechanical Design & Additive Manufacturing",
+    specialization: "Mechanical Design & AM",
     broadIdea: "Metal 3D Printed Compliant Mechanisms (VSSC) & AMTDC CNC Systems",
     supervisor: "Dr. Sooraj V. S",
-    internship: "VSSC (Compliant Mechanisms) & AMTDC IIT Madras (CNC Dashboard)",
+    internship: "VSSC (Compliant Mechanisms), AMTDC IIT Madras (CNC Dashboard) & DRDO ARDE (Servo Systems)",
     projectTitle: "Mathematical and Analytical Modelling of Metal 3D Printed Compliant Mechanism (VSSC)",
     photoUrl: "/media/photos/shivam.webp",
     resumeUrl: "/resumes/shivam.pdf",
     personalEmail: "shivamsaraswat551@gmail.com",
     linkedin: "https://www.linkedin.com/in/shivam-saraswat-705218238",
-    portfolio: "https://github.com/WILLSHAPER5-10-5",
     synopsis:
-      "M.Tech scholar in Manufacturing Technology at IIST with research and industrial experience at VSSC (mathematical modeling of metal 3D printed compliant mechanisms), AMTDC IIT Madras (CNC machine dashboard using Eclipse Milo OPC-UA), and DRDO ARDE (servo laying system kinematics). Expert in CAD/CAE simulations and microgravity positioning systems.",
-    skills: ["Creo", "SolidWorks", "Fusion 360", "ANSYS Workbench", "Abaqus", "Simufact Additive", "3D Printing (Cura/Prusa)", "MATLAB & Simulink", "Compliant Mechanisms", "Python"],
+      "M.Tech scholar in Manufacturing Technology at IIST (B.Tech Mechanical Engineering, MIT-WPU Pune) specializing in mechanical design, finite element simulation, and additive manufacturing. He combines multi-CAD and CAE proficiency (Creo, SolidWorks, Fusion 360, ANSYS, Abaqus, Simufact Additive) with industrial automation and controls engineering.\n\nHis applied research spans three national laboratories: conducting his M.Tech thesis at VSSC under Dr. Sooraj V. S on mathematical and analytical modeling of metal 3D printed compliant mechanisms, developing an OPC-UA CNC machine monitoring dashboard for Jyoti MTX 300 machines at AMTDC IIT Madras, and designing servo gun-laying kinematics at DRDO ARDE.",
+    skills: ["Creo", "SolidWorks", "Fusion 360", "ANSYS Workbench", "Abaqus", "Simufact Additive", "3D Printing", "MATLAB & Simulink", "Compliant Mechanisms", "Python"],
     skillGroups: {
       "CAD & Design": ["Creo", "Fusion 360", "SolidWorks", "CATIA", "OnShape", "AutoCAD"],
       "CAE & Simulation": ["ANSYS Workbench", "Abaqus", "Simufact Additive"],
@@ -899,18 +943,26 @@ const currentStudents: StudentData[] = [
     },
     projects: [
       {
-        title: "Metal 3D Printed Compliant Mechanisms (VSSC)",
-        summary: "Mathematical and analytical modelling of additively manufactured compliant flexures and mechanisms for space payloads at VSSC.",
+        title: "Metal 3D Printed Compliant Mechanisms (VSSC Thesis & Internship)",
+        summary:
+          "Mathematical, analytical, and FEA modeling of additively manufactured metallic flexure mechanisms for precision space payloads at VSSC under Dr. Sooraj V. S.",
         status: "Ongoing",
       },
       {
-        title: "Industrial CNC Machine Dashboard (AMTDC IIT Madras)",
-        summary: "OPC-UA server generation via Eclipse Milo and monitoring dashboard for Jyoti MTX 300 multi-axis CNC machines.",
+        title: "Internship — Industrial CNC Machine Dashboard (AMTDC, IIT Madras)",
+        summary:
+          "Designed and deployed an OPC-UA telemetry server via Eclipse Milo and live machine monitoring dashboard for Jyoti MTX 300 multi-axis CNC machining centers (2026).",
+        status: "Completed",
+      },
+      {
+        title: "Design Internship — Servo Mechanism for 2A42 Auto Cannon (DRDO ARDE)",
+        summary:
+          "Designed and analyzed a servo gun-laying mechanism for a 30mm auto cannon system using ANSYS structural simulations and MATLAB Simulink kinematic modeling (2023).",
         status: "Completed",
       },
       {
         title: "Random Positioning Machine for Microgravity Simulation",
-        summary: "Multi-axis rotational simulator to emulate microgravity environments for biological and material testing.",
+        summary: "Multi-axis rotational simulator designed and analyzed via FEA to emulate microgravity environments for biological and material testing.",
         status: "Ongoing",
       },
     ],
@@ -920,45 +972,86 @@ const currentStudents: StudentData[] = [
     name: "Bishodeep Sardar",
     roll: "SC25M146",
     specialization: "Conventional Manufacturing",
-    broadIdea: "Mechanical properties and microstructure studies on gas tungsten arc welded AA2014 alloy",
+    broadIdea: "GTAW of AA2014 Alloy (VSSC) & Incremental Forming",
     supervisor: "Dr. Chakravarthy P.",
     externalGuide: "Dr. Agilan (VSSC)",
-    internship: "Mechanical properties and microstructure studies on gas tungsten arc welded AA2014",
-    projectTitle: "Incremental Forming (IIST/VSSC)",
+    internship: "Mechanical properties and microstructure studies on gas tungsten arc welded AA2014 (VSSC)",
+    projectTitle: "Incremental Forming & Aerospace Alloy Processing (IIST/VSSC)",
+    synopsis:
+      "M.Tech scholar in Manufacturing Technology at IIST specializing in conventional manufacturing processes, aerospace metallurgy, and fusion welding characterization under Dr. Chakravarthy P. His coursework and laboratory training center on weldability of high-strength aerospace aluminum alloys and formability mechanics.\n\nIn collaboration with Dr. Agilan at VSSC, his summer internship and research investigate mechanical properties and microstructural evolution in gas tungsten arc welded (GTAW) AA2014 alloy, alongside applied thesis work on incremental sheet forming of aerospace components.",
+    projects: [
+      {
+        title: "Incremental Forming & Aerospace Alloy Processing (IIST/VSSC)",
+        summary:
+          "M.Tech project work guided by Dr. Chakravarthy P. investigating forming mechanics, tool-sheet interaction, and dimensional accuracy in metallic aerospace forming.",
+        status: "Ongoing",
+      },
+      {
+        title: "Summer Internship — GTAW of AA2014 Aluminum Alloy (VSSC)",
+        summary:
+          "Experimental investigation with Dr. Agilan (VSSC) evaluating microstructure zones, precipitate evolution, and tensile mechanical properties of gas tungsten arc welded AA2014 plates.",
+        status: "Completed",
+      },
+    ],
   },
   {
     slug: "pranay-kumar-pandey",
     name: "Pranay Kumar Pandey",
     roll: "SC25M147",
-    specialization: "Wire Arc Additive Manufacturing (WAAM) & Multi-scale Modeling",
+    specialization: "Additive Manufacturing",
     broadIdea: "Ultrasonic Vibration-Assisted MIG-WAAM & Phase-Field Solidification",
     supervisor: "Dr. Chakravarthy P.",
     externalGuide: "Mr. C Venkateswaran",
-    internship: "Experimental and Numerical Investigations on Arc DED (WAAM)",
-    projectTitle: "Ultrasonic Vibration-Assisted MIG-WAAM & Phase-Field Solidification Modelling",
+    internship: "VSSC ISRO (TPS Glass Coatings), FOSSEE IIT Bombay (OpenFOAM CFD) & IIT Kharagpur (Variable Cycle Engine)",
+    projectTitle: "Experimental and Numerical Investigations on Arc DED (Ultrasonic MIG-WAAM & Phase-Field Modelling)",
     photoUrl: "/media/photos/pranay.webp",
     resumeUrl: "/resumes/pranay.pdf",
     personalEmail: "pranaypandey82@gmail.com",
     linkedin: "https://www.linkedin.com/in/pranay10",
+    github: "https://github.com/Pranay1004",
     portfolio: "https://pandeyjii.vercel.app",
     synopsis:
-      "M.Tech scholar in Manufacturing Technology at IIST (B.Tech Aerospace Engineering). Thesis research on Arc Directed Energy Deposition (WAAM) of austenitic stainless steel, integrating ultrasonic vibration coupling to refine dendritic grain structures, multi-scale macro FEM/CFD thermal models, and micro-scale Phase-Field Solidification Modelling (PFM). Former Research Assistant at FOSSEE, IIT Bombay.",
-    skills: ["Wire Arc Additive (WAAM)", "Phase-Field Modeling (PFM)", "Solidification Kinetics", "Ansys FEA & CFD", "SolidWorks", "Thermal Protection Systems", "Python", "Generative AI"],
+      "M.Tech scholar in Manufacturing Technology at IIST (B.Tech Aerospace Engineering, GATE Aerospace AIR 651) conducting thesis research on Arc Directed Energy Deposition (Ultrasonic Vibration-Assisted MIG-WAAM) of austenitic stainless steel under Dr. Chakravarthy P. and Mr. C Venkateswaran. His thesis couples macro-scale FEM/CFD thermal models with micro-scale Phase-Field Solidification Modelling (PFM), validated via Optical Microscopy, SEM, EBSD, and EDS.\n\nHis multi-institutional research span includes an internship at Vikram Sarabhai Space Centre (VSSC, ISRO) developing high-emissivity borosilicate glass TPS coatings and an in-house formulation toolbox (aero-toolbox); two stints at FOSSEE, IIT Bombay as Research Assistant and Summer Fellow in OpenFOAM CFD (National FOSSEE Emerging Talent Award 2025 & 1st Prize CFD Hackathon); and an Aeroengine Development Internship at IIT Kharagpur optimizing Variable Cycle Engine propulsion in GasTurb 14.",
+    skills: ["Wire Arc Additive (WAAM)", "Phase-Field Modeling (PFM)", "Solidification Kinetics", "Ansys FEA & CFD", "OpenFOAM", "SolidWorks", "Thermal Protection Systems", "Python", "Simufact Additive"],
     skillGroups: {
-      "Additive Manufacturing": ["MIG-WAAM", "Arc DED", "Ultrasonic-Assisted WAAM", "Solidification Control"],
-      "Modeling & Simulation": ["Phase-Field Solidification (PFM)", "Macro FEM/CFD", "Ansys Fluent", "Thermo-mechanical Analysis"],
-      "Design & Computing": ["SolidWorks", "Python", "Generative AI", "C++"],
+      "Additive Manufacturing": ["MIG-WAAM", "Arc DED", "Ultrasonic-Assisted WAAM", "Solidification Control", "Simufact Additive"],
+      "Modeling & Simulation": ["Phase-Field Solidification (PFM)", "Macro FEM/CFD", "OpenFOAM", "Ansys Fluent & Workbench", "GasTurb 14", "Abaqus"],
+      "Design & Computing": ["SolidWorks", "Fusion 360", "Python", "C++", "GitHub", "Generative AI"],
     },
     projects: [
       {
-        title: "Ultrasonic Vibration-Assisted Arc DED of Stainless Steel",
-        summary: "Parametric optimization and hybrid acoustic vibration coupling to refine columnar dendritic grains into equiaxed structures in WAAM.",
+        title: "M.Tech Thesis — Ultrasonic Vibration-Assisted MIG-WAAM & Phase-Field Modelling (IIST)",
+        summary:
+          "Parametric Arc DED investigation coupling ultrasonic vibration to refine columnar dendrites into equiaxed grains, uniting macro FEM/CFD models with micro-scale Phase-Field Solidification Modelling and SEM/EBSD/EDS validation.",
         status: "Ongoing",
       },
       {
-        title: "Phase-Field Solidification Modeling (PFM)",
-        summary: "Micro-scale phase-field numerical simulation capturing dendritic morphology, solute partitioning, and cooling rates during metal deposition.",
-        status: "Ongoing",
+        title: "Internship — Borosilicate Glass TPS Coatings & Formulation Toolbox (VSSC, ISRO)",
+        summary:
+          "Synthesized and thermally characterized high-emissivity borosilicate glass coatings on reusable silica TPS tiles in the Advanced Materials Group, and built an in-house computational glass formulation web toolbox (aero-toolbox.vercel.app).",
+        status: "Completed",
+      },
+      {
+        title: "Research Assistant & Summer Fellowship — OpenFOAM CFD Modeling (FOSSEE, IIT Bombay)",
+        summary:
+          "Simulated non-Newtonian fluid flow across sinusoidal microchannels using custom OpenFOAM rheological solvers (2023 Fellowship), and mentored national cohorts while migrating CFD case studies to latest OpenFOAM releases (2025).",
+        status: "Completed",
+      },
+      {
+        title: "Aeroengine Development Internship — Variable Cycle Engine Optimization (IIT Kharagpur)",
+        summary:
+          "Conducted parametric and thermodynamic cycle analysis of Variable Cycle Engines in GasTurb 14 across take-off, subsonic, and supersonic flight regimes, optimizing bypass ratio, VABI geometry, and turbine entry temperature.",
+        status: "Completed",
+      },
+    ],
+    profileSections: [
+      {
+        title: "Research Experience & Internships",
+        body: "Vikram Sarabhai Space Centre (VSSC), ISRO (Jun–Jul 2026) — Intern, Glass & Electronic Materials Division: Developed high-emissivity borosilicate glass coatings on porous silica TPS tiles and built the Aero-Toolbox formulation platform.\n\nFOSSEE, IIT Bombay (Mar–Jul 2025 & May–Aug 2023) — Research Assistant & Summer Fellow: OpenFOAM solver implementation for non-Newtonian microchannel flows, CFD case-study migration, and national intern mentorship.\n\nIIT Kharagpur (Jun–Jul 2024) — Aeroengine Development Intern: GasTurb 14 parametric thermodynamic cycle modeling for Variable Cycle Engines.",
+      },
+      {
+        title: "Education & Honors",
+        body: "M.Tech Manufacturing Technology — IIST Thiruvananthapuram (2025–2027)\nB.Tech Aerospace Engineering — Amity University Mumbai (2021–2025, CGPA 8.28)\n\nHonors: National FOSSEE Awards 2025 (Emerging Talent in Open Source Software) · GATE Aerospace 2025 (AIR 651) · 1st Prize FOSSEE CFD Hackathon · NASA Space Apps Global Qualifier · NPTEL Course Topper (IIT Kharagpur).",
       },
     ],
   },
@@ -966,17 +1059,17 @@ const currentStudents: StudentData[] = [
     slug: "abdullah-rishad",
     name: "Abdullah Rishad",
     roll: "SC25M179",
-    specialization: "Smart Manufacturing & Titanium WAAM",
+    specialization: "Smart Manufacturing",
     broadIdea: "WAAM of Titanium Shielding Design (L&T AMCoE) & AA7075 SCC Studies",
     supervisor: "Dr. Sooraj V. S",
-    internship: "L&T AMCoE Precision Manufacturing Systems Centre (WAAM of Titanium Shielding)",
-    projectTitle: "Design of Shielding Systems for WAAM of Titanium Alloys & GTAW of AA7075",
+    internship: "L&T AMCoE Precision Manufacturing Systems Centre (WAAM of Titanium Shielding, Jun–Jul 2026)",
+    projectTitle: "GTAW of AA7075 & Stress Corrosion Cracking Studies (VSSC) / Titanium WAAM Shielding",
     photoUrl: "/media/photos/rishad.webp",
     resumeUrl: "/resumes/rishad.pdf",
     personalEmail: "rishadabdullahemo@gmail.com",
     linkedin: "https://www.linkedin.com/in/abdullah-rishad-721195162",
     synopsis:
-      "M.Tech scholar in Manufacturing Technology at IIST (CGPA 8.92) and 1st Year M.Tech Student Representative. Conducted industrial internship at L&T AMCoE Precision Manufacturing Systems Centre designing trailing shielding systems for WAAM of Titanium alloys. Research on GTAW of AA7075 and stress corrosion cracking (SCC) mitigation.",
+      "M.Tech scholar in Manufacturing Technology at IIST (CGPA 8.92) and 1st Year M.Tech Student Representative, holding a B.Tech in Production Engineering from GEC Thrissur and prior industrial experience leading retail operations at Walkaroo (Coimbatore). His technical toolkit spans Fusion 360, Abaqus CAE, Simufact Additive, Ansys Fluent, CAPP, and CAM programming.\n\nGuided by Dr. Sooraj V. S, his research and industrial engagements pair his M.Tech thesis project at VSSC (ISRO) on GTAW of AA7075 and stress corrosion cracking (SCC) mitigation with his summer internship at L&T AMCoE Precision Manufacturing Systems Centre designing inert trailing shielding systems for Wire Arc Additive Manufacturing of Titanium alloys.",
     skills: ["Titanium WAAM", "Shielding Gas Design", "Abaqus CAE", "Fusion 360", "Simufact Additive", "Ansys Fluent", "CAPP & CAM", "Process Optimization", "Time Study"],
     skillGroups: {
       "Engineering Software": ["Fusion 360", "AutoCAD", "Abaqus CAE", "Simufact Additive", "Ansys Fluent", "MATLAB"],
@@ -985,14 +1078,22 @@ const currentStudents: StudentData[] = [
     },
     projects: [
       {
-        title: "Shielding System for WAAM of Titanium Alloys (L&T AMCoE)",
-        summary: "Trailing shield and chamber design to prevent atmospheric contamination and alpha-case embrittlement during wire arc deposition of Ti-6Al-4V.",
+        title: "GTAW of AA7075 and Stress Corrosion Cracking Studies (VSSC, ISRO)",
+        summary:
+          "M.Tech thesis research examining weld joint integrity, heat-affected zone susceptibility, and stress corrosion cracking (SCC) resistance in aerospace AA7075 aluminum alloy.",
         status: "Ongoing",
       },
       {
-        title: "GTAW of AA7075 and Stress Corrosion Cracking (SCC)",
-        summary: "Investigation of weld joint integrity, heat affected zone susceptibility, and corrosion cracking resistance in aircraft aluminum alloys.",
-        status: "Ongoing",
+        title: "Summer Internship — Shielding System for Titanium WAAM (L&T AMCoE, Coimbatore)",
+        summary:
+          "Designed trailing inert gas shielding fixtures at PES IC AMCoE, L&T Ltd (Jun–Jul 2026) to suppress oxidation and alpha-case embrittlement during Ti-6Al-4V wire arc additive deposition.",
+        status: "Completed",
+      },
+      {
+        title: "Industrial Internship — Thermal Power Operations (NLCIL, Neyveli) & Retail Operations (Walkaroo)",
+        summary:
+          "Completed plant engineering exposure at Neyveli New Thermal Power Station (May 2023) and managed central warehouse and multi-store engineering operations as Assistant Executive at Walkaroo (2024–2025).",
+        status: "Completed",
       },
     ],
   }
@@ -1125,11 +1226,12 @@ people.push(
     personalEmail: s.personalEmail ?? `${s.slug.replaceAll("-", ".")}@gmail.com`,
     portfolio: s.portfolio ?? `https://${s.slug}.portfolio.example`,
     linkedin: s.linkedin ?? `https://www.linkedin.com/in/${s.slug}`,
+    github: s.github,
     photoUrl: s.photoUrl,
     resumeUrl: s.resumeUrl,
     availability: "Open to roles",
     supervisor: s.supervisor,
-    synopsis: s.synopsis ?? `Outgoing M.Tech Manufacturing Technology scholar building aerospace-oriented manufacturing depth through coursework, lab work, process planning, and applied thesis research. Specializing in ${s.specialization} with active research focus on ${s.broadIdea || s.specialization}. Available for full-time engineering and R&D roles.`,
+    synopsis: s.synopsis ?? `Outgoing M.Tech Manufacturing Technology scholar building aerospace-oriented manufacturing depth through coursework, lab work, process planning, and applied thesis research. Specializing in ${s.specialization} with active research focus on ${s.broadIdea || s.specialization}.\n\nConducted applied summer internship research on ${s.internship} alongside core M.Tech thesis investigations on ${s.projectTitle}, supervised by ${s.supervisor}${s.externalGuide ? ` and ${s.externalGuide}` : ""}.`,
     skills: s.skills ?? [s.specialization, "Process planning", "Technical documentation", "Aerospace manufacturing"],
     skillGroups: s.skillGroups ?? {
       Core: [s.specialization, "Materials and processes", "Design for manufacturing"],
@@ -1139,9 +1241,18 @@ people.push(
     projects: s.projects ?? [
       {
         title: s.projectTitle,
-        summary: `M.Tech project work: ${s.projectTitle}. Guided by ${s.supervisor}${s.externalGuide ? ` and ${s.externalGuide}` : ""}.`,
+        summary: `M.Tech thesis work: ${s.projectTitle}. Guided by ${s.supervisor}${s.externalGuide ? ` and ${s.externalGuide}` : ""}.`,
         status: "Ongoing",
-      }
+      },
+      ...(s.internship && s.internship !== s.projectTitle
+        ? [
+            {
+              title: `Summer Internship — ${s.internship}`,
+              summary: `Applied internship research & engineering execution covering ${s.internship}.`,
+              status: "Completed" as const,
+            },
+          ]
+        : []),
     ],
     seekingRoles: [
       "Additive Manufacturing Engineer",
@@ -1181,25 +1292,47 @@ people.push(
     availability: "Open to roles",
     synopsis:
       student.slug === "p-j-arjun"
-        ? "M.Tech Manufacturing Technology (2024-2026, CGPA 9.26) scholar placed at Bharat Electronics Ltd. (BEL) as Probationary Engineer. Researched Laser Powder Bed Fusion (LPBF) of Titanium Alloy Ti-6Al-4V with boron additions under Dr. V S Sooraj. First author of peer-reviewed review in MDPI Coatings (2022); KTU top 2% rank holder."
-        : `M.Tech Manufacturing Technology (2024-2026) scholar specializing in ${student.specialization}. Thesis project: "${student.internship}" guided by ${student.internalGuide}.${student.placedAt ? ` Placed at ${student.placedAt}${student.placedRole ? ` as ${student.placedRole}` : ""}.` : ""}`,
+        ? "M.Tech Manufacturing Technology (2024–2026, CGPA 9.26) scholar placed at Bharat Electronics Ltd. (BEL) as Probationary Engineer, holding a B.Tech in Mechanical Engineering (CGPA 9.74, KTU top 2% rank holder). First author of a peer-reviewed MDPI Coatings paper (2022) and NPTEL Silver Medalist across Manufacturing Systems & Process Technology courses from IIT Kanpur.\n\nConducted his M.Tech thesis project at CMSE, VSSC on path planning and thickness-control design for filament-wound liner-less composite tanks, alongside his MMA/MME VSSC summer internship comparing Laser Powder Bed Fusion (LPBF) Ti-6Al-4V with and without boron additions under Dr. V S Sooraj, and earlier composite tribology work at CSIR-NIIST."
+        : `M.Tech Manufacturing Technology (2024–2026) scholar specializing in ${student.specialization}. Completed graduate coursework and laboratory training across additive manufacturing, aerospace metallurgy, precision machining, and manufacturing planning.\n\nThesis and internship research on "${student.internship}" guided by ${student.internalGuide}.${student.placedAt ? ` Placed at ${student.placedAt}${student.placedRole ? ` as ${student.placedRole}` : ""}.` : ""}`,
     skills:
       student.slug === "p-j-arjun"
-        ? ["Laser Powder Bed Fusion", "Titanium Alloys (Ti-6Al-4V)", "ANSYS FEA", "Abaqus", "Autodesk Fusion 360", "Inventor", "Microstructure Characterization"]
+        ? ["Laser Powder Bed Fusion", "Titanium Alloys (Ti-6Al-4V)", "Filament Winding Composites", "ANSYS FEA", "Abaqus", "Autodesk Fusion 360", "Inventor", "Microstructure Characterization"]
         : Array.from(new Set([student.specialization, "Process Analysis", "Aerospace Materials", "Process Planning"])),
     skillGroups: {
       Core: Array.from(new Set([student.specialization, "Process optimization", "Materials processing"])),
       Tools: ["CAD-CAM", "Data analysis", "Quality review"],
       Professional: ["Research writing", "Team coordination", "Industry communication"],
     },
-    projects: [
-      {
-        title: student.internship,
-        summary: `Master's Thesis Project: ${student.internship}. Guided by ${student.internalGuide}.`,
-        status: "Completed",
-      },
-    ],
-    seekingRoles: ["COMPOSITE ENGINEER", "WELDING ENGINEER", "Additive Manufacturing Engineer", "Production Engineer", "Quality Engineer", "Operations", "PGET", "Smart Manufacturing Engineer"],
+    projects:
+      student.slug === "p-j-arjun"
+        ? [
+            {
+              title: "Path Planning & Thickness Control for Filament-Wound Liner-less Composite Tanks (CMSE, VSSC)",
+              summary:
+                "M.Tech project work carried out at CMSE, VSSC focusing on path planning and thickness-control design for manufacturing filament-wound liner-less aerospace composite pressure vessels.",
+              status: "Completed",
+            },
+            {
+              title: `Summer Internship — ${student.internship} (MMA/MME, VSSC)`,
+              summary:
+                `Comparative microstructure and mechanical evaluation of Laser Powder Bed Fusion (LPBF) Ti-6Al-4V with and without boron additions at VSSC (Jun–Aug 2025), guided by ${student.internalGuide}.`,
+              status: "Completed",
+            },
+            {
+              title: "Internship — Tribological & Mechanical Testing of Polymer Composites (CSIR-NIIST)",
+              summary:
+                "Experimental wear and mechanical characterization of nanoplatelet-reinforced polymer matrix composites at CSIR-NIIST, Pappanamcode.",
+              status: "Completed",
+            },
+          ]
+        : [
+            {
+              title: student.internship,
+              summary: `Master's Thesis & Internship Project: ${student.internship}. Guided by ${student.internalGuide}.`,
+              status: "Completed",
+            },
+          ],
+    seekingRoles: ["Composite Engineer", "Welding Engineer", "Additive Manufacturing Engineer", "Production Engineer", "Quality Engineer", "Operations", "PGET", "Smart Manufacturing Engineer"],
     profileSections: [
       {
         title: "Master's Thesis & Internship Project",

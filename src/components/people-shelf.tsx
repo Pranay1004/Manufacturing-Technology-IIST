@@ -169,10 +169,26 @@ export function getShortName(fullName: string): string {
   return `${title}${firstName} ${formattedInitial}`.trim();
 }
 
+// ─── Format First Name Only for Opened Book Cover Tile ──────────────────────
+export function getFirstName(fullName: string): string {
+  if (!fullName) return "";
+  const clean = fullName.trim();
+  const withoutTitle = clean.replace(/^(Dr\.|Prof\.|Mr\.|Ms\.|Mrs\.|Shri)\s+/i, "").trim();
+  if (withoutTitle.startsWith("Incoming Scholar")) {
+    return withoutTitle.replace("Incoming Scholar", "Scholar");
+  }
+  const parts = withoutTitle.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return clean;
+  const isInit = (s: string) => s.length === 1 || (s.length === 2 && s.endsWith("."));
+  const firstMeaningful = parts.find((p) => !isInit(p));
+  return firstMeaningful || parts[0];
+}
+
 export interface BookItem {
   id: string;
   slug: string;
   name: string;
+  firstName: string;
   shortName: string;
   cohort: string;
   roll: string;
@@ -188,6 +204,8 @@ export interface BookItem {
   photoUrl?: string;
   officialEmail: string;
   linkedin?: string;
+  github?: string;
+  portfolio?: string;
   placedAt?: string;
   placedRole?: string;
   graduatedNote?: string;
@@ -420,6 +438,7 @@ function getCohortBooks(cohortId: CohortId): BookItem[] {
       id: p.slug,
       slug: p.slug,
       name: p.name,
+      firstName: getFirstName(p.name),
       shortName: getShortName(p.name),
       cohort: p.cohort ?? (p.type === "faculty" ? "Faculty Anchor" : p.admissionYear ? `PhD ${p.admissionYear}` : "2025-2027"),
       roll,
@@ -435,6 +454,8 @@ function getCohortBooks(cohortId: CohortId): BookItem[] {
       photoUrl: p.photoUrl,
       officialEmail: p.officialEmail,
       linkedin: p.linkedin,
+      github: p.github,
+      portfolio: p.portfolio,
       placedAt: p.placedAt,
       placedRole: p.placedRole,
       graduatedNote,
@@ -501,19 +522,19 @@ export function PeopleShelf() {
     const isCompact = M <= 5;
     const isMedium = M <= 8;
     const idealSpineH = isMobile
-      ? (isCompact ? 44 : isMedium ? 36 : 28)
-      : (isCompact ? 60 : isMedium ? 46 : 37);
-    const stackSpineH = Math.round(clamp(idealSpineH, 26, 64));
-    const stackGap = isMobile ? 4 : (isCompact ? 6 : isMedium ? 5 : 4);
-    const baseWidth = isCompact ? 540 : isMedium ? 480 : 420;
-    const stackWidth = isMobile ? Math.min(baseWidth, W - 32) : Math.min(baseWidth, W * 0.85);
+      ? (isCompact ? 50 : isMedium ? 42 : 34)
+      : (isCompact ? 68 : isMedium ? 54 : 44);
+    const stackSpineH = Math.round(clamp(idealSpineH, 32, 72));
+    const stackGap = isMobile ? 5 : (isCompact ? 7 : isMedium ? 6 : 5);
+    const baseWidth = isCompact ? 720 : isMedium ? 680 : 620;
+    const stackWidth = isMobile ? Math.min(baseWidth, W - 20) : Math.min(baseWidth, W * 0.90);
 
     const H = isMobile
-      ? clamp(H_container * 0.48, 230, 290)
-      : Math.min(H_container * 0.48, W * 0.32);
-    const ws = isMobile ? Math.max(44, H * (135 / 840)) : H * (135 / 840);
-    const d = isMobile ? Math.max(160, H * (460 / 900)) : H * (460 / 900);
-    const gap = isMobile ? 8 : H * 0.038;
+      ? clamp(H_container * 0.56, 270, 350)
+      : Math.min(H_container * 0.60, W * 0.40);
+    const ws = isMobile ? Math.max(52, H * (135 / 840)) : H * (135 / 840);
+    const d = isMobile ? Math.max(200, H * (520 / 840)) : Math.max(225, H * (520 / 840));
+    const gap = isMobile ? 10 : H * 0.038;
 
     dimsRef.current = { W, H_container, isMobile, ws, d, H, gap, stackWidth, stackSpineH, stackGap };
 
@@ -1020,11 +1041,11 @@ export function PeopleShelf() {
             style={{
               transformStyle: "preserve-3d",
               WebkitTransformStyle: "preserve-3d",
-              ["--ws" as string]: "76px",
-              ["--d" as string]: "230px",
-              ["--H" as string]: "460px",
-              ["--stack-w" as string]: "480px",
-              ["--stack-h" as string]: "46px",
+              ["--ws" as string]: "82px",
+              ["--d" as string]: "290px",
+              ["--H" as string]: "520px",
+              ["--stack-w" as string]: "680px",
+              ["--stack-h" as string]: "54px",
             }}
           >
             {cohortBooks.map((book, v) => {
@@ -1168,20 +1189,17 @@ export function PeopleShelf() {
                           opacity: 0,
                         }}
                       >
-                        {/* Top Header of Cover */}
-                        <div className="relative z-10 flex items-center justify-between border-b border-[rgba(20,20,20,0.7)] pb-1.5">
-                          <span className="text-[8px] sm:text-[8.5px] font-bold tracking-wider" style={{ color: theme.bg }}>
-                            Aerospace Archives · IIST
-                          </span>
-                          <span className="font-mono text-[8px] sm:text-[8.5px] font-bold px-1.5 py-0.5 border border-[rgba(20,20,20,0.8)] bg-white/80 rounded-xs">
+                        {/* Top Header of Cover: SC Code Only */}
+                        <div className="relative z-10 flex items-center justify-center border-b border-[rgba(20,20,20,0.45)] pb-2">
+                          <span className="font-mono text-[10px] sm:text-xs font-bold px-2.5 py-0.5 border border-[rgba(20,20,20,0.75)] bg-white/90 rounded-xs tracking-wider">
                             {book.roll}
                           </span>
                         </div>
 
                         {/* Middle: Photo or Technical Blueprint */}
-                        <div className="relative z-10 my-auto flex flex-col items-center text-center px-1">
+                        <div className="relative z-10 my-auto flex flex-col items-center text-center px-1.5">
                           {book.photoUrl ? (
-                            <div className="size-20 sm:size-24 rounded-lg overflow-hidden border border-[rgba(20,20,20,0.8)] shadow-sm bg-white mb-2 shrink-0">
+                            <div className="size-24 sm:size-28 rounded-lg overflow-hidden border border-[rgba(20,20,20,0.8)] shadow-sm bg-white mb-2.5 shrink-0">
                               <img
                                 src={book.photoUrl}
                                 alt={book.name}
@@ -1189,30 +1207,24 @@ export function PeopleShelf() {
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-20 sm:h-24 flex items-center justify-center opacity-75 mb-1">
+                            <div className="w-full h-24 sm:h-28 flex items-center justify-center opacity-75 mb-1.5">
                               <TechnicalScreenprint diagram={book.diagram} color={theme.illustrationColor} className="max-h-full w-auto" />
                             </div>
                           )}
 
-                          <span className="text-[8px] sm:text-[9px] font-semibold tracking-wide text-[#6D6A63] line-clamp-1">
+                          <span className="text-[9.5px] sm:text-[11px] font-semibold tracking-wide text-[#6D6A63] leading-snug">
                             {book.specialization}
                           </span>
-                          <h2 className="font-['Newsreader',serif] font-bold text-lg sm:text-2xl leading-tight text-[#141414] mt-0.5">
-                            {book.shortName}
+                          <h2 className="font-['Newsreader',serif] font-bold text-xl sm:text-3xl leading-tight text-[#141414] mt-1">
+                            {book.firstName}
                           </h2>
-                          <span className="text-[9px] sm:text-[10px] font-mono font-medium block mt-0.5" style={{ color: theme.bg }}>
+                          <span className="text-[10px] sm:text-[11px] font-mono font-medium block mt-1" style={{ color: theme.bg }}>
                             {book.cohort}
                           </span>
                         </div>
 
-                        {/* Bottom Action Footer */}
-                        <div className="relative z-10 flex items-center justify-between border-t border-[rgba(20,20,20,0.7)] pt-2">
-                          <div className="flex flex-col text-left">
-                            <span className="text-[7px] sm:text-[7.5px] font-mono text-[#6D6A63]">Destination</span>
-                            <span className="text-[8px] sm:text-[9px] font-bold text-[#141414] truncate max-w-[95px] sm:max-w-none">
-                              {book.placedAt ? book.placedAt : "Research Scholar"}
-                            </span>
-                          </div>
+                        {/* Bottom Action Footer: Clean Full-Width Open Dossier Button */}
+                        <div className="relative z-10 border-t border-[rgba(20,20,20,0.45)] pt-2.5">
                           <button
                             type="button"
                             onClick={(e) => {
@@ -1223,7 +1235,7 @@ export function PeopleShelf() {
                               e.stopPropagation();
                               openDetail(book);
                             }}
-                            className="font-mono text-[8px] sm:text-[9px] px-2 py-1 font-bold text-white rounded-xs shadow-xs cursor-pointer hover:brightness-110 active:scale-95 transition-all"
+                            className="w-full py-2 font-mono text-[10px] sm:text-xs font-bold text-white rounded-xs shadow-sm cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all text-center whitespace-nowrap"
                             style={{ background: theme.bg }}
                           >
                             Open Dossier →
@@ -1304,15 +1316,15 @@ export function PeopleShelf() {
                         </span>
                       </div>
 
-                      {/* Right Department Badge */}
-                      <div className="relative z-10 flex items-center gap-2">
+                      {/* Right Department & Full Specialization Badge */}
+                      <div className="relative z-10 flex items-center gap-2.5 shrink-0">
                         <span
                           className={[
-                            "font-mono text-white/80 hidden sm:inline",
-                            M <= 5 ? "text-[10px]" : M <= 8 ? "text-[9px]" : "text-[8px]",
+                            "font-mono text-white/90 hidden sm:inline whitespace-nowrap",
+                            M <= 5 ? "text-[11px]" : M <= 8 ? "text-[10px]" : "text-[9px]",
                           ].join(" ")}
                         >
-                          {book.specialization.slice(0, 16)}
+                          {book.specialization}
                         </span>
                         <span
                           className={[
@@ -1564,11 +1576,13 @@ export function PeopleShelf() {
               {/* Scholar Bio Synopsis */}
               <div className="border-t border-[rgba(20,20,20,0.1)] pt-4">
                 <h3 className="text-xs font-semibold text-[#6D6A63] font-mono tracking-wider mb-2">
-                  Scholar Synopsis & Research Focus
+                  Research Synopsis & Background
                 </h3>
-                <p className="font-['Newsreader',serif] text-base leading-relaxed text-[#202020] text-justify">
-                  {dossierBook.synopsis}
-                </p>
+                <div className="space-y-3 font-['Newsreader',serif] text-base leading-relaxed text-[#202020] text-justify">
+                  {dossierBook.synopsis.split("\n\n").map((para, idx) => (
+                    <p key={idx}>{para}</p>
+                  ))}
+                </div>
               </div>
 
               {/* Research Specializations */}
@@ -1607,11 +1621,11 @@ export function PeopleShelf() {
                 </div>
               </div>
 
-              {/* Applied Engineering Projects */}
+              {/* Applied Engineering, Thesis & Internship Projects */}
               {dossierBook.projectDetails && dossierBook.projectDetails.length > 0 && (
                 <div>
                   <h3 className="text-xs font-semibold text-[#6D6A63] font-mono tracking-wider mb-2">
-                    Key Thesis & Lab Projects
+                    Key Thesis, Internships & Lab Projects
                   </h3>
                   <div className="flex flex-col gap-2">
                     {dossierBook.projectDetails.map((proj) => (
@@ -1647,6 +1661,20 @@ export function PeopleShelf() {
                   <span>Contact Email</span>
                 </a>
 
+                {dossierBook.github && (
+                  <a
+                    href={dossierBook.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 h-10 px-4 border border-[rgba(20,20,20,0.85)] bg-white text-[#141414] text-xs font-semibold hover:bg-[#141414] hover:text-[#EDEBE6] transition-all rounded-xs cursor-pointer shadow-xs"
+                  >
+                    <svg viewBox="0 0 24 24" className="size-3.5 fill-current" aria-hidden>
+                      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+                    </svg>
+                    <span>GitHub</span>
+                  </a>
+                )}
+
                 {dossierBook.resumeUrl && (
                   <a
                     href={formatResumeUrl(dossierBook.resumeUrl)}
@@ -1665,7 +1693,7 @@ export function PeopleShelf() {
             <div className="flex flex-col items-center justify-center p-6 border border-[rgba(20,20,20,0.2)] bg-[#EDEBE6] rounded-xl shadow-inner">
               <div className="w-full max-w-[340px] aspect-[280/340] border border-[rgba(20,20,20,0.3)] bg-white p-4 shadow-md rounded-xs flex flex-col justify-between">
                 <div className="flex items-center justify-between border-b border-[rgba(20,20,20,0.15)] pb-1.5 font-mono text-[9px] text-[#6D6A63]">
-                  <span>IIST ARCHIVES · MT</span>
+                  <span>IIST Archives · MT</span>
                   <span>{dossierBook.roll}</span>
                 </div>
 
@@ -1677,10 +1705,10 @@ export function PeopleShelf() {
                   />
                 </div>
 
-                <div className="border-t border-[rgba(20,20,20,0.15)] pt-1.5 flex items-center justify-between font-mono text-[9px] text-[#6D6A63]">
-                  <span>{dossierBook.specialization.slice(0, 22)}</span>
-                  <span className="font-bold" style={{ color: themeStyles[dossierBook.theme || "cobalt"].bg }}>
-                    ARCHIVE RECORD
+                <div className="border-t border-[rgba(20,20,20,0.15)] pt-1.5 flex items-center justify-between gap-2 font-mono text-[9px] text-[#6D6A63]">
+                  <span className="truncate">{dossierBook.specialization}</span>
+                  <span className="font-bold shrink-0" style={{ color: themeStyles[dossierBook.theme || "cobalt"].bg }}>
+                    Archive Record
                   </span>
                 </div>
               </div>
