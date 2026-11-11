@@ -737,26 +737,57 @@ const currentStudents: StudentData[] = [
     name: "Aniket Balaji Parnale",
     roll: "SC25M141",
     specialization: "Quality Engineering",
-    broadIdea: "Quality Engineering & Production Scheduling",
+    broadIdea: "MILP Autoclave Scheduling (CMSE, ISRO) & Friction Stir Welding",
     supervisor: "Dr. B. S. Girish",
-    internship: "Friction Stir Welding Process Parameter & Joint Integrity Study",
-    projectTitle: "Scheduling of Autoclave (CMSE)",
+    externalGuide: "Dr. P. Sasikumar (CMSE, ISRO)",
+    internship: "Research Intern — Friction Stir Welding of AA1100 (IIST Aerospace Engg., Summer 2026 under Dr. P. Chakravarthy)",
+    projectTitle: "Scheduling of Composite Manufacturing Processes for Aerospace Components (CMSE, ISRO)",
     photoUrl: "/media/photos/aniket.webp",
+    resumeUrl: "/resumes/aniket.pdf",
+    personalEmail: "parnaleaniket@gmail.com",
+    linkedin: "https://www.linkedin.com/in/aniket-parnale",
     synopsis:
-      "M.Tech scholar in Manufacturing Technology at IIST specializing in quality engineering, statistical process control, and production scheduling. His academic focus spans tolerance charting, aerospace quality assurance systems, and constraint-driven resource optimization for composite and metallic manufacturing lines.\n\nFor his M.Tech thesis under Dr. B. S. Girish, he is investigating scheduling optimization of aerospace autoclaves at the Composites Entity (CMSE), complemented by summer internship research evaluating process parameters and mechanical performance in friction stir welding.",
-    skills: ["Quality Engineering", "Production Scheduling", "Autoclave Scheduling", "Statistical Process Control", "Friction Stir Welding", "CAD-CAM", "Optimization"],
+      "M.Tech scholar in Manufacturing Technology at IIST (B.Tech Mechanical Engineering, Government College of Engineering, Chandrapur; GATE ME 2024 qualified) with hands-on automotive production and quality assurance experience as a Graduate Apprenticeship Trainee at Tata Motors Passenger Vehicle, Pune (End-of-Line QA/QC & line balancing, Jan–Jul 2025) and Graduate Engineer Trainee at Skyline Projects, Pune. He also serves as a Teaching Assistant for CAD and Metrology Labs at IIST.\n\nFor his M.Tech thesis guided by Dr. B. S. Girish (IIST) and Dr. P. Sasikumar (CMSE, ISRO), he formulates Mixed-Integer Linear Programming (MILP) models in IBM CPLEX integrating 2D part packing, prepreg shelf-life constraints, and energy optimization for aerospace autoclave and oven curing. In parallel, his Summer 2026 research internship under Dr. P. Chakravarthy investigated Friction Stir Welding of 6 mm AA1100 plates with ASTM E8 tensile characterization (peak 92.85 MPa) and ASTM E384 Vickers microhardness mapping (Cpk = 4.83).",
+    skills: ["MILP & IBM CPLEX", "Autoclave Scheduling", "Quality Engineering", "Line Balancing & QA/QC", "Friction Stir Welding", "MATLAB & Simulink", "PLC & SCADA", "SolidWorks", "ANSYS & Abaqus"],
+    skillGroups: {
+      "Scheduling & Operations": ["MILP", "IBM CPLEX", "Autoclave & Oven Scheduling", "Line Balancing", "QA/QC & Fault Diagnosis"],
+      "CAD, CAE & Automation": ["MATLAB & Simulink", "SolidWorks", "AutoCAD", "Fusion 360", "Inventor", "ANSYS Fluent & Workbench", "Abaqus", "PLC & SCADA"],
+      "Testing & Metallurgy": ["Friction Stir Welding (FSW)", "ASTM E8 Tensile Testing", "ASTM E384 Vickers Microhardness", "Optical Metallography"],
+    },
     projects: [
       {
-        title: "Scheduling of Autoclave (CMSE)",
+        title: "M.Tech Thesis — Scheduling of Composite Manufacturing Processes (CMSE, ISRO)",
         summary:
-          "M.Tech thesis research under Dr. B. S. Girish developing scheduling algorithms and utilization models to optimize composite curing cycles and bottleneck throughput at CMSE.",
+          "Formulating a 2D packing-aware Mixed-Integer Linear Programming (MILP) framework in IBM CPLEX under Dr. B. S. Girish and Dr. P. Sasikumar (CMSE, ISRO) to minimize tardiness, makespan, and curing energy under 1-month prepreg out-life constraints.",
         status: "Ongoing",
       },
       {
-        title: "Summer Internship — Friction Stir Welding Study",
+        title: "Summer Internship — Friction Stir Welding of AA1100 Aluminium (IIST)",
         summary:
-          "Applied summer internship investigating process parameter envelopes, weld seam quality, and defect mitigation in aerospace friction stir welding.",
+          "Conducted vertical FSW trials (30 kN) on 6 mm AA1100 plates under Dr. P. Chakravarthy; tuned spindle/traverse parameters, executed ASTM E8 tensile tests (mean UTS 89.73 MPa, peak 92.85 MPa), ASTM E384 microhardness mapping (Cpk = 4.83), and optical metallography.",
         status: "Completed",
+      },
+      {
+        title: "Industrial Experience — Tata Motors Passenger Vehicle & Skyline Projects (Pune)",
+        summary:
+          "Led End-of-Line vehicle quality inspection, fault diagnosis, QA/QC feedback loops, and line balancing as Graduate Apprenticeship Trainee at Tata Motors (Jan–Jul 2025) after site project execution at Skyline Projects (2024–2025).",
+        status: "Completed",
+      },
+      {
+        title: "3D Printing of 5-Stroke 6-Cylinder Rotary IC Engine & MeIOT System",
+        summary:
+          "Designed and 3D printed a 5-stroke 6-cylinder rotary IC engine demonstrator alongside an IoT-actuated mechanical monitoring architecture.",
+        status: "Completed",
+      },
+    ],
+    profileSections: [
+      {
+        title: "Experience & Summer Internship",
+        body: "Research Intern — Friction Stir Welding, Dept. of Aerospace Engineering, IIST (Summer 2026, under Dr. P. Chakravarthy): Executed FSW parameter tuning, ASTM E8 tensile tests, ASTM E384 microhardness mapping, and metallography on 6 mm AA1100 plates.\n\nTeaching Assistant — IIST (Aug 2025 – Present): Instructing undergraduate CAD Lab and Metrology Lab Practices.\n\nGraduate Apprenticeship Trainee — Tata Motors Passenger Vehicle, Chikhali, Pune (Jan – Jul 2025): Line In-charge at End-of-Line Production overseeing final quality vehicle inspection, fault diagnosis, and line balancing.\n\nGraduate Engineer Trainee — Skyline Projects, Pune (Oct 2024 – Jan 2025): Site planning, material verification, and quality control.",
+      },
+      {
+        title: "Education & Credentials",
+        body: "M.Tech in Manufacturing Technology — IIST Thiruvananthapuram (2025 – 2027)\nB.Tech in Mechanical Engineering (NBA Accredited) — Government College of Engineering, Chandrapur (2020 – 2024, CGPA 7.64)\nQualified GATE Mechanical Engineering 2024 · Former President, MESA.",
       },
     ],
   },
